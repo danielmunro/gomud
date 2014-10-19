@@ -6,6 +6,10 @@
     directions:
         north: 2
         south: 3
+    mobs:
+        -
+            shortName: "Hassan"
+            longName: "Hassan the giant stands before you."
 2:
     area: midgaard
     title: "The temple altar"

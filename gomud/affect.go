@@ -1,7 +1,7 @@
 package gomud
 
 type Affect struct {
-    Name string
-    Duration int
-    Attributes *Attributes
+	Name       string
+	Duration   int
+	Attributes *Attributes
 }
