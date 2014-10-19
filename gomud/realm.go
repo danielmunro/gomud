@@ -2,7 +2,6 @@ package gomud
 
 import (
 	"errors"
-	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path/filepath"

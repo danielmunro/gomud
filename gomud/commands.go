@@ -57,7 +57,7 @@ func init() {
 				output += "]\n"
 				for _, mob := range m.Room.Mobs {
 					if mob != m {
-						output += mob.ShortName + " is here.\n"
+						output += mob.ShortName + " is " + string(mob.Disposition) + " here.\n"
 					}
 				}
 				return output

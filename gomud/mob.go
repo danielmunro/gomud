@@ -10,23 +10,27 @@ type Skill struct {
 	Costs                     *Attributes
 }
 
-type Race struct {
-	Name, Description string
-	Attributes        *Attributes
-	Skills            []*Skill
-}
-
 type Mob struct {
 	ShortName, LongName string
 	Room                *Room
 	Items               []*Item
 	Equipped            *Equipped
 	Attributes          *Attributes
-	Race                *Race
+	Race                RaceType
 	Delay               int
 	Skills              []*Skill
+    Disposition         Disposition
 	client              *Client
 }
+
+type Disposition string
+
+const (
+    Standing Disposition = "standing"
+    Sitting Disposition = "sitting"
+    Laying Disposition = "laying"
+    Sleeping Disposition = "sleeping"
+)
 
 func NewMob() *Mob {
 	mob := &Mob{
@@ -39,7 +43,9 @@ func NewMob() *Mob {
 			},
 		},
 		Delay: 0,
-		Room:  rooms[1],
+        Disposition: Standing,
+		Room: rooms[1],
+        Race: Giant,
 	}
 	rooms[1].AddMob(mob)
 	return mob
