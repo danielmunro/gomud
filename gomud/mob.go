@@ -16,20 +16,21 @@ type Mob struct {
 	Items               []*Item
 	Equipped            *Equipped
 	Attributes          *Attributes
+	CurrentAttr         *Attributes
 	Race                RaceType
 	Delay               int
 	Skills              []*Skill
-    Disposition         Disposition
+	Disposition         Disposition
 	client              *Client
 }
 
 type Disposition string
 
 const (
-    Standing Disposition = "standing"
-    Sitting Disposition = "sitting"
-    Laying Disposition = "laying"
-    Sleeping Disposition = "sleeping"
+	Standing Disposition = "standing"
+	Sitting  Disposition = "sitting"
+	Laying   Disposition = "laying"
+	Sleeping Disposition = "sleeping"
 )
 
 func NewMob() *Mob {
@@ -42,10 +43,20 @@ func NewMob() *Mob {
 				LongName:  "Who the hell makes a helmet out of wood?",
 			},
 		},
-		Delay: 0,
-        Disposition: Standing,
+		Delay:       0,
+		Disposition: Standing,
+		Attributes: &Attributes{
+			Hp:   20,
+			Mana: 100,
+			Mv:   100,
+		},
+		CurrentAttr: &Attributes{
+			Hp:   20,
+			Mana: 100,
+			Mv:   100,
+		},
 		Room: rooms[1],
-        Race: Giant,
+		Race: Giant,
 	}
 	rooms[1].AddMob(mob)
 	return mob
@@ -66,17 +77,22 @@ func (m *Mob) Act(input string) string {
 
 func (m *Mob) Move(d Direction) string {
 	if room, ok := m.Room.Rooms[d]; ok {
-		for _, mob := range m.Room.Mobs {
-			mob.LeftRoom(m, d)
+		if m.CurrentAttr.Mv >= m.Room.MovementCost {
+			m.CurrentAttr.Mv -= m.Room.MovementCost
+			for _, mob := range m.Room.Mobs {
+				mob.LeftRoom(m, d)
+			}
+			m.Room.RemoveMob(m)
+			room.AddMob(m)
+			m.Room = room
+			for _, mob := range m.Room.Mobs {
+				od, _ := OppositeDirection(d)
+				mob.EnteredRoom(m, od)
+			}
+			return m.Act("look")
+		} else {
+			return "You are too tired to move.\n"
 		}
-		m.Room.RemoveMob(m)
-		room.AddMob(m)
-		m.Room = room
-		for _, mob := range m.Room.Mobs {
-			od, _ := OppositeDirection(d)
-			mob.EnteredRoom(m, od)
-		}
-		return m.Act("look")
 	} else {
 		return "Alas, you cannot go that way.\n"
 	}

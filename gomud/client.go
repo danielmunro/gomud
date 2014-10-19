@@ -3,6 +3,7 @@ package gomud
 import (
 	"bufio"
 	"net"
+	"strconv"
 	"strings"
 )
 
@@ -49,7 +50,8 @@ func (c *Client) BufPop() string {
 }
 
 func (c *Client) Prompt() {
-	c.Write("--> ")
+	a := c.Mob.CurrentAttr
+	c.Write("[" + strconv.FormatFloat(a.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Mv, 'f', 0, 32) + "mv]> ")
 }
 
 func (c *Client) FlushBuf() {

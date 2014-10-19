@@ -23,6 +23,7 @@ type Room struct {
 	Directions               map[Direction]int
 	Rooms                    map[Direction]*Room
 	Mobs                     []*Mob
+	MovementCost             float64
 }
 
 var rooms map[int]*Room

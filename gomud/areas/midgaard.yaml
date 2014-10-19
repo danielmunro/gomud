@@ -3,6 +3,7 @@
     area: midgaard
     title: "The temple of Midgaard"
     description: "This is the temple of Midgaard."
+    movementcost: 1
     directions:
         north: 2
         south: 3
@@ -16,6 +17,7 @@
     area: midgaard
     title: "The temple altar"
     description: "This is the altar."
+    movementcost: 1
     directions:
         south: 1
     mobs:
@@ -28,6 +30,7 @@
     area: midgaard
     title: "Temple steps"
     description: "Temple steps are before you."
+    movementcost: 1
     directions:
         north: 1
         south: 4
@@ -35,6 +38,7 @@
     area: midgaard
     title: "Market Square"
     description: "Market sq"
+    movementcost: 1
     directions:
         north: 3
         south: 5
@@ -44,17 +48,20 @@
     area: midgaard
     title: "Common Square"
     description: "Common sq"
+    movementcost: 1
     directions:
         north: 4
 6:
     area: midgaard
     title: "Market Road"
     description: "Market road"
+    movementcost: 1
     directions:
         west: 4
 7:
     area: midgaard
     title: "Market Road"
     description: "Market road"
+    movementcost: 1
     directions:
         east: 4
