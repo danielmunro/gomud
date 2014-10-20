@@ -14,6 +14,7 @@ const (
 	LookAction     ActionName = "look"
 	SayAction      ActionName = "say"
 	EquippedAction ActionName = "equipped"
+	QuitAction     ActionName = "quit"
 )
 
 type Action struct {
@@ -117,6 +118,15 @@ func init() {
 					equipped += "\n"
 				}
 				return equipped
+			},
+		},
+		&Action{
+			Name: QuitAction,
+			Func: func(m *Mob, args []string) string {
+				m.client.Write("Goodbye!\n")
+				m.client.Conn.Close()
+				m.client.server.removeClient(m.client)
+				return ""
 			},
 		},
 	}

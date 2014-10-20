@@ -8,9 +8,10 @@ import (
 )
 
 type Client struct {
-	Conn net.Conn
-	Mob  *Mob
-	Buf  []string
+	Conn   net.Conn
+	Mob    *Mob
+	Buf    []string
+	server *Server
 }
 
 func NewClient(conn net.Conn) *Client {

@@ -39,8 +39,7 @@ func (s *Server) Run() {
 	for {
 		select {
 		case client := <-newClientListener:
-			go client.Listen(clientListener)
-			s.clients = append(s.clients, client)
+			s.addClient(client, clientListener)
 		case client := <-clientListener:
 			client.FlushBuf()
 		case <-pulseListener:
@@ -57,6 +56,23 @@ func (s *Server) Run() {
 			for _, cl := range s.clients {
 				cl.Tick()
 			}
+		}
+	}
+}
+
+func (s *Server) addClient(c *Client, listener chan *Client) {
+	go c.Listen(listener)
+	s.clients = append(s.clients, c)
+	c.server = s
+	log.Println("Client connected, " + strconv.Itoa(len(s.clients)) + " active clients")
+}
+
+func (s *Server) removeClient(c *Client) {
+	for i, cl := range s.clients {
+		if cl == c {
+			s.clients = append(s.clients[0:i], s.clients[i+1:]...)
+			log.Println("Client disconnected, " + strconv.Itoa(len(s.clients)) + " active clients")
+			return
 		}
 	}
 }
