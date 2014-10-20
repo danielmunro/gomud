@@ -5,27 +5,15 @@ type Item struct {
 	Attributes          *Attributes
 }
 
-type Equipment int
+type Equipment string
 
 const (
-	Head Equipment = iota
-	Torso
-	Legs
-	RightHand
-	LeftHand
+	Head      Equipment = "head"
+	Torso     Equipment = "torso"
+	Legs      Equipment = "legs"
+	RightHand Equipment = "right hand"
+	LeftHand  Equipment = "left hand"
 )
-
-var slots = [...]string{
-	"head",
-	"torso",
-	"legs",
-	"right hand",
-	"left hand",
-}
-
-func (e Equipment) String() string {
-	return slots[e]
-}
 
 type Equipped struct {
 	Head, Torso, Legs, RightHand, LeftHand *Item

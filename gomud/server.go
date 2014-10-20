@@ -32,9 +32,10 @@ func (s *Server) Run() {
 	log.Println("Listening on port :" + strconv.Itoa(s.port))
 	newClientListener := make(chan *Client)
 	clientListener := make(chan *Client)
-	timeKeeperListener := make(chan Event)
+	pulseListener := make(chan Event)
+	tickListener := make(chan Event)
 	go connectionListener(ln, newClientListener)
-	go timeKeeper(timeKeeperListener)
+	go timeKeeper(pulseListener, tickListener)
 	for {
 		select {
 		case client := <-newClientListener:
@@ -42,27 +43,25 @@ func (s *Server) Run() {
 			s.clients = append(s.clients, client)
 		case client := <-clientListener:
 			client.FlushBuf()
-		case event := <-timeKeeperListener:
-			if event == Pulse {
-				for _, m := range mobs {
-					m.Pulse()
-				}
-				for _, cl := range s.clients {
-					cl.Pulse()
-				}
-			} else if event == Tick {
-				for _, m := range mobs {
-					m.Tick()
-				}
-				for _, cl := range s.clients {
-					cl.Tick()
-				}
+		case <-pulseListener:
+			for _, m := range mobs {
+				m.Pulse()
+			}
+			for _, cl := range s.clients {
+				cl.Pulse()
+			}
+		case <-tickListener:
+			for _, m := range mobs {
+				m.Tick()
+			}
+			for _, cl := range s.clients {
+				cl.Tick()
 			}
 		}
 	}
 }
 
-func timeKeeper(timekeeper chan Event) {
+func timeKeeper(pulseListener chan Event, tickListener chan Event) {
 	t := time.Now().Second()
 	nt := nextTick()
 	pulse := 0
@@ -70,9 +69,9 @@ func timeKeeper(timekeeper chan Event) {
 		if time.Now().Second() != t {
 			t = time.Now().Second()
 			pulse += 1
-			timekeeper <- Pulse
+			pulseListener <- Pulse
 			if pulse >= nt {
-				timekeeper <- Tick
+				tickListener <- Tick
 				pulse = 0
 				nt = nextTick()
 			}

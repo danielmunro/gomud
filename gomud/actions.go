@@ -110,9 +110,9 @@ func init() {
 				equipped := ""
 				for key, value := range m.Equipped.getAll() {
 					if value != nil {
-						equipped += key.String() + ": " + value.ShortName
+						equipped += string(key) + ": " + value.ShortName
 					} else {
-						equipped += key.String() + ": <none>"
+						equipped += string(key) + ": <none>"
 					}
 					equipped += "\n"
 				}
