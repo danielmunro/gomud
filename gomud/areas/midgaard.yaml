@@ -13,6 +13,10 @@
             longname: "Hassan the giant stands before you."
             disposition: "standing"
             race: "giant"
+            attributes:
+                hp: 1000
+                mana: 0
+                mv: 1000
 2:
     area: midgaard
     title: "The temple altar"
@@ -26,6 +30,10 @@
             longname: "A temple acolyte stands before you."
             disposition: "standing"
             race: "human"
+            attributes:
+                hp: 100
+                mana: 100
+                mv: 100
 3:
     area: midgaard
     title: "Temple steps"

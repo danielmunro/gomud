@@ -61,7 +61,7 @@ func NewMob() *Mob {
 		Race: Human,
 	}
 	rooms[1].AddMob(mob)
-    mobs = append(mobs, mob)
+	mobs = append(mobs, mob)
 	return mob
 }
 
@@ -127,7 +127,7 @@ func (m *Mob) Notify(message string) {
 
 func (m *Mob) Tick() {
 	m.DecrementDelay()
-    //m.Regen()
+	m.Regen()
 }
 
 func (m *Mob) Pulse() {
@@ -135,20 +135,20 @@ func (m *Mob) Pulse() {
 }
 
 func (m *Mob) Regen() {
-    m.CurrentAttr.Hp += m.Attributes.Hp * 0.1
+	m.CurrentAttr.Hp += m.Attributes.Hp * 0.1
 	m.CurrentAttr.Mana += m.Attributes.Mana * 0.1
-    m.CurrentAttr.Mv += m.Attributes.Mv * 0.1
-    m.normalizeAttr()
+	m.CurrentAttr.Mv += m.Attributes.Mv * 0.1
+	m.normalizeAttr()
 }
 
 func (m *Mob) normalizeAttr() {
-    if m.CurrentAttr.Hp > m.Attributes.Hp {
-        m.CurrentAttr.Hp = m.Attributes.Hp
-    }
-    if m.CurrentAttr.Mana > m.Attributes.Mana {
-        m.CurrentAttr.Mana = m.Attributes.Mana
-    }
-    if m.CurrentAttr.Mv > m.CurrentAttr.Mv {
-        m.CurrentAttr.Mv = m.CurrentAttr.Mv
-    }
+	if m.CurrentAttr.Hp > m.Attributes.Hp {
+		m.CurrentAttr.Hp = m.Attributes.Hp
+	}
+	if m.CurrentAttr.Mana > m.Attributes.Mana {
+		m.CurrentAttr.Mana = m.Attributes.Mana
+	}
+	if m.CurrentAttr.Mv > m.Attributes.Mv {
+		m.CurrentAttr.Mv = m.Attributes.Mv
+	}
 }

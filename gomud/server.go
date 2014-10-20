@@ -11,13 +11,13 @@ import (
 type Event string
 
 const (
-	Tick Event = "tick"
+	Tick  Event = "tick"
 	Pulse Event = "pulse"
 )
 
 type Server struct {
-	clients  []*Client
-	port     int
+	clients []*Client
+	port    int
 }
 
 func NewServer() *Server {
@@ -32,9 +32,9 @@ func (s *Server) Run() {
 	log.Println("Listening on port :" + strconv.Itoa(s.port))
 	newClientListener := make(chan *Client)
 	clientListener := make(chan *Client)
-	timeKeeper := make(chan Event)
-	go s.connectionListener(ln, newClientListener)
-	go s.timeKeeper(timeKeeper)
+	timeKeeperListener := make(chan Event)
+	go connectionListener(ln, newClientListener)
+	go timeKeeper(timeKeeperListener)
 	for {
 		select {
 		case client := <-newClientListener:
@@ -42,7 +42,7 @@ func (s *Server) Run() {
 			s.clients = append(s.clients, client)
 		case client := <-clientListener:
 			client.FlushBuf()
-		case event := <-timeKeeper:
+		case event := <-timeKeeperListener:
 			if event == Pulse {
 				for _, m := range mobs {
 					m.Pulse()
@@ -62,28 +62,25 @@ func (s *Server) Run() {
 	}
 }
 
-func (server *Server) timeKeeper(timekeeper chan Event) {
-	s := time.Now().Second()
-	rand.Seed(time.Now().Unix())
-	nextTick := rand.Intn(15) + 15
+func timeKeeper(timekeeper chan Event) {
+	t := time.Now().Second()
+	nt := nextTick()
 	pulse := 0
-	log.Println("Next tick in "+strconv.Itoa(nextTick)+" seconds")
 	for {
-		if time.Now().Second() != s {
-			s = time.Now().Second()
+		if time.Now().Second() != t {
+			t = time.Now().Second()
 			pulse += 1
 			timekeeper <- Pulse
-			if pulse >= nextTick {
+			if pulse >= nt {
 				timekeeper <- Tick
-				nextTick = rand.Intn(15) + 15
 				pulse = 0
-				log.Println("Next tick in "+strconv.Itoa(nextTick)+" seconds")
+				nt = nextTick()
 			}
 		}
 	}
 }
 
-func (s *Server) connectionListener(ln net.Listener, ch chan *Client) {
+func connectionListener(ln net.Listener, ch chan *Client) {
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
@@ -91,4 +88,11 @@ func (s *Server) connectionListener(ln net.Listener, ch chan *Client) {
 		}
 		ch <- NewClient(conn)
 	}
+}
+
+func nextTick() int {
+	rand.Seed(time.Now().Unix())
+	n := rand.Intn(15) + 15
+	log.Println("Next tick in " + strconv.Itoa(n) + " seconds")
+	return n
 }

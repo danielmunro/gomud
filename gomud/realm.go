@@ -51,6 +51,7 @@ func init() {
 			r.Rooms[d] = rooms[roomId]
 		}
 		for _, m := range r.Mobs {
+			m.CurrentAttr = m.Attributes
 			mobs = append(mobs, m)
 		}
 	}

@@ -19,8 +19,7 @@ func NewClient(conn net.Conn) *Client {
 		Mob:  NewMob(),
 	}
 	c.Mob.client = c
-	c.Write("Hello World!\n")
-	c.Act("look")
+	c.Write(c.Mob.Act("look"))
 	c.prompt()
 	return c
 }
@@ -29,17 +28,11 @@ func (c *Client) Write(line string) {
 	c.Conn.Write([]byte(line))
 }
 
-func (c *Client) Act(act string) {
-	c.Write(c.Mob.Act(act))
-}
-
 func (c *Client) Listen(ch chan *Client) {
 	for {
 		buf, _ := bufio.NewReader(c.Conn).ReadString('\n')
 		c.Buf = append(c.Buf, strings.TrimSpace(buf))
-		if c.Mob.Delay == 0 {
-			ch <- c
-		}
+		ch <- c
 	}
 }
 
@@ -49,7 +42,7 @@ func (c *Client) FlushBuf() {
 		for {
 			if len(c.Buf) > 0 {
 				b := c.bufPop()
-				c.Act(b)
+				c.Write(c.Mob.Act(b))
 				output = true
 			} else {
 				break

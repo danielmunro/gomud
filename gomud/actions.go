@@ -63,16 +63,31 @@ func init() {
 		},
 		&Action{
 			Name: LookAction,
-			Func: func(m *Mob, args []string) string {
-				output := m.Room.Title + "\n" + m.Room.Description + "\n\n[Exits "
-				for d, _ := range m.Room.Rooms {
-					output += string(d)[:1]
-				}
-				output += "]\n"
-				for _, mob := range m.Room.Mobs {
-					if mob != m {
-						output += mob.ShortName + " is " + string(mob.Disposition) + " here.\n"
+			Func: func(m *Mob, args []string) (output string) {
+				if len(args) > 1 {
+					for _, m := range m.Room.Mobs {
+						names := strings.Split(m.ShortName, " ")
+						for _, n := range names {
+							if strings.Index(strings.ToLower(n), strings.ToLower(args[1])) == 0 {
+								output = m.LongName + "\n"
+								break
+							}
+						}
 					}
+				} else {
+					output = m.Room.Title + "\n" + m.Room.Description + "\n\n[Exits "
+					for d, _ := range m.Room.Rooms {
+						output += string(d)[:1]
+					}
+					output += "]\n"
+					for _, mob := range m.Room.Mobs {
+						if mob != m {
+							output += mob.ShortName + " is " + string(mob.Disposition) + " here.\n"
+						}
+					}
+				}
+				if output == "" {
+					output = "You don't see that here.\n"
 				}
 				return output
 			},
