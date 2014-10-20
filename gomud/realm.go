@@ -50,6 +50,9 @@ func init() {
 		for d, roomId := range r.Directions {
 			r.Rooms[d] = rooms[roomId]
 		}
+		for _, m := range r.Mobs {
+			mobs = append(mobs, m)
+		}
 	}
 }
 

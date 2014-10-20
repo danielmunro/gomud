@@ -33,6 +33,8 @@ const (
 	Sleeping Disposition = "sleeping"
 )
 
+var mobs []*Mob
+
 func NewMob() *Mob {
 	mob := &Mob{
 		ShortName: "mob",
@@ -56,18 +58,19 @@ func NewMob() *Mob {
 			Mv:   100,
 		},
 		Room: rooms[1],
-		Race: Giant,
+		Race: Human,
 	}
 	rooms[1].AddMob(mob)
+    mobs = append(mobs, mob)
 	return mob
 }
 
 func (m *Mob) Act(input string) string {
 	if len(input) > 0 {
 		args := strings.Split(input, " ")
-		for _, c := range commands {
-			if strings.Index(c.Name, args[0]) == 0 {
-				return c.Func(m, args)
+		for _, a := range actions {
+			if strings.Index(string(a.Name), args[0]) == 0 {
+				return a.Func(m, args)
 			}
 		}
 		return "What was that?\n"
@@ -120,4 +123,32 @@ func (m *Mob) Notify(message string) {
 	if m.client != nil {
 		m.client.Write(message)
 	}
+}
+
+func (m *Mob) Tick() {
+	m.DecrementDelay()
+    //m.Regen()
+}
+
+func (m *Mob) Pulse() {
+
+}
+
+func (m *Mob) Regen() {
+    m.CurrentAttr.Hp += m.Attributes.Hp * 0.1
+	m.CurrentAttr.Mana += m.Attributes.Mana * 0.1
+    m.CurrentAttr.Mv += m.Attributes.Mv * 0.1
+    m.normalizeAttr()
+}
+
+func (m *Mob) normalizeAttr() {
+    if m.CurrentAttr.Hp > m.Attributes.Hp {
+        m.CurrentAttr.Hp = m.Attributes.Hp
+    }
+    if m.CurrentAttr.Mana > m.Attributes.Mana {
+        m.CurrentAttr.Mana = m.Attributes.Mana
+    }
+    if m.CurrentAttr.Mv > m.CurrentAttr.Mv {
+        m.CurrentAttr.Mv = m.CurrentAttr.Mv
+    }
 }

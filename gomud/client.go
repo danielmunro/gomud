@@ -21,7 +21,7 @@ func NewClient(conn net.Conn) *Client {
 	c.Mob.client = c
 	c.Write("Hello World!\n")
 	c.Act("look")
-	c.Prompt()
+	c.prompt()
 	return c
 }
 
@@ -43,23 +43,12 @@ func (c *Client) Listen(ch chan *Client) {
 	}
 }
 
-func (c *Client) BufPop() string {
-	b := c.Buf[0]
-	c.Buf = c.Buf[1:]
-	return b
-}
-
-func (c *Client) Prompt() {
-	a := c.Mob.CurrentAttr
-	c.Write("[" + strconv.FormatFloat(a.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Mv, 'f', 0, 32) + "mv]> ")
-}
-
 func (c *Client) FlushBuf() {
 	output := false
 	if c.Mob.Delay == 0 {
 		for {
 			if len(c.Buf) > 0 {
-				b := c.BufPop()
+				b := c.bufPop()
 				c.Act(b)
 				output = true
 			} else {
@@ -68,11 +57,26 @@ func (c *Client) FlushBuf() {
 		}
 	}
 	if output {
-		c.Prompt()
+		c.prompt()
 	}
 }
 
 func (c *Client) Pulse() {
-	c.Mob.DecrementDelay()
 	c.FlushBuf()
+}
+
+func (c *Client) Tick() {
+	c.Write("\n")
+	c.prompt()
+}
+
+func (c *Client) bufPop() string {
+	b := c.Buf[0]
+	c.Buf = c.Buf[1:]
+	return b
+}
+
+func (c *Client) prompt() {
+	a := c.Mob.CurrentAttr
+	c.Write("[" + strconv.FormatFloat(a.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Mv, 'f', 0, 32) + "mv]> ")
 }

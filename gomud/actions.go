@@ -2,53 +2,67 @@ package gomud
 
 import "strings"
 
-type Command struct {
-	Name string
+type ActionName string
+
+const (
+	NorthAction    ActionName = "north"
+	SouthAction    ActionName = "south"
+	EastAction     ActionName = "east"
+	WestAction     ActionName = "west"
+	UpAction       ActionName = "up"
+	DownAction     ActionName = "down"
+	LookAction     ActionName = "look"
+	SayAction      ActionName = "say"
+	EquippedAction ActionName = "equipped"
+)
+
+type Action struct {
+	Name ActionName
 	Func func(m *Mob, args []string) string
 }
 
-var commands []*Command
+var actions []*Action
 
 func init() {
-	commands = []*Command{
-		&Command{
-			Name: "north",
+	actions = []*Action{
+		&Action{
+			Name: NorthAction,
 			Func: func(m *Mob, args []string) string {
 				return m.Move(North)
 			},
 		},
-		&Command{
-			Name: "south",
+		&Action{
+			Name: SouthAction,
 			Func: func(m *Mob, args []string) string {
 				return m.Move(South)
 			},
 		},
-		&Command{
-			Name: "east",
+		&Action{
+			Name: EastAction,
 			Func: func(m *Mob, args []string) string {
 				return m.Move(East)
 			},
 		},
-		&Command{
-			Name: "west",
+		&Action{
+			Name: WestAction,
 			Func: func(m *Mob, args []string) string {
 				return m.Move(West)
 			},
 		},
-		&Command{
-			Name: "up",
+		&Action{
+			Name: UpAction,
 			Func: func(m *Mob, args []string) string {
 				return m.Move(Up)
 			},
 		},
-		&Command{
-			Name: "down",
+		&Action{
+			Name: DownAction,
 			Func: func(m *Mob, args []string) string {
 				return m.Move(Down)
 			},
 		},
-		&Command{
-			Name: "look",
+		&Action{
+			Name: LookAction,
 			Func: func(m *Mob, args []string) string {
 				output := m.Room.Title + "\n" + m.Room.Description + "\n\n[Exits "
 				for d, _ := range m.Room.Rooms {
@@ -63,8 +77,8 @@ func init() {
 				return output
 			},
 		},
-		&Command{
-			Name: "say",
+		&Action{
+			Name: SayAction,
 			Func: func(m *Mob, args []string) string {
 				message := strings.Join(args[1:], " ")
 				for _, mob := range m.Room.Mobs {
@@ -75,8 +89,8 @@ func init() {
 				return "You say, \"" + message + "\"\n"
 			},
 		},
-		&Command{
-			Name: "equipped",
+		&Action{
+			Name: EquippedAction,
 			Func: func(m *Mob, args []string) string {
 				equipped := ""
 				for key, value := range m.Equipped.getAll() {
