@@ -71,6 +71,7 @@ func init() {
 						for _, n := range names {
 							if strings.Index(strings.ToLower(n), strings.ToLower(args[1])) == 0 {
 								output = m.LongName + "\n"
+								output += m.ShortName + " " + m.Status() + ".\n"
 								break
 							}
 						}

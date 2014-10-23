@@ -159,6 +159,26 @@ func (m *Mob) Regen() {
 	m.normalizeAttr()
 }
 
+func (m *Mob) Status() (status string) {
+	p := m.CurrentAttr.Hp / m.Attributes.Hp
+	switch {
+	case p <= .1:
+		return "is in awful condition"
+	case p <= .15:
+		return "looks pretty hurt"
+	case p <= .30:
+		return "has some big nasty wounds and scratches"
+	case p <= .50:
+		return "has quite a few wounds"
+	case p <= .75:
+		return "has some small wounds and bruises"
+	case p <= .99:
+		return "has a few scratches"
+	default:
+		return "is in excellent condition"
+	}
+}
+
 func (m *Mob) normalizeAttr() {
 	if m.CurrentAttr.Hp > m.Attributes.Hp {
 		m.CurrentAttr.Hp = m.Attributes.Hp

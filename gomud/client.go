@@ -38,20 +38,11 @@ func (c *Client) Listen(ch chan *Client) {
 }
 
 func (c *Client) FlushBuf() {
-	output := false
 	if c.mob.Delay == 0 {
-		for {
-			if len(c.buf) > 0 {
-				b := c.bufPop()
-				c.Write(c.mob.Act(b))
-				output = true
-			} else {
-				break
-			}
+		for len(c.buf) > 0 {
+			c.Write(c.mob.Act(c.bufPop()))
+			c.prompt()
 		}
-	}
-	if output {
-		c.prompt()
 	}
 }
 
