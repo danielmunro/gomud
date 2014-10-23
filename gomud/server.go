@@ -11,8 +11,8 @@ import (
 type Event string
 
 const (
-	Tick  Event = "tick"
-	Pulse Event = "pulse"
+	tick  Event = "tick"
+	pulse Event = "pulse"
 )
 
 type Server struct {
@@ -20,8 +20,8 @@ type Server struct {
 	port    int
 }
 
-func NewServer() *Server {
-	return &Server{port: 8080}
+func NewServer(port int) *Server {
+	return &Server{port: port}
 }
 
 func (s *Server) Run() {
@@ -68,6 +68,7 @@ func (s *Server) addClient(c *Client, listener chan *Client) {
 }
 
 func (s *Server) removeClient(c *Client) {
+	c.conn.Close()
 	for i, cl := range s.clients {
 		if cl == c {
 			s.clients = append(s.clients[0:i], s.clients[i+1:]...)
@@ -80,15 +81,15 @@ func (s *Server) removeClient(c *Client) {
 func timeKeeper(pulseListener chan Event, tickListener chan Event) {
 	t := time.Now().Second()
 	nt := nextTick()
-	pulse := 0
+	p := 0
 	for {
 		if time.Now().Second() != t {
 			t = time.Now().Second()
-			pulse += 1
-			pulseListener <- Pulse
-			if pulse >= nt {
-				tickListener <- Tick
-				pulse = 0
+			p += 1
+			pulseListener <- pulse
+			if p >= nt {
+				tickListener <- tick
+				p = 0
 				nt = nextTick()
 			}
 		}

@@ -1,7 +1,9 @@
 package gomud
 
 import (
+	"math/rand"
 	"strings"
+	"time"
 )
 
 type Skill struct {
@@ -21,6 +23,8 @@ type Mob struct {
 	Delay               int
 	Skills              []*Skill
 	Disposition         Disposition
+	Wanders             float64
+	hasWandered         bool
 	client              *Client
 }
 
@@ -128,10 +132,24 @@ func (m *Mob) Notify(message string) {
 func (m *Mob) Tick() {
 	m.DecrementDelay()
 	m.Regen()
+	m.hasWandered = false
 }
 
 func (m *Mob) Pulse() {
+	if m.Wanders > 0 && !m.hasWandered {
+		m.Wander()
+	}
+}
 
+func (m *Mob) Wander() {
+	rand.Seed(time.Now().Unix())
+	if rand.Float64() < m.Wanders {
+		d := m.Room.AllDirections()
+		l := len(d)
+		i := rand.Intn(l)
+		m.Move(d[i])
+		m.hasWandered = true
+	}
 }
 
 func (m *Mob) Regen() {

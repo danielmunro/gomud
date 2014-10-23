@@ -3,5 +3,5 @@ package main
 import "./gomud"
 
 func main() {
-	gomud.NewServer().Run()
+	gomud.NewServer(8080).Run()
 }

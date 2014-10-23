@@ -30,6 +30,7 @@
             longname: "A temple acolyte stands before you."
             disposition: "standing"
             race: "human"
+            wanders: .95
             attributes:
                 hp: 100
                 mana: 100

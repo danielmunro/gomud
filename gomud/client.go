@@ -8,42 +8,42 @@ import (
 )
 
 type Client struct {
-	Conn   net.Conn
-	Mob    *Mob
-	Buf    []string
+	conn   net.Conn
+	mob    *Mob
+	buf    []string
 	server *Server
 }
 
 func NewClient(conn net.Conn) *Client {
 	c := &Client{
-		Conn: conn,
-		Mob:  NewMob(),
+		conn: conn,
+		mob:  NewMob(),
 	}
-	c.Mob.client = c
-	c.Write(c.Mob.Act("look"))
+	c.mob.client = c
+	c.Write(c.mob.Act("look"))
 	c.prompt()
 	return c
 }
 
 func (c *Client) Write(line string) {
-	c.Conn.Write([]byte(line))
+	c.conn.Write([]byte(line))
 }
 
 func (c *Client) Listen(ch chan *Client) {
 	for {
-		buf, _ := bufio.NewReader(c.Conn).ReadString('\n')
-		c.Buf = append(c.Buf, strings.TrimSpace(buf))
+		buf, _ := bufio.NewReader(c.conn).ReadString('\n')
+		c.buf = append(c.buf, strings.TrimSpace(buf))
 		ch <- c
 	}
 }
 
 func (c *Client) FlushBuf() {
 	output := false
-	if c.Mob.Delay == 0 {
+	if c.mob.Delay == 0 {
 		for {
-			if len(c.Buf) > 0 {
+			if len(c.buf) > 0 {
 				b := c.bufPop()
-				c.Write(c.Mob.Act(b))
+				c.Write(c.mob.Act(b))
 				output = true
 			} else {
 				break
@@ -65,12 +65,12 @@ func (c *Client) Tick() {
 }
 
 func (c *Client) bufPop() string {
-	b := c.Buf[0]
-	c.Buf = c.Buf[1:]
+	b := c.buf[0]
+	c.buf = c.buf[1:]
 	return b
 }
 
 func (c *Client) prompt() {
-	a := c.Mob.CurrentAttr
+	a := c.mob.CurrentAttr
 	c.Write("[" + strconv.FormatFloat(a.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Mv, 'f', 0, 32) + "mv]> ")
 }

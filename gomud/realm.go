@@ -41,6 +41,13 @@ func (r *Room) RemoveMob(m *Mob) {
 	}
 }
 
+func (r *Room) AllDirections() (dirs []Direction) {
+	for d, _ := range r.Rooms {
+		dirs = append(dirs, d)
+	}
+	return dirs
+}
+
 func init() {
 	dir, _ := filepath.Abs(filepath.Dir("gomud/areas/"))
 	data, _ := ioutil.ReadFile(dir + "/midgaard.yaml")
@@ -52,6 +59,7 @@ func init() {
 		}
 		for _, m := range r.Mobs {
 			m.CurrentAttr = m.Attributes
+			m.Room = r
 			mobs = append(mobs, m)
 		}
 	}

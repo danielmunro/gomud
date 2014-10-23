@@ -124,7 +124,6 @@ func init() {
 			Name: QuitAction,
 			Func: func(m *Mob, args []string) string {
 				m.client.Write("Goodbye!\n")
-				m.client.Conn.Close()
 				m.client.server.removeClient(m.client)
 				return ""
 			},
