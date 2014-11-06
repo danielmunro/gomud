@@ -1,26 +1,40 @@
 package gomud
 
-type Item struct {
-	ShortName, LongName string
-	Attributes          *Attributes
-}
-
-type Equipment string
+type Position string
 
 const (
-	Head      Equipment = "head"
-	Torso     Equipment = "torso"
-	Legs      Equipment = "legs"
-	RightHand Equipment = "right hand"
-	LeftHand  Equipment = "left hand"
+	Head      Position = "head"
+	Torso     Position = "torso"
+	Legs      Position = "legs"
+	RightHand Position = "right hand"
+	LeftHand  Position = "left hand"
 )
 
-type Equipped struct {
-	Head, Torso, Legs, RightHand, LeftHand *Item
+type Item interface {
+	String() string
 }
 
-func (e Equipped) getAll() map[Equipment]*Item {
-	return map[Equipment]*Item{
+type Equipment struct {
+	ShortName, LongName string
+	Attributes          *Attributes
+	Position            Position
+}
+
+func (e Equipment) String() string {
+	return e.ShortName
+}
+
+type Container struct {
+	Equipment
+	Items []Item
+}
+
+type Equipped struct {
+	Head, Torso, Legs, RightHand, LeftHand *Equipment
+}
+
+func (e Equipped) getAll() map[Position]*Equipment {
+	return map[Position]*Equipment{
 		Head:      e.Head,
 		Torso:     e.Torso,
 		Legs:      e.Legs,

@@ -24,6 +24,7 @@ type Mob struct {
 	Skills              []*Skill
 	Disposition         Disposition
 	Wanders             float64
+	target              *Mob
 	hasWandered         bool
 	client              *Client
 }
@@ -44,9 +45,11 @@ func NewMob() *Mob {
 		ShortName: "mob",
 		LongName:  "A generic mob stands here, fresh out of the factory.",
 		Equipped: &Equipped{
-			Head: &Item{
-				ShortName: "A wooden helmet",
-				LongName:  "Who the hell makes a helmet out of wood?",
+			Head: &Equipment{
+				"A wooden helmet",
+				"Who the hell makes a helmet out of wood?",
+				&Attributes{},
+				Head,
 			},
 		},
 		Delay:       0,
@@ -136,9 +139,37 @@ func (m *Mob) Tick() {
 }
 
 func (m *Mob) Pulse() {
-	if m.Wanders > 0 && !m.hasWandered {
+	if m.Wanders > 0 && !m.hasWandered && m.target == nil {
 		m.Wander()
 	}
+	if m.target != nil {
+		m.Attack()
+	}
+}
+
+func (m *Mob) Attack() {
+	m.target.CurrentAttr.Hp -= 5
+	m.Notify("You attack " + strings.ToLower(m.target.ShortName) + ".\n")
+	m.target.Notify(m.ShortName + " attacks you.\n")
+	if m.target.CurrentAttr.Hp < 0 {
+		m.Notify("You killed " + strings.ToLower(m.target.ShortName) + "!\n")
+		m.target.Die()
+		m.target = nil
+		if m.client != nil {
+			m.client.prompt()
+		}
+	} else if m.target.target == nil {
+		m.target.target = m
+	}
+}
+
+func (m *Mob) Die() {
+	m.Notify("You died!\n")
+	m.target = nil
+	corpse := Container{}
+	corpse.ShortName = "the corpse of " + strings.ToLower(m.ShortName)
+	corpse.LongName = "The corpse of " + strings.ToLower(m.ShortName) + " lies here."
+	m.Room.Items = append(m.Room.Items, corpse)
 }
 
 func (m *Mob) Wander() {

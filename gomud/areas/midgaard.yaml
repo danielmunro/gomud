@@ -32,7 +32,7 @@
             race: "human"
             wanders: .95
             attributes:
-                hp: 100
+                hp: 20
                 mana: 100
                 mv: 100
 3:

@@ -15,6 +15,8 @@ const (
 	SayAction      ActionName = "say"
 	EquippedAction ActionName = "equipped"
 	QuitAction     ActionName = "quit"
+	ScoreAction    ActionName = "score"
+	KillAction     ActionName = "kill"
 )
 
 type Action struct {
@@ -66,15 +68,10 @@ func init() {
 			Name: LookAction,
 			Func: func(m *Mob, args []string) (output string) {
 				if len(args) > 1 {
-					for _, m := range m.Room.Mobs {
-						names := strings.Split(m.ShortName, " ")
-						for _, n := range names {
-							if strings.Index(strings.ToLower(n), strings.ToLower(args[1])) == 0 {
-								output = m.LongName + "\n"
-								output += m.ShortName + " " + m.Status() + ".\n"
-								break
-							}
-						}
+					mob := m.Room.FindMob(args[1])
+					if mob != nil {
+						output = mob.LongName + "\n"
+						output += mob.ShortName + " " + m.Status() + ".\n"
 					}
 				} else {
 					output = m.Room.Title + "\n" + m.Room.Description + "\n\n[Exits "
@@ -82,6 +79,9 @@ func init() {
 						output += string(d)[:1]
 					}
 					output += "]\n"
+					for _, i := range m.Room.Items {
+						output += strings.ToUpper(i.String()) + " is here.\n"
+					}
 					for _, mob := range m.Room.Mobs {
 						if mob != m {
 							output += mob.ShortName + " is " + string(mob.Disposition) + " here.\n"
@@ -95,6 +95,14 @@ func init() {
 			},
 		},
 		&Action{
+			Name: ScoreAction,
+			Func: func(m *Mob, args []string) string {
+				output := "You are <user>, a " + string(m.Race) + "\n"
+
+				return output
+			},
+		},
+		&Action{
 			Name: SayAction,
 			Func: func(m *Mob, args []string) string {
 				message := strings.Join(args[1:], " ")
@@ -104,6 +112,23 @@ func init() {
 					}
 				}
 				return "You say, \"" + message + "\"\n"
+			},
+		},
+		&Action{
+			Name: KillAction,
+			Func: func(m *Mob, args []string) string {
+
+				if m.target != nil {
+					return "You are already fighting!\n"
+				}
+
+				target := m.Room.FindMob(args[1])
+				if target != nil {
+					m.target = target
+					m.Room.Announce(m, m.ShortName+" screams and attacks "+target.ShortName+"\n")
+					return "You scream and attack!\n"
+				}
+				return "You don't see them here.\n"
 			},
 		},
 		&Action{

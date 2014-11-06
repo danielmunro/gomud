@@ -47,6 +47,10 @@ func (c *Client) FlushBuf() {
 }
 
 func (c *Client) Pulse() {
+	if c.mob.target != nil {
+		c.mob.Notify(c.mob.target.ShortName + " " + c.mob.target.Status() + ".\n\n")
+		c.prompt()
+	}
 	c.FlushBuf()
 }
 

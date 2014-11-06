@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 )
 
 type Direction string
@@ -24,6 +25,25 @@ type Room struct {
 	Rooms                    map[Direction]*Room
 	Mobs                     []*Mob
 	MovementCost             float64
+	Items                    []Item
+}
+
+func init() {
+	dir, _ := filepath.Abs(filepath.Dir("gomud/areas/"))
+	data, _ := ioutil.ReadFile(dir + "/midgaard.yaml")
+	yaml.Unmarshal(data, &rooms)
+	for _, r := range rooms {
+		r.Rooms = make(map[Direction]*Room, len(r.Directions))
+		for d, roomId := range r.Directions {
+			r.Rooms[d] = rooms[roomId]
+		}
+		for _, m := range r.Mobs {
+			m.CurrentAttr = &Attributes{}
+			*m.CurrentAttr = *m.Attributes
+			m.Room = r
+			mobs = append(mobs, m)
+		}
+	}
 }
 
 var rooms map[int]*Room
@@ -48,19 +68,24 @@ func (r *Room) AllDirections() (dirs []Direction) {
 	return dirs
 }
 
-func init() {
-	dir, _ := filepath.Abs(filepath.Dir("gomud/areas/"))
-	data, _ := ioutil.ReadFile(dir + "/midgaard.yaml")
-	yaml.Unmarshal(data, &rooms)
-	for _, r := range rooms {
-		r.Rooms = make(map[Direction]*Room, len(r.Directions))
-		for d, roomId := range r.Directions {
-			r.Rooms[d] = rooms[roomId]
+func (r *Room) FindMob(arg string) *Mob {
+
+	for _, m := range r.Mobs {
+		names := strings.Split(m.ShortName, " ")
+		for _, n := range names {
+			if strings.Index(strings.ToLower(n), arg) == 0 {
+				return m
+			}
 		}
-		for _, m := range r.Mobs {
-			m.CurrentAttr = m.Attributes
-			m.Room = r
-			mobs = append(mobs, m)
+	}
+
+	return nil
+}
+
+func (r *Room) Announce(m *Mob, message string) {
+	for _, mob := range r.Mobs {
+		if m != mob {
+			mob.Notify(message)
 		}
 	}
 }
