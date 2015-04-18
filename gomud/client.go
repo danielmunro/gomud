@@ -11,7 +11,6 @@ type Client struct {
 	conn   net.Conn
 	mob    *Mob
 	buf    []string
-	server *Server
 }
 
 func NewClient(conn net.Conn) *Client {
@@ -29,19 +28,12 @@ func (c *Client) Write(line string) {
 	c.conn.Write([]byte(line))
 }
 
-func (c *Client) Listen(ch chan *Client) {
+func (c *Client) Listen(bufListener chan<-*Message) {
 	for {
 		buf, _ := bufio.NewReader(c.conn).ReadString('\n')
-		c.buf = append(c.buf, strings.TrimSpace(buf))
-		ch <- c
-	}
-}
-
-func (c *Client) FlushBuf() {
-	if c.mob.Delay == 0 {
-		for len(c.buf) > 0 {
-			c.Write(c.mob.Act(c.bufPop()))
-			c.prompt()
+		bufListener <- &Message{
+			client: c,
+			message: strings.TrimSpace(buf),
 		}
 	}
 }
@@ -51,7 +43,6 @@ func (c *Client) Pulse() {
 		c.mob.Notify(c.mob.target.ShortName + " " + c.mob.target.Status() + ".\n\n")
 		c.prompt()
 	}
-	c.FlushBuf()
 }
 
 func (c *Client) Tick() {

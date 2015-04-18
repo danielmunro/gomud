@@ -15,8 +15,25 @@ const (
 	pulse Event = "pulse"
 )
 
+const tickLength int = 15
+
+type Message struct {
+	client *Client
+	message string
+}
+
+func (m *Message) Process() bool {
+	if (m.client.mob.Delay == 0) {
+		m.client.Write(m.client.mob.Act(m.message))
+		return true
+	}
+	return false
+}
+
 type Server struct {
 	clients []*Client
+	listener net.Listener
+	messages []*Message
 	port    int
 }
 
@@ -25,23 +42,43 @@ func NewServer(port int) *Server {
 }
 
 func (s *Server) Run() {
-	ln, err := net.Listen("tcp", ":"+strconv.Itoa(s.port))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("Listening on port :" + strconv.Itoa(s.port))
+	s.connect()
 	newClientListener := make(chan *Client)
-	clientListener := make(chan *Client)
 	pulseListener := make(chan Event)
 	tickListener := make(chan Event)
-	go connectionListener(ln, newClientListener)
-	go timeKeeper(pulseListener, tickListener)
+	bufListener := make(chan *Message)
+	// Listen for new clients
+	go func() {
+		for {
+			conn, err := s.listener.Accept()
+			if err != nil {
+				log.Fatalln(err)
+			}
+			newClientListener <- NewClient(conn)
+		}
+	}()
+	// Timing
+	go func() {
+		nt := rand.Intn(tickLength) + tickLength
+		p := 0
+		for {
+			time.Sleep(time.Second)
+			p += 1
+			pulseListener <- pulse
+			if p >= nt {
+				tickListener <- tick
+				p = 0
+				nt = rand.Intn(tickLength) + tickLength
+				log.Println("Next tick in " + strconv.Itoa(nt) + " seconds")
+			}
+		}
+	}()
 	for {
 		select {
 		case client := <-newClientListener:
-			s.addClient(client, clientListener)
-		case client := <-clientListener:
-			client.FlushBuf()
+			s.clients = append(s.clients, client)
+			go client.Listen(bufListener)
+			log.Println("Client connected, " + strconv.Itoa(len(s.clients)) + " active clients")
 		case <-pulseListener:
 			for _, m := range mobs {
 				m.Pulse()
@@ -56,15 +93,31 @@ func (s *Server) Run() {
 			for _, cl := range s.clients {
 				cl.Tick()
 			}
+		case message := <-bufListener:
+			s.messages = append(s.messages, message)
 		}
+		s.processMessages()
 	}
 }
 
-func (s *Server) addClient(c *Client, listener chan *Client) {
-	go c.Listen(listener)
-	s.clients = append(s.clients, c)
-	c.server = s
-	log.Println("Client connected, " + strconv.Itoa(len(s.clients)) + " active clients")
+func (s *Server) processMessages() {
+	var unprocessed []*Message
+	for _, m := range s.messages {
+		if (!m.Process()) {
+			unprocessed = append(unprocessed, m)
+		}
+	}
+	s.messages = unprocessed
+}
+
+func (s *Server) connect() {
+	ln, err := net.Listen("tcp", ":"+strconv.Itoa(s.port))
+	if err != nil {
+		log.Fatalln(err)
+	} else {
+		s.listener = ln
+		log.Println("Listening on port :" + strconv.Itoa(s.port))
+	}
 }
 
 func (s *Server) removeClient(c *Client) {
@@ -76,39 +129,4 @@ func (s *Server) removeClient(c *Client) {
 			return
 		}
 	}
-}
-
-func timeKeeper(pulseListener chan Event, tickListener chan Event) {
-	t := time.Now().Second()
-	nt := nextTick()
-	p := 0
-	for {
-		if time.Now().Second() != t {
-			t = time.Now().Second()
-			p += 1
-			pulseListener <- pulse
-			if p >= nt {
-				tickListener <- tick
-				p = 0
-				nt = nextTick()
-			}
-		}
-	}
-}
-
-func connectionListener(ln net.Listener, ch chan *Client) {
-	for {
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		ch <- NewClient(conn)
-	}
-}
-
-func nextTick() int {
-	rand.Seed(time.Now().Unix())
-	n := rand.Intn(15) + 15
-	log.Println("Next tick in " + strconv.Itoa(n) + " seconds")
-	return n
 }
