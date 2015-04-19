@@ -8,14 +8,7 @@ import (
 	"time"
 )
 
-type Event string
-
-const (
-	tick  Event = "tick"
-	pulse Event = "pulse"
-)
-
-const tickLength int = 15
+const tickLength int64 = 15
 
 type Message struct {
 	client *Client
@@ -35,6 +28,8 @@ type Server struct {
 	listener net.Listener
 	messages []*Message
 	port    int
+	nextTick int64
+	lastPulse int64
 }
 
 func NewServer(port int) *Server {
@@ -44,70 +39,61 @@ func NewServer(port int) *Server {
 func (s *Server) Run() {
 	s.connect()
 	newClientListener := make(chan *Client)
-	pulseListener := make(chan Event)
-	tickListener := make(chan Event)
 	bufListener := make(chan *Message)
-	// Listen for new clients
-	go func() {
-		for {
-			conn, err := s.listener.Accept()
-			if err != nil {
-				log.Fatalln(err)
-			}
-			newClientListener <- NewClient(conn)
-		}
-	}()
-	// Timing
-	go func() {
-		nt := rand.Intn(tickLength) + tickLength
-		p := 0
-		for {
-			time.Sleep(time.Second)
-			p += 1
-			pulseListener <- pulse
-			if p >= nt {
-				tickListener <- tick
-				p = 0
-				nt = rand.Intn(tickLength) + tickLength
-				log.Println("Next tick in " + strconv.Itoa(nt) + " seconds")
-			}
-		}
-	}()
+	go s.newClientListener(newClientListener)
 	for {
 		select {
 		case client := <-newClientListener:
 			s.clients = append(s.clients, client)
 			go client.Listen(bufListener)
 			log.Println("Client connected, " + strconv.Itoa(len(s.clients)) + " active clients")
-		case <-pulseListener:
-			for _, m := range mobs {
-				m.Pulse()
-			}
-			for _, cl := range s.clients {
-				cl.Pulse()
-			}
-		case <-tickListener:
-			for _, m := range mobs {
-				m.Tick()
-			}
-			for _, cl := range s.clients {
-				cl.Tick()
-			}
 		case message := <-bufListener:
 			s.messages = append(s.messages, message)
+		default:
+			s.timing()
+			s.processMessages()
 		}
-		s.processMessages()
+	}
+}
+
+func (s *Server) newClientListener(newClientListener chan<-*Client) {
+	for {
+		conn, err := s.listener.Accept()
+		if err != nil {
+			log.Fatalln(err)
+		}
+		newClientListener <- NewClient(conn)
+	}
+}
+
+func (s *Server) timing() {
+	t := time.Now().Unix()
+	if t > s.lastPulse {
+		s.lastPulse = t
+		for _, m := range mobs {
+			m.Pulse()
+		}
+		for _, cl := range s.clients {
+			cl.Pulse()
+		}
+	}
+	if t > s.nextTick {
+		s.nextTick = t + rand.Int63n(tickLength) + tickLength
+		for _, m := range mobs {
+			m.Tick()
+		}
+		for _, cl := range s.clients {
+			cl.Tick()
+		}
 	}
 }
 
 func (s *Server) processMessages() {
-	var unprocessed []*Message
-	for _, m := range s.messages {
-		if (!m.Process()) {
-			unprocessed = append(unprocessed, m)
+	for i, m := range s.messages {
+		if (m.Process()) {
+			s.messages = append(s.messages[0:i], s.messages[i+1:]...)
 		}
 	}
-	s.messages = unprocessed
 }
 
 func (s *Server) connect() {
