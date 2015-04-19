@@ -11,6 +11,7 @@ type Client struct {
 	conn   net.Conn
 	mob    *Mob
 	buf    []string
+	server *Server
 }
 
 func NewClient(conn net.Conn) *Client {

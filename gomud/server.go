@@ -44,6 +44,7 @@ func (s *Server) Run() {
 	for {
 		select {
 		case client := <-newClientListener:
+			client.server = s
 			s.clients = append(s.clients, client)
 			go client.Listen(bufListener)
 			log.Println("Client connected, " + strconv.Itoa(len(s.clients)) + " active clients")
