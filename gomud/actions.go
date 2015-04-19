@@ -97,7 +97,7 @@ func init() {
 		&Action{
 			Name: ScoreAction,
 			Func: func(m *Mob, args []string) string {
-				output := "You are <user>, a " + string(m.Race) + "\n"
+				output := "You are "+m.ShortName+", a " + string(m.Race) + "\n"
 
 				return output
 			},

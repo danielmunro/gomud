@@ -10,19 +10,6 @@ import (
 
 const tickLength int64 = 15
 
-type Message struct {
-	client *Client
-	message string
-}
-
-func (m *Message) Process() bool {
-	if (m.client.mob.Delay == 0) {
-		m.client.Write(m.client.mob.Act(m.message))
-		return true
-	}
-	return false
-}
-
 type Server struct {
 	clients []*Client
 	listener net.Listener

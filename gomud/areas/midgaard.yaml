@@ -14,9 +14,10 @@
             disposition: "standing"
             race: "giant"
             attributes:
-                hp: 1000
-                mana: 0
-                mv: 1000
+                vitals:
+                    hp: 1000
+                    mana: 0
+                    mv: 1000
 2:
     area: midgaard
     title: "The temple altar"
@@ -32,9 +33,10 @@
             race: "human"
             wanders: .95
             attributes:
-                hp: 20
-                mana: 100
-                mv: 100
+                vitals:
+                    hp: 20
+                    mana: 100
+                    mv: 100
 3:
     area: midgaard
     title: "Temple steps"

@@ -32,10 +32,7 @@ func (c *Client) Write(line string) {
 func (c *Client) Listen(bufListener chan<-*Message) {
 	for {
 		buf, _ := bufio.NewReader(c.conn).ReadString('\n')
-		bufListener <- &Message{
-			client: c,
-			message: strings.TrimSpace(buf),
-		}
+		bufListener <- NewMessage(c, strings.TrimSpace(buf))
 	}
 }
 
@@ -59,5 +56,5 @@ func (c *Client) bufPop() string {
 
 func (c *Client) prompt() {
 	a := c.mob.CurrentAttr
-	c.Write("[" + strconv.FormatFloat(a.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Mv, 'f', 0, 32) + "mv]> ")
+	c.Write("[" + strconv.FormatFloat(a.Vitals.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Vitals.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Vitals.Mv, 'f', 0, 32) + "mv]> ")
 }

@@ -3,7 +3,6 @@ package gomud
 import (
 	"math/rand"
 	"strings"
-	"time"
 )
 
 type Skill struct {
@@ -55,14 +54,18 @@ func NewMob() *Mob {
 		Delay:       0,
 		Disposition: Standing,
 		Attributes: &Attributes{
-			Hp:   20,
-			Mana: 100,
-			Mv:   100,
+			Vitals: &Vitals{
+				Hp:   20,
+				Mana: 100,
+				Mv:   100,
+			},
 		},
 		CurrentAttr: &Attributes{
-			Hp:   20,
-			Mana: 100,
-			Mv:   100,
+			Vitals: &Vitals{
+				Hp:   20,
+				Mana: 100,
+				Mv:   100,
+			},
 		},
 		Room: rooms[1],
 		Race: Human,
@@ -87,8 +90,8 @@ func (m *Mob) Act(input string) string {
 
 func (m *Mob) Move(d Direction) string {
 	if room, ok := m.Room.Rooms[d]; ok {
-		if m.CurrentAttr.Mv >= m.Room.MovementCost {
-			m.CurrentAttr.Mv -= m.Room.MovementCost
+		if m.CurrentAttr.Vitals.Mv >= m.Room.MovementCost {
+			m.CurrentAttr.Vitals.Mv -= m.Room.MovementCost
 			for _, mob := range m.Room.Mobs {
 				mob.LeftRoom(m, d)
 			}
@@ -148,10 +151,10 @@ func (m *Mob) Pulse() {
 }
 
 func (m *Mob) Attack() {
-	m.target.CurrentAttr.Hp -= 5
+	m.target.CurrentAttr.Vitals.Hp -= 5
 	m.Notify("You attack " + strings.ToLower(m.target.ShortName) + ".\n")
 	m.target.Notify(m.ShortName + " attacks you.\n")
-	if m.target.CurrentAttr.Hp < 0 {
+	if m.target.CurrentAttr.Vitals.Hp < 0 {
 		m.Notify("You killed " + strings.ToLower(m.target.ShortName) + "!\n")
 		m.target.Die()
 		m.target = nil
@@ -173,7 +176,6 @@ func (m *Mob) Die() {
 }
 
 func (m *Mob) Wander() {
-	rand.Seed(time.Now().Unix())
 	if rand.Float64() < m.Wanders {
 		d := m.Room.AllDirections()
 		l := len(d)
@@ -184,14 +186,14 @@ func (m *Mob) Wander() {
 }
 
 func (m *Mob) Regen() {
-	m.CurrentAttr.Hp += m.Attributes.Hp * 0.1
-	m.CurrentAttr.Mana += m.Attributes.Mana * 0.1
-	m.CurrentAttr.Mv += m.Attributes.Mv * 0.1
+	m.CurrentAttr.Vitals.Hp += m.Attributes.Vitals.Hp * 0.1
+	m.CurrentAttr.Vitals.Mana += m.Attributes.Vitals.Mana * 0.1
+	m.CurrentAttr.Vitals.Mv += m.Attributes.Vitals.Mv * 0.1
 	m.normalizeAttr()
 }
 
 func (m *Mob) Status() (status string) {
-	p := m.CurrentAttr.Hp / m.Attributes.Hp
+	p := m.CurrentAttr.Vitals.Hp / m.Attributes.Vitals.Hp
 	switch {
 	case p <= .1:
 		return "is in awful condition"
@@ -211,13 +213,13 @@ func (m *Mob) Status() (status string) {
 }
 
 func (m *Mob) normalizeAttr() {
-	if m.CurrentAttr.Hp > m.Attributes.Hp {
-		m.CurrentAttr.Hp = m.Attributes.Hp
+	if m.CurrentAttr.Vitals.Hp > m.Attributes.Vitals.Hp {
+		m.CurrentAttr.Vitals.Hp = m.Attributes.Vitals.Hp
 	}
-	if m.CurrentAttr.Mana > m.Attributes.Mana {
-		m.CurrentAttr.Mana = m.Attributes.Mana
+	if m.CurrentAttr.Vitals.Mana > m.Attributes.Vitals.Mana {
+		m.CurrentAttr.Vitals.Mana = m.Attributes.Vitals.Mana
 	}
-	if m.CurrentAttr.Mv > m.Attributes.Mv {
-		m.CurrentAttr.Mv = m.Attributes.Mv
+	if m.CurrentAttr.Vitals.Mv > m.Attributes.Vitals.Mv {
+		m.CurrentAttr.Vitals.Mv = m.Attributes.Vitals.Mv
 	}
 }
