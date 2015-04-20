@@ -20,31 +20,31 @@ func NewClient(conn net.Conn) *Client {
 		mob:  NewMob(),
 	}
 	c.mob.client = c
-	c.Write(c.mob.Act("look"))
+	c.write(c.mob.Act("look"))
 	c.prompt()
 	return c
 }
 
-func (c *Client) Write(line string) {
+func (c *Client) write(line string) {
 	c.conn.Write([]byte(line))
 }
 
-func (c *Client) Listen(bufListener chan<-*Message) {
+func (c *Client) listen(bufListener chan<-*Message) {
 	for {
 		buf, _ := bufio.NewReader(c.conn).ReadString('\n')
 		bufListener <- NewMessage(c, strings.TrimSpace(buf))
 	}
 }
 
-func (c *Client) Pulse() {
+func (c *Client) pulse() {
 	if c.mob.target != nil {
 		c.mob.Notify(c.mob.target.ShortName + " " + c.mob.target.Status() + ".\n\n")
 		c.prompt()
 	}
 }
 
-func (c *Client) Tick() {
-	c.Write("\n")
+func (c *Client) tick() {
+	c.write("\n")
 	c.prompt()
 }
 
@@ -56,5 +56,5 @@ func (c *Client) bufPop() string {
 
 func (c *Client) prompt() {
 	a := c.mob.CurrentAttr
-	c.Write("[" + strconv.FormatFloat(a.Vitals.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Vitals.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Vitals.Mv, 'f', 0, 32) + "mv]> ")
+	c.write("[" + strconv.FormatFloat(a.Vitals.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Vitals.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Vitals.Mv, 'f', 0, 32) + "mv]> ")
 }

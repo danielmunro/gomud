@@ -149,7 +149,7 @@ func init() {
 		&Action{
 			Name: QuitAction,
 			Func: func(m *Mob, args []string) string {
-				m.client.Write("Goodbye!\n")
+				m.client.write("Goodbye!\n")
 				m.client.server.removeClient(m.client)
 				return ""
 			},

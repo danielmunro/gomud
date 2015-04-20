@@ -33,7 +33,7 @@ func (s *Server) Run() {
 		case client := <-newClientListener:
 			client.server = s
 			s.clients = append(s.clients, client)
-			go client.Listen(bufListener)
+			go client.listen(bufListener)
 			log.Println("Client connected, " + strconv.Itoa(len(s.clients)) + " active clients")
 		case message := <-bufListener:
 			s.messages = append(s.messages, message)
@@ -62,7 +62,7 @@ func (s *Server) timing() {
 			m.Pulse()
 		}
 		for _, cl := range s.clients {
-			cl.Pulse()
+			cl.pulse()
 		}
 	}
 	if t > s.nextTick {
@@ -71,14 +71,14 @@ func (s *Server) timing() {
 			m.Tick()
 		}
 		for _, cl := range s.clients {
-			cl.Tick()
+			cl.tick()
 		}
 	}
 }
 
 func (s *Server) processMessages() {
 	for i, m := range s.messages {
-		if (m.Process()) {
+		if (m.process()) {
 			s.messages = append(s.messages[0:i], s.messages[i+1:]...)
 		}
 	}

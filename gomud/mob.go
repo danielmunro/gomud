@@ -131,7 +131,7 @@ func (m *Mob) DecrementDelay() {
 
 func (m *Mob) Notify(message string) {
 	if m.client != nil {
-		m.client.Write(message)
+		m.client.write(message)
 	}
 }
 

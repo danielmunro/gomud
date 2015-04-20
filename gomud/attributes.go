@@ -8,13 +8,9 @@ type Vitals struct {
 	Hp, Mana, Mv float64
 }
 
-type Stats struct {
-	Str, Int, Wis, Dex, Con, Luck int
-}
-
 type Attributes struct {
+	Str, Int, Wis, Dex, Con, Luck int
 	Hit, Dam float64
-	Stats *Stats
 	Vitals *Vitals
 	AC *AC
 }
