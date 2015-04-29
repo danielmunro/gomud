@@ -13,9 +13,10 @@
 
 		message.go - Defines the Message structure and its methods.
 
-		mob.go -
+		mob.go - Defines the Skill and Mob structs and the Disposition type;
+					defines methods for Mob.
 
-		race.go -
+		race.go - Defines the Race struct and six default races.
 
 		realm.go -
 
