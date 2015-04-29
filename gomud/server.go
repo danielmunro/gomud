@@ -8,14 +8,33 @@ import (
 	"time"
 )
 
+/*
+	tickLength is the number of <unit of time>s between each
+	step in the MUD world.
+*/
 const tickLength int64 = 15
 
+/*
+	Server contains all of the data needed to run a server.
+	Attributes:
+		clients - an array of pointers to Client structs, used
+					to keep track of the connected users.
+		listener - a Listener from the net package, used to communicate
+					over the specified port.
+		messages - an array of pointers to Message structs, used
+					<for some purpose>
+		port - an int tracking the port number on which the server
+					is listening
+		nextTick - an int64 tracking when the next "tick" of the world
+					should occur.
+		lastTick - an int64 tracking when the last world "tick" occurred
+*/
 type Server struct {
-	clients []*Client
-	listener net.Listener
-	messages []*Message
-	port    int
-	nextTick int64
+	clients   []*Client
+	listener  net.Listener
+	messages  []*Message
+	port      int
+	nextTick  int64
 	lastPulse int64
 }
 
@@ -44,7 +63,7 @@ func (s *Server) Run() {
 	}
 }
 
-func (s *Server) newClientListener(newClientListener chan<-*Client) {
+func (s *Server) newClientListener(newClientListener chan<- *Client) {
 	for {
 		conn, err := s.listener.Accept()
 		if err != nil {
@@ -78,7 +97,7 @@ func (s *Server) timing() {
 
 func (s *Server) processMessages() {
 	for i, m := range s.messages {
-		if (m.Process()) {
+		if m.Process() {
 			s.messages = append(s.messages[0:i], s.messages[i+1:]...)
 		}
 	}
