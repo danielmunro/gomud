@@ -11,7 +11,7 @@
 
 		item.go -
 
-		message.go -
+		message.go - Defines the Message structure and its methods.
 
 		mob.go -
 
