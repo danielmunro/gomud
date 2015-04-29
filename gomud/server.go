@@ -22,12 +22,13 @@ const tickLength int64 = 15
 		listener - a Listener from the net package, used to communicate
 					over the specified port.
 		messages - an array of pointers to Message structs, used
-					<for some purpose>
+					to old outgoing messages from the server
 		port - an int tracking the port number on which the server
 					is listening
 		nextTick - an int64 tracking when the next "tick" of the world
-					should occur.
+					should occur in unix time.
 		lastTick - an int64 tracking when the last world "tick" occurred
+					in unix time.
 */
 type Server struct {
 	clients   []*Client
@@ -38,10 +39,16 @@ type Server struct {
 	lastPulse int64
 }
 
+/*
+	NewServer creates and returns a new server listening on the given port.
+*/
 func NewServer(port int) *Server {
 	return &Server{port: port}
 }
 
+/*
+	Run causes the server to begin listening for client connections on its port.
+*/
 func (s *Server) Run() {
 	s.connect()
 	newClientListener := make(chan *Client)
@@ -63,6 +70,10 @@ func (s *Server) Run() {
 	}
 }
 
+/*
+	newClientListener begins listening for new client connections and sends
+	them back along the newClientListener channel if their connections are successful.
+*/
 func (s *Server) newClientListener(newClientListener chan<- *Client) {
 	for {
 		conn, err := s.listener.Accept()
@@ -73,6 +84,10 @@ func (s *Server) newClientListener(newClientListener chan<- *Client) {
 	}
 }
 
+/*
+	timing causes the server to execute its timing logic. This calls the
+	Pulse() method on mobs and clients for every tick.
+*/
 func (s *Server) timing() {
 	t := time.Now().Unix()
 	if t > s.lastPulse {
@@ -95,6 +110,10 @@ func (s *Server) timing() {
 	}
 }
 
+/*
+	processMessages iterates across the messages array and removes any
+	messages that it was able to process successfully.
+*/
 func (s *Server) processMessages() {
 	for i, m := range s.messages {
 		if m.Process() {
@@ -103,6 +122,9 @@ func (s *Server) processMessages() {
 	}
 }
 
+/*
+	connect causes the server to begin listening on its port.
+*/
 func (s *Server) connect() {
 	ln, err := net.Listen("tcp", ":"+strconv.Itoa(s.port))
 	if err != nil {
@@ -113,6 +135,10 @@ func (s *Server) connect() {
 	}
 }
 
+/*
+	removeClient closes the connection to a given client and removes them
+	from the clients array.
+*/
 func (s *Server) removeClient(c *Client) {
 	c.conn.Close()
 	for i, cl := range s.clients {
