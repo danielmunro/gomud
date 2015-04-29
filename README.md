@@ -10,4 +10,4 @@ Clone this repository and
 ```$ go run main.go```
 
 Then,
-```$telnet localhost 8080```
+```$ telnet localhost 8080```
