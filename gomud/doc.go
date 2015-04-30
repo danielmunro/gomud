@@ -9,7 +9,8 @@
 
 		client.go - Defines the Client structure and its methods.
 
-		item.go -
+		item.go - Defines the Item interface and Equipment & Equipped structs with
+					their methods.
 
 		message.go - Defines the Message structure and its methods.
 
