@@ -8,8 +8,15 @@ import (
 	"strings"
 )
 
+/*
+	Direction is a string indicating a direction of movement.
+	i.e. "north" or "up"
+*/
 type Direction string
 
+/*
+	Six common pre-defined Directions.
+*/
 const (
 	North Direction = "north"
 	South Direction = "south"
@@ -19,6 +26,19 @@ const (
 	Down  Direction = "down"
 )
 
+/*
+	Room represents a single location within the MUD. Its attributes represent
+	how it is connected to other rooms, who and what is present, and what it looks
+	like.
+	Title - the name of the location as a string.
+	Description - what the room looks like as a string.
+	Area - the larger region of the world in which the room is located.
+	Directions - a map of Directions and ???
+	Rooms - a map of Directions to associated Rooms.
+	Mobs - an array of the Mobs currently within the Room.
+	MovementCost - the quantity of movement that it takes to enter the room.
+	Items - an array of Items currently at this location.
+*/
 type Room struct {
 	Title, Description, Area string
 	Directions               map[Direction]int
@@ -28,6 +48,9 @@ type Room struct {
 	Items                    []Item
 }
 
+/*
+	init populates the rooms from a specified file.
+*/
 func init() {
 	dir, _ := filepath.Abs(filepath.Dir("gomud/areas/"))
 	data, _ := ioutil.ReadFile(dir + "/midgaard.yaml")
@@ -46,12 +69,21 @@ func init() {
 	}
 }
 
+/*
+	rooms maps Room numbers to individual Rooms.
+*/
 var rooms map[int]*Room
 
+/*
+	AddMob inserts a given Mob m into the room.
+*/
 func (r *Room) AddMob(m *Mob) {
 	r.Mobs = append(r.Mobs, m)
 }
 
+/*
+	RemoveMob removes Mob m from the Room.
+*/
 func (r *Room) RemoveMob(m *Mob) {
 	for p, v := range r.Mobs {
 		if v == m {
@@ -61,6 +93,10 @@ func (r *Room) RemoveMob(m *Mob) {
 	}
 }
 
+/*
+	AllDirections returns an array of all valid exit Directions from
+	the Room.
+*/
 func (r *Room) AllDirections() (dirs []Direction) {
 	for d, _ := range r.Rooms {
 		dirs = append(dirs, d)
@@ -68,6 +104,9 @@ func (r *Room) AllDirections() (dirs []Direction) {
 	return dirs
 }
 
+/*
+	Finds a mob by the name arg in the room.
+*/
 func (r *Room) FindMob(arg string) *Mob {
 
 	for _, m := range r.Mobs {
@@ -82,6 +121,9 @@ func (r *Room) FindMob(arg string) *Mob {
 	return nil
 }
 
+/*
+	Announce notifies a Mob within a room of a given message.
+*/
 func (r *Room) Announce(m *Mob, message string) {
 	for _, mob := range r.Mobs {
 		if m != mob {
@@ -90,6 +132,10 @@ func (r *Room) Announce(m *Mob, message string) {
 	}
 }
 
+/*
+	OppositeDirection returns the opposite of a given Direction.
+	i.e. OppositeDirection("north") would return "south"
+*/
 func OppositeDirection(d Direction) (Direction, error) {
 	switch d {
 	case North:

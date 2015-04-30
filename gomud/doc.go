@@ -18,7 +18,8 @@
 
 		race.go - Defines the Race struct and six default races.
 
-		realm.go -
+		realm.go - Defines the Room struct and Direction type and defines methods
+					for their usage.
 
 		server.go - Defines the Server structure and its methods.
 */
