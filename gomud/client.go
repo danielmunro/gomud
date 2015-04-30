@@ -16,7 +16,7 @@ type Client struct {
 	conn net.Conn
 	//mob is a pointer to a mobile that is controlled by the user during their session.
 	mob *Mob
-	//buf does ???
+	//buf holds messages from the Client before they are sent onward.
 	buf []string
 	//server is a connection to the Server that is overseeing the client's session
 	server *Server

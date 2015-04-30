@@ -33,7 +33,7 @@ const (
 	Title - the name of the location as a string.
 	Description - what the room looks like as a string.
 	Area - the larger region of the world in which the room is located.
-	Directions - a map of Directions and ???
+	Directions - a map of Directions and Room identification numbers.
 	Rooms - a map of Directions to associated Rooms.
 	Mobs - an array of the Mobs currently within the Room.
 	MovementCost - the quantity of movement that it takes to enter the room.
