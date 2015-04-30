@@ -3,7 +3,8 @@
 	(multi-user dungeon) game over telnet. The files break down as follows:
 		areas.go -
 
-		affect.go -
+		affect.go - Affect defines the Affect struct, which contains details about
+					a behavior during another task.
 
 		attributes.go - Attributes defines the AC, Vitals, Stats, and Attributes structs
 					that encapsulate the numerical characteristics of a Mob.
