@@ -5,7 +5,8 @@
 
 		affect.go -
 
-		attributes.go -
+		attributes.go - Attributes defines the AC, Vitals, Stats, and Attributes structs
+					that encapsulate the numerical characteristics of a Mob.
 
 		client.go - Defines the Client structure and its methods.
 
