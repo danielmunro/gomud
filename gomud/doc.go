@@ -1,6 +1,8 @@
 /*
 	gomud contains the code necessary to run a simple client-server MUD
 	(multi-user dungeon) game over telnet. The files break down as follows:
+		actions.go - Action defines the Action struct and ActionName types and their
+					associated methods.
 		affect.go - Affect defines the Affect struct, which contains details about
 					a behavior during another task.
 
