@@ -5,12 +5,40 @@ import (
 	"strings"
 )
 
+/*
+	Skill defines the Name, Description, and Affect of a Mob's skill, as well
+	as the Delay from using it and the Costs of its use.
+	Name - the name of the Skill.
+	Description - text description of what the skill does.
+	Affect - how the use of the skill appears to others.
+	Delay - how many ticks the skill takes to perform.
+	Costs - how the attributes of a Mob are affected by using the skill.
+*/
 type Skill struct {
 	Name, Description, Affect string
 	Delay                     int
 	Costs                     *Attributes
 }
 
+/*
+	Mob defines the attributes of a mobile entity within the game. This can be
+	a monster, player, NPC, or anything else that moves.
+
+	ShortName - a short string naming the Mob.
+	LongName - a long string naming the Mob.
+	Room - the current Room location of the Mob.
+	Items - an array of the Items currently within the Mob's possession.
+	Equipped - the items that the Mob is currently using, represented as an
+				Equipped struct.
+	Attributes - the (maximum) Attributes of the Mob.
+	CurrentAttr - the current values of the Mob's attributes.
+	Race - the fantasy Race to which the Mob belongs.
+	Delay - the tick delay between actions for the Mob.
+	Skills - an array of the Mob's current Skills.
+	Disposition - A Disposition describing how the Mob appears to others.
+	Wanders - a float64 representing how likely it is for the Mob to move
+				on its own.
+*/
 type Mob struct {
 	ShortName, LongName string
 	Room                *Room
@@ -23,13 +51,24 @@ type Mob struct {
 	Skills              []*Skill
 	Disposition         Disposition
 	Wanders             float64
-	target              *Mob
-	hasWandered         bool
-	client              *Client
+
+	//target represents the Mob that this Mob is attacking.
+	target *Mob
+
+	//hasWandered indicates whether this Mob is moving on its own.
+	hasWandered bool
+	client      *Client
 }
 
+/*
+	Disposition is a string describing how a Mob appears at a given moment.
+	i.e. This mob is "standing" or "crouching".
+*/
 type Disposition string
 
+/*
+	Four default Dispositions.
+*/
 const (
 	Standing Disposition = "standing"
 	Sitting  Disposition = "sitting"
@@ -37,8 +76,14 @@ const (
 	Sleeping Disposition = "sleeping"
 )
 
+/*
+	A global array of all Mobs.
+*/
 var mobs []*Mob
 
+/*
+	NewMob creates and returns a new Mob with default values.
+*/
 func NewMob() *Mob {
 	mob := &Mob{
 		ShortName: "mob",
@@ -75,6 +120,11 @@ func NewMob() *Mob {
 	return mob
 }
 
+/*
+	Act performs whatever action is specified within the input string. If the
+	string is not within the recognized set of actions for that Mob, it will
+	print "What was that?"
+*/
 func (m *Mob) Act(input string) string {
 	if len(input) > 0 {
 		args := strings.Split(input, " ")
@@ -88,6 +138,15 @@ func (m *Mob) Act(input string) string {
 	return "\n"
 }
 
+/*
+	Move attempts to move the Mob in Direction d. If the Mob has the movement
+	necessary to travel to that room, it will move them there and automatically
+	invoke the "look" action. If they lack the movement attribute, it will
+	print "You are too tired to move." If there is no room in the specified direction,
+	it will print "Alas, you cannot go that way." Move also notifies all Mobs remaining
+	in the room of the passage of the Mob that moved and notifies all Mobs in the new
+	room of the Mob's arrival.
+*/
 func (m *Mob) Move(d Direction) string {
 	if room, ok := m.Room.Rooms[d]; ok {
 		if m.CurrentAttr.Vitals.Mv >= m.Room.MovementCost {
@@ -111,36 +170,59 @@ func (m *Mob) Move(d Direction) string {
 	}
 }
 
+/*
+	LeftRoom notifies a Mob that another Mob left a room and in what direction they were
+	going.
+*/
 func (m *Mob) LeftRoom(mob *Mob, d Direction) {
 	if m != mob {
 		m.Notify(mob.ShortName + " left heading " + string(d) + ".\n")
 	}
 }
 
+/*
+	EnteredRoom notifies a Mob that another Mob entered the same room from a given direction.
+*/
 func (m *Mob) EnteredRoom(mob *Mob, d Direction) {
 	if m != mob {
 		m.Notify(mob.ShortName + " entered from the " + string(d) + ".\n")
 	}
 }
 
+/*
+	DecrementDelay decreases the delay before a Mob can move again by 1
+	if it is above zero.
+*/
 func (m *Mob) DecrementDelay() {
 	if m.Delay > 0 {
 		m.Delay--
 	}
 }
 
+/*
+	Notify writes a message string to a Mob's Client.
+*/
 func (m *Mob) Notify(message string) {
 	if m.client != nil {
 		m.client.write(message)
 	}
 }
 
+/*
+	Tick decrements the delay before a Mob can act again and partially regenerates depleted
+	attributes (like vitals).
+*/
 func (m *Mob) Tick() {
 	m.DecrementDelay()
 	m.Regen()
+	//set flag to false
 	m.hasWandered = false
 }
 
+/*
+	Pulse causes a Mob to act, either by attacking their current target or potentially wandering
+	if they are not currently targeting any other Mobs.
+*/
 func (m *Mob) Pulse() {
 	if m.Wanders > 0 && !m.hasWandered && m.target == nil {
 		m.Wander()
@@ -150,6 +232,12 @@ func (m *Mob) Pulse() {
 	}
 }
 
+/*
+	Attack causes the Mob to attack whatever its current target is. This decrements the target's
+	current Hp Attribute by 5 and notifies both Mobs of the attack. If the target's Hp is reduced to
+	0 or lower, it dies. If the attacked Mob survives, but does not have a target, it is set to
+	target the attacking Mob.
+*/
 func (m *Mob) Attack() {
 	m.target.CurrentAttr.Vitals.Hp -= 5
 	m.Notify("You attack " + strings.ToLower(m.target.ShortName) + ".\n")
@@ -166,6 +254,10 @@ func (m *Mob) Attack() {
 	}
 }
 
+/*
+	Die informs a Mob of its death and creates a container to represent their corpse.
+	This container is automatically added to the contents of a room.
+*/
 func (m *Mob) Die() {
 	m.Notify("You died!\n")
 	m.target = nil
@@ -175,6 +267,10 @@ func (m *Mob) Die() {
 	m.Room.Items = append(m.Room.Items, corpse)
 }
 
+/*
+	Wander makes a Mob wander one room in a given direction. The percent chance of this
+	behavior occurring is based on the Mob.Wanders value.
+*/
 func (m *Mob) Wander() {
 	if rand.Float64() < m.Wanders {
 		d := m.Room.AllDirections()
@@ -185,6 +281,10 @@ func (m *Mob) Wander() {
 	}
 }
 
+/*
+	Regen causes the Mob's current Vitals and other Attributes to increase
+	by a value.
+*/
 func (m *Mob) Regen() {
 	m.CurrentAttr.Vitals.Hp += m.Attributes.Vitals.Hp * 0.1
 	m.CurrentAttr.Vitals.Mana += m.Attributes.Vitals.Mana * 0.1
@@ -192,6 +292,9 @@ func (m *Mob) Regen() {
 	m.normalizeAttr()
 }
 
+/*
+	Status returns a string representing the current status of the Mob.
+*/
 func (m *Mob) Status() (status string) {
 	p := m.CurrentAttr.Vitals.Hp / m.Attributes.Vitals.Hp
 	switch {
@@ -212,6 +315,10 @@ func (m *Mob) Status() (status string) {
 	}
 }
 
+/*
+	normalizeAttr checks whether the current Attributes of a Mob are greater than
+	the maximum attributes and sets them to be their maximum values if they are.
+*/
 func (m *Mob) normalizeAttr() {
 	if m.CurrentAttr.Vitals.Hp > m.Attributes.Vitals.Hp {
 		m.CurrentAttr.Vitals.Hp = m.Attributes.Vitals.Hp
