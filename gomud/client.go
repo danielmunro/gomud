@@ -34,24 +34,24 @@ func NewClient(conn net.Conn) *Client {
 	//sets the client of the client's mob to be the new client
 	c.mob.client = c
 	//simulates the user input "look"
-	c.Write(c.mob.Act("look"))
+	c.write(c.mob.Act("look"))
 	//prompts the user for input
 	c.prompt()
 	return c
 }
 
 /*
-	Write writes a string to the Client's net.Conn connection.
+	write writes a string to the Client's net.Conn connection.
 */
-func (c *Client) Write(line string) {
+func (c *Client) write(line string) {
 	c.conn.Write([]byte(line))
 }
 
 /*
-	Listen waits for input on the Client's net.Conn connection and sends it to the
+	listen waits for input on the Client's net.Conn connection and sends it to the
 	provided bufListener channel.
 */
-func (c *Client) Listen(bufListener chan<- *Message) {
+func (c *Client) listen(bufListener chan<- *Message) {
 	for {
 		buf, _ := bufio.NewReader(c.conn).ReadString('\n')
 		bufListener <- NewMessage(c, strings.TrimSpace(buf))
@@ -59,9 +59,9 @@ func (c *Client) Listen(bufListener chan<- *Message) {
 }
 
 /*
-	Pulse notifies the Client's mob and prompts the Client.
+	pulse notifies the Client's mob and prompts the Client.
 */
-func (c *Client) Pulse() {
+func (c *Client) pulse() {
 	if c.mob.target != nil {
 		c.mob.Notify(c.mob.target.ShortName + " " + c.mob.target.Status() + ".\n\n")
 		c.prompt()
@@ -69,10 +69,10 @@ func (c *Client) Pulse() {
 }
 
 /*
-	Tick writes a newline to the Client and prompts the client.
+	tick writes a newline to the Client and prompts the client.
 */
-func (c *Client) Tick() {
-	c.Write("\n")
+func (c *Client) tick() {
+	c.write("\n")
 	c.prompt()
 }
 

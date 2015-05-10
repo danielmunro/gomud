@@ -15,7 +15,7 @@ type Message struct {
 */
 func (m *Message) Process() bool {
 	if m.client.mob.Delay == 0 {
-		m.client.Write(m.client.mob.Act(m.data))
+		m.client.write(m.client.mob.Act(m.data))
 		return true
 	}
 	return false
