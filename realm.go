@@ -52,7 +52,7 @@ type Room struct {
 	init populates the rooms from a specified file.
 */
 func init() {
-	dir, _ := filepath.Abs(filepath.Dir("gomud/areas/"))
+	dir, _ := filepath.Abs(filepath.Dir("areas/"))
 	data, _ := ioutil.ReadFile(dir + "/midgaard.yaml")
 	yaml.Unmarshal(data, &rooms)
 	for _, r := range rooms {

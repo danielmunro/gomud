@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	server.NewServer(8080).run()
+	gomud.NewServer(8080).Run()
 }
