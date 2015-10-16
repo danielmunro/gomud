@@ -64,8 +64,7 @@ func init() {
 			})
 		}
 		for _, m := range r.Mobs {
-			m.CurrentAttr = &Attributes{}
-			*m.CurrentAttr = *m.Attributes
+			m.CurrentAttr = m.Attributes
 			m.Room = r
 			mobs = append(mobs, m)
 		}
