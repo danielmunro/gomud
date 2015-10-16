@@ -102,9 +102,9 @@ func NewMob() *Mob {
 		Room: rooms[1],
 		Race: Human,
 	}
-	rooms[1].AddMob(mob)
+	rooms[1].Mobs = append(rooms[1].Mobs, mob)
 	mobs = append(mobs, mob)
-	
+
 	return mob
 }
 
@@ -141,7 +141,7 @@ func (m *Mob) Move(d Direction) string {
 					mob.LeftRoom(m, d)
 				}
 				m.Room.RemoveMob(m)
-				exit.Room.AddMob(m)
+				exit.Room.Mobs = append(exit.Room.Mobs, m)
 				m.Room = exit.Room
 				for _, mob := range m.Room.Mobs {
 					od, _ := OppositeDirection(d)

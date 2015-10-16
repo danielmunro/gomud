@@ -36,7 +36,7 @@ const (
 type Room struct {
 	Title, Description, Area string
 	Directions               map[Direction]int
-	Exits                    []*Exit
+	Exits                    []*Exit "omitempty"
 	Mobs                     []*Mob
 	MovementCost             float64
 	Items                    []*Item
@@ -71,11 +71,6 @@ func init() {
 	}
 }
 
-// AddMob inserts a given Mob m into the room.
-func (r *Room) AddMob(m *Mob) {
-	r.Mobs = append(r.Mobs, m)
-}
-
 // RemoveMob removes Mob m from the Room.
 func (r *Room) RemoveMob(m *Mob) {
 	for p, v := range r.Mobs {
@@ -88,7 +83,6 @@ func (r *Room) RemoveMob(m *Mob) {
 
 // FindMob finds a mob by the name arg in the room.
 func (r *Room) FindMob(arg string) *Mob {
-
 	for _, m := range r.Mobs {
 		names := strings.Split(m.ShortName, " ")
 		for _, n := range names {
@@ -101,7 +95,7 @@ func (r *Room) FindMob(arg string) *Mob {
 	return nil
 }
 
-// Announce notifies a Mob within a room of a given message.
+// Announce notifies all mobs within a room of a given message.
 func (r *Room) Announce(m *Mob, message string) {
 	for _, mob := range r.Mobs {
 		if m != mob {
