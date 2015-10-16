@@ -7,10 +7,8 @@ import (
 	"strings"
 )
 
-/*
-	Client encapsulates the data necessary to run a single
-	connection to the server.
-*/
+// Client encapsulates the data necessary to run a single
+// connection to the server.
 type Client struct {
 	//conn is the connection to the client
 	conn net.Conn
@@ -22,9 +20,7 @@ type Client struct {
 	server *Server
 }
 
-/*
-	NewClient creates a new Client struct for the given Connection.
-*/
+// NewClient creates a new Client struct for the given Connection.
 func NewClient(conn net.Conn) *Client {
 	//creates a new client with the connection and a new Mob
 	c := &Client{
@@ -40,17 +36,13 @@ func NewClient(conn net.Conn) *Client {
 	return c
 }
 
-/*
-	write writes a string to the Client's net.Conn connection.
-*/
+// write writes a string to the Client's net.Conn connection.
 func (c *Client) write(line string) {
 	c.conn.Write([]byte(line))
 }
 
-/*
-	listen waits for input on the Client's net.Conn connection and sends it to the
-	provided bufListener channel.
-*/
+// listen waits for input on the Client's net.Conn connection and sends it to
+// the provided bufListener channel.
 func (c *Client) listen(bufListener chan<- *Message) {
 	for {
 		buf, _ := bufio.NewReader(c.conn).ReadString('\n')
@@ -58,9 +50,7 @@ func (c *Client) listen(bufListener chan<- *Message) {
 	}
 }
 
-/*
-	pulse notifies the Client's mob and prompts the Client.
-*/
+// pulse notifies the Client's mob and prompts the Client.
 func (c *Client) pulse() {
 	if c.mob.target != nil {
 		c.mob.Notify(c.mob.target.ShortName + " " + c.mob.target.Status() + ".\n\n")
@@ -68,26 +58,20 @@ func (c *Client) pulse() {
 	}
 }
 
-/*
-	tick writes a newline to the Client and prompts the client.
-*/
+// tick writes a newline to the Client and prompts the client.
 func (c *Client) tick() {
 	c.write("\n")
 	c.prompt()
 }
 
-/*
-	bufPop returns the first string in the Client's buf string array.
-*/
+// bufPop returns the first string in the Client's buf string array.
 func (c *Client) bufPop() string {
 	b := c.buf[0]
 	c.buf = c.buf[1:]
 	return b
 }
 
-/*
-	prompt displays information about the Client mob's current attributes.
-*/
+// prompt displays information about the Client mob's current attributes.
 func (c *Client) prompt() {
 	a := c.mob.CurrentAttr
 	c.write("[" + strconv.FormatFloat(a.Vitals.Hp, 'f', 0, 32) + "hp " + strconv.FormatFloat(a.Vitals.Mana, 'f', 0, 32) + "m " + strconv.FormatFloat(a.Vitals.Mv, 'f', 0, 32) + "mv]> ")

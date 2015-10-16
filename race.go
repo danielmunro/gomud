@@ -1,13 +1,9 @@
 package gomud
 
-/*
-	RaceType is a string representing the name of a fantasy race.
-*/
+// RaceType is a string representing the name of a fantasy race.
 type RaceType string
 
-/*
-	Six default RaceTypes.
-*/
+// Six default RaceTypes.
 const (
 	Giant RaceType = "giant"
 	Human RaceType = "human"
@@ -17,16 +13,12 @@ const (
 	Nymph RaceType = "nymph"
 )
 
-/*
-	Race defines the attributes of a fantasy race.
-
-	Name - a string name for the race.
-	Description - a string describing the race.
-	Attributes - an Attributes struct defining the maximum Attributes for the race.
-	Skills - an array of Skills for the race.
-	Playable - a boolean value indicating whether players can be members of
-				the race.
-*/
+// Race defines the attributes of a fantasy race.
+// Name - a string name for the race.
+// Description - a string describing the race.
+// Attributes - an Attributes struct defining the maximum Attributes for the race.
+// Skills - an array of Skills for the race.
+// Playable - a boolean value indicating whether players can be members of the race.
 type Race struct {
 	Name, Description string
 	Attributes        *Attributes
@@ -34,15 +26,11 @@ type Race struct {
 	Playable          bool
 }
 
-/*
-	races maps RaceType strings to a given Race struct.
-*/
+// races maps RaceType strings to a given Race struct.
 var races map[RaceType]*Race
 
-/*
-	init initializes the races map. It pairs each of the six default races with
-	a fully populated Race struct.
-*/
+// init initializes the races map. It pairs each of the six default races with
+// a fully populated Race struct.
 func init() {
 	races = map[RaceType]*Race{
 		Giant: &Race{

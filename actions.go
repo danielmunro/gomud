@@ -2,14 +2,10 @@ package gomud
 
 import "strings"
 
-/*
-	ActionName is the string name of a valid command in the game.
-*/
+// ActionName is the string name of a valid command in the game.
 type ActionName string
 
-/*
-	The default Actions available to players
-*/
+// The default Actions available to players
 const (
 	NorthAction    ActionName = "north"
 	SouthAction    ActionName = "south"
@@ -25,24 +21,18 @@ const (
 	KillAction     ActionName = "kill"
 )
 
-/*
-	Action defines a single action available to Mobs.
-	Name - an ActionName for this action.
-	Func - the function to call when this action is taken.
-*/
+// Action defines a single action available to Mobs.
+// Name - an ActionName for this action.
+// Func - the function to call when this action is taken.
 type Action struct {
 	Name ActionName
 	Func func(m *Mob, args []string) string
 }
 
-/*
-	actions is a global array of available actions.
-*/
+// actions is a global array of available actions.
 var actions []*Action
 
-/*
-	init populates the global actions array.
-*/
+// init populates the global actions array.
 func init() {
 	actions = []*Action{
 		&Action{
@@ -91,13 +81,14 @@ func init() {
 						output += mob.ShortName + " " + m.Status() + ".\n"
 					}
 				} else {
+
 					output = m.Room.Title + "\n" + m.Room.Description + "\n\n[Exits "
-					for d, _ := range m.Room.Rooms {
-						output += string(d)[:1]
+					for _, e := range m.Room.Exits {
+						output += string(e.Direction)[:1]
 					}
 					output += "]\n"
 					for _, i := range m.Room.Items {
-						output += strings.ToUpper(i.String()) + " is here.\n"
+						output += strings.ToUpper(i.ShortName) + " is here.\n"
 					}
 					for _, mob := range m.Room.Mobs {
 						if mob != m {
