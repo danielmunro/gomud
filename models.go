@@ -19,7 +19,9 @@ const (
 
 type mob struct {
 	gorm.Model
-	room room
+	name        string
+	description string
+	room        *room
 }
 
 type exit struct {
@@ -33,6 +35,7 @@ type room struct {
 	name        string
 	description string
 	exits       []*exit
+	mobs        []*mob `gorm:"ForeignKey:mob"`
 }
 
 func newRoom(n string, d string) *room {
@@ -51,4 +54,14 @@ func (r *room) exitsString() string {
 	}
 
 	return fmt.Sprintf("[%s]", exits)
+}
+
+func (r *room) mobsString() string {
+	var mobs string
+
+	for _, m := range r.mobs {
+		mobs = fmt.Sprintf("%s is here.\n%s", string(m.name), mobs)
+	}
+
+	return mobs
 }

@@ -99,15 +99,32 @@ func Listen(port int) {
 func scratchWorld() *room {
 	r1 := newRoom("Room 1", "You are in the first room")
 	r2 := newRoom("Room 2", "You are in the second room")
+	r3 := newRoom("Room 3", "You are in the third room")
 
 	r1.exits = append(r1.exits, &exit{
 		room:      r2,
 		direction: "south",
 	})
 
+	r1.exits = append(r1.exits, &exit{
+		room:      r3,
+		direction: "west",
+	})
+
+	r1.mobs = append(r1.mobs, &mob{
+		name:        "test mob",
+		description: "A test mob",
+		room:        r1,
+	})
+
 	r2.exits = append(r2.exits, &exit{
 		room:      r1,
 		direction: "north",
+	})
+
+	r3.exits = append(r3.exits, &exit{
+		room:      r1,
+		direction: "east",
 	})
 
 	return r1

@@ -43,7 +43,8 @@ func parse(i *input) {
 }
 
 func look(i *input) {
-	i.client.writePrompt(fmt.Sprintf("%s\n%s\n%s", i.client.room.name, i.client.room.description, i.client.room.exitsString()))
+	r := i.client.room
+	i.client.writePrompt(fmt.Sprintf("%s\n%s\n%s\n%s", r.name, r.description, r.exitsString(), r.mobsString()))
 }
 
 func move(d direction, i *input) {
