@@ -7,6 +7,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type client struct {
@@ -57,6 +58,23 @@ func Listen(port int) {
 			select {
 			case c := <-listener:
 				parse(newInput(c, strings.Split(c.message, " ")))
+			}
+		}
+	}()
+
+	go func() {
+		var pulse int64
+		var tick int
+		for {
+			p := time.Now().Unix()
+			if p > pulse {
+				// do something for a pulse
+				pulse = p
+				tick++
+				if tick > 15 {
+					log.Println(fmt.Sprintf("tick at %d", p))
+					tick = 0
+				}
 			}
 		}
 	}()

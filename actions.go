@@ -2,7 +2,6 @@ package gomud
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -39,7 +38,7 @@ func parse(i *input) {
 	} else if i.matches("down") {
 		move(down, i)
 	} else {
-		log.Println("miss")
+		i.client.writePrompt("Eh?")
 	}
 }
 
