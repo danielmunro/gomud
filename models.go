@@ -1,6 +1,7 @@
 package gomud
 
 import (
+	"errors"
 	"fmt"
 	"log"
 
@@ -18,6 +19,25 @@ const (
 	down  direction = "down"
 )
 
+func reverseDirection(d direction) (direction, error) {
+	switch d {
+	case north:
+		return south, nil
+	case south:
+		return north, nil
+	case east:
+		return west, nil
+	case west:
+		return east, nil
+	case up:
+		return down, nil
+	case down:
+		return up, nil
+	default:
+		return d, errors.New(fmt.Sprintf("unexpected direction %s", string(d)))
+	}
+}
+
 type role string
 
 const (
@@ -25,22 +45,14 @@ const (
 	mobile    role = "mobile"
 )
 
-type notification string
-
-const (
-	movement notification = "movement"
-)
-
 type event struct {
 	sender  *mob
-	context notification
 	message string
 }
 
-func newEvent(s *mob, c notification, m string) *event {
+func newEvent(s *mob, m string) *event {
 	return &event{
 		sender:  s,
-		context: c,
 		message: m,
 	}
 }
@@ -49,11 +61,14 @@ type mob struct {
 	gorm.Model
 	name        string
 	description string
+	identifiers []string
 	attributes  *attributes
 	level       int
 	hp          int
 	mana        int
 	mv          int
+	race        race
+	job         job
 	room        *room
 	lastRoom    *room
 	roles       []role
@@ -63,7 +78,7 @@ type mob struct {
 
 func (m *mob) notify(e *event) {
 	if m.client != nil {
-		m.client.write(e.message)
+		m.client.writePrompt(e.message)
 	}
 }
 
@@ -83,7 +98,7 @@ func (m *mob) hasRole(r role) bool {
 
 func (m *mob) move(e *exit) {
 	m.lastRoom = m.room
-	v := newEvent(m, movement, fmt.Sprintf("%s leaves.\n", m.String()))
+	v := newEvent(m, fmt.Sprintf("%s leaves heading %s.\n", m.String(), e.direction))
 	for i, rm := range m.room.mobs {
 		if rm == m {
 			m.room.mobs = append(m.room.mobs[0:i], m.room.mobs[i+1:]...)
@@ -93,7 +108,7 @@ func (m *mob) move(e *exit) {
 	}
 	m.room = e.room
 	m.room.mobs = append(m.room.mobs, m)
-	v = newEvent(m, movement, fmt.Sprintf("%s arrives.\n", m.String()))
+	v = newEvent(m, fmt.Sprintf("%s arrives.\n", m.String()))
 	for _, rm := range m.room.mobs {
 		if rm != m {
 			rm.notify(v)
@@ -120,6 +135,12 @@ func (m *mob) roam() {
 }
 
 func (m *mob) scavenge() {
+	if len(m.room.items) > 0 {
+		get(&input{
+			args: []string{"get", m.room.items[0].identifiers[0]},
+			mob:  m,
+		})
+	}
 }
 
 type exit struct {
@@ -148,29 +169,8 @@ func newRoom(n string, d string) *room {
 	return &room{
 		name:        n,
 		description: d,
+		items:       []*item{},
 	}
-}
-
-func (r *room) exitsString() string {
-	var exits string
-
-	for _, e := range r.exits {
-		exits = fmt.Sprintf("%s%s", exits, string(e.direction[0]))
-	}
-
-	return fmt.Sprintf("[%s]", exits)
-}
-
-func (r *room) mobsString(mob *mob) string {
-	var mobs string
-
-	for _, m := range r.mobs {
-		if m != mob {
-			mobs = fmt.Sprintf("%s is here.\n%s", string(m.name), mobs)
-		}
-	}
-
-	return mobs
 }
 
 func (r *room) String() string {
@@ -199,12 +199,35 @@ type item struct {
 	gorm.Model
 	name        string
 	description string
+	identifiers []string
 	attributes  *attributes
 }
 
-func newItem(name string, description string) *item {
+func newItem(name string, description string, identifiers []string) *item {
 	return &item{
 		name:        name,
 		description: description,
+		identifiers: identifiers,
 	}
 }
+
+func (i *item) String() string {
+	return i.name
+}
+
+type race string
+
+const (
+	human race = "human"
+	elf   race = "elf"
+	dwarf race = "dwarf"
+)
+
+type job string
+
+const (
+	mage    job = "mage"
+	warrior job = "warrior"
+	cleric  job = "cleric"
+	thief   job = "thief"
+)

@@ -79,13 +79,18 @@ func Listen(port int) error {
 					if d20() == 1 {
 						roleCheck(m)
 					}
-					//regen(m)
 				}
 				pulse = p
 				tick++
 				if tick > 15 {
 					log.Println(fmt.Sprintf("tick at %d", p))
 					tick = 0
+					for _, m := range mobs {
+						regen(m)
+					}
+					for _, c := range clients {
+						c.writePrompt("")
+					}
 				}
 			}
 		}
@@ -98,6 +103,7 @@ func Listen(port int) error {
 		}
 		go func(c *client) {
 			c.mob.client = c
+			c.mob.room.mobs = append(c.mob.room.mobs, c.mob)
 			clients = append(clients, c)
 			mobs = append(mobs, c.mob)
 			look(&input{client: c})
@@ -120,7 +126,7 @@ func scratchWorld() *room {
 		name:        "a test mob",
 		description: "A test mob",
 		room:        r1,
-		roles:       []role{mobile},
+		roles:       []role{mobile, scavenger},
 	}
 	r1.mobs = append(r1.mobs, m)
 	mobs = append(mobs, m)
@@ -128,7 +134,7 @@ func scratchWorld() *room {
 	r2.exits = append(r2.exits, newExit(r1, north))
 	r3.exits = append(r3.exits, newExit(r1, east))
 
-	r1.items = append(r1.items, newItem("an item", "An item is here"))
+	r1.items = append(r1.items, newItem("an item", "An item is here", []string{"item"}))
 
 	return r1
 }
