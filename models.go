@@ -8,6 +8,31 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type position string
+
+const (
+	light     position = "light"
+	finger1   position = "finger"
+	finger2   position = "finger"
+	neck1     position = "neck"
+	neck2     position = "neck"
+	torso     position = "torso"
+	head      position = "head"
+	legs      position = "legs"
+	feet      position = "feet"
+	hands     position = "hands"
+	arms      position = "arms"
+	shield    position = "shield"
+	body      position = "body"
+	waist     position = "waist"
+	wrist1    position = "wrist"
+	wrist2    position = "wrist"
+	wield     position = "wield"
+	held      position = "held"
+	floating  position = "floating"
+	secondary position = "secondary"
+)
+
 type direction string
 
 const (
@@ -74,11 +99,12 @@ type mob struct {
 	roles       []role
 	client      *client
 	items       []*item
+	equipped    []*item
 }
 
-func (m *mob) notify(e *event) {
+func (m *mob) notify(message string) {
 	if m.client != nil {
-		m.client.writePrompt(e.message)
+		m.client.writePrompt(message)
 	}
 }
 
@@ -98,20 +124,20 @@ func (m *mob) hasRole(r role) bool {
 
 func (m *mob) move(e *exit) {
 	m.lastRoom = m.room
-	v := newEvent(m, fmt.Sprintf("%s leaves heading %s.\n", m.String(), e.direction))
+	message := fmt.Sprintf("%s leaves heading %s.\n", m.String(), e.direction)
 	for i, rm := range m.room.mobs {
 		if rm == m {
 			m.room.mobs = append(m.room.mobs[0:i], m.room.mobs[i+1:]...)
 		} else {
-			rm.notify(v)
+			rm.notify(message)
 		}
 	}
 	m.room = e.room
 	m.room.mobs = append(m.room.mobs, m)
-	v = newEvent(m, fmt.Sprintf("%s arrives.\n", m.String()))
+	message = fmt.Sprintf("%s arrives.\n", m.String())
 	for _, rm := range m.room.mobs {
 		if rm != m {
-			rm.notify(v)
+			rm.notify(message)
 		}
 	}
 	log.Println(fmt.Sprintf("%s moves to %s", m.String(), m.room.String()))
@@ -189,9 +215,9 @@ type attributes struct {
 	con      int
 	hit      int
 	dam      int
-	acPierce int
 	acBash   int
 	acSlash  int
+	acPierce int
 	acMagic  int
 }
 
@@ -201,6 +227,7 @@ type item struct {
 	description string
 	identifiers []string
 	attributes  *attributes
+	position    position
 }
 
 func newItem(name string, description string, identifiers []string) *item {
@@ -214,20 +241,3 @@ func newItem(name string, description string, identifiers []string) *item {
 func (i *item) String() string {
 	return i.name
 }
-
-type race string
-
-const (
-	human race = "human"
-	elf   race = "elf"
-	dwarf race = "dwarf"
-)
-
-type job string
-
-const (
-	mage    job = "mage"
-	warrior job = "warrior"
-	cleric  job = "cleric"
-	thief   job = "thief"
-)

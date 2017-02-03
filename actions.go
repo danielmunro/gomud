@@ -2,7 +2,6 @@ package gomud
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -53,6 +52,10 @@ func parse(i *input) {
 		get(i)
 	} else if i.matchesCommand("drop") {
 		drop(i)
+	} else if i.matchesCommand("wear") {
+		wear(i)
+	} else if i.matchesCommand("remove") {
+		remove(i)
 	} else {
 		i.client.writePrompt("Eh?")
 	}
@@ -72,18 +75,40 @@ func look(i *input) {
 	)
 }
 
+func wear(i *input) {
+	for j, item := range i.mob.items {
+		if i.matchesSubject(item.identifiers) {
+			i.mob.items, i.mob.equipped = transferItem(j, i.mob.items, i.mob.equipped)
+			i.mob.notify(fmt.Sprintf("You wear %s.", item.String()))
+			return
+		}
+	}
+
+	i.mob.notify("You can't find that.")
+}
+
+func remove(i *input) {
+	for j, item := range i.mob.equipped {
+		if i.matchesSubject(item.identifiers) {
+			i.mob.equipped, i.mob.items = transferItem(j, i.mob.equipped, i.mob.items)
+			i.mob.notify(fmt.Sprintf("You remove %s.", item.String()))
+			return
+		}
+	}
+
+	i.mob.notify("You can't find that.")
+}
+
 func get(i *input) {
 	for j, item := range i.mob.room.items {
 		if i.matchesSubject(item.identifiers) {
-			i.mob.room.items = append(i.mob.room.items[0:j], i.mob.room.items[j+1:]...)
-			i.mob.items = append(i.mob.items, item)
-			e := newEvent(i.mob, fmt.Sprintf("%s picks up %s.", i.mob.String(), item.String()))
-			log.Println(len(i.mob.room.mobs))
+			i.mob.room.items, i.mob.items = transferItem(j, i.mob.room.items, i.mob.items)
+			message := fmt.Sprintf("%s picks up %s.", i.mob.String(), item.String())
 			for _, m := range i.mob.room.mobs {
 				if m == i.mob {
-					m.notify(newEvent(i.mob, fmt.Sprintf("You pick up %s.", item.String())))
+					m.notify(fmt.Sprintf("You pick up %s.", item.String()))
 				} else {
-					m.notify(e)
+					m.notify(message)
 				}
 			}
 
@@ -95,20 +120,27 @@ func get(i *input) {
 func drop(i *input) {
 	for j, item := range i.mob.items {
 		if i.matchesSubject(item.identifiers) {
-			i.mob.items = append(i.mob.items[0:j], i.mob.items[j+1:]...)
-			i.mob.room.items = append(i.mob.room.items, item)
-			e := newEvent(i.mob, fmt.Sprintf("%s drops %s.", i.mob.String(), item.String()))
+			i.mob.items, i.mob.room.items = transferItem(j, i.mob.items, i.mob.room.items)
+			message := fmt.Sprintf("%s drops %s.", i.mob.String(), item.String())
 			for _, m := range i.mob.room.mobs {
 				if m == i.mob {
-					m.notify(newEvent(i.mob, fmt.Sprintf("You drop %s.", item.String())))
+					m.notify(fmt.Sprintf("You drop %s.", item.String()))
 				} else {
-					m.notify(e)
+					m.notify(message)
 				}
 			}
 
 			return
 		}
 	}
+}
+
+func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
+	item := from[i]
+	from = append(from[0:i], from[i+1:]...)
+	to = append(to, item)
+
+	return from, to
 }
 
 func exitsString(r *room) string {
