@@ -78,6 +78,12 @@ func look(i *input) {
 func wear(i *input) {
 	for j, item := range i.mob.items {
 		if i.matchesSubject(item.identifiers) {
+			for k, eq := range i.mob.equipped {
+				if eq.position == item.position {
+					i.mob.equipped, i.mob.items = transferItem(k, i.mob.equipped, i.mob.items)
+					i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
+				}
+			}
 			i.mob.items, i.mob.equipped = transferItem(j, i.mob.items, i.mob.equipped)
 			i.mob.notify(fmt.Sprintf("You wear %s.", item.String()))
 			return
