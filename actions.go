@@ -5,113 +5,110 @@ import (
 	"strings"
 )
 
-type input struct {
-	mob    *mob
-	client *client
-	args   []string
+type action struct {
+	i *input
 }
 
-func newInput(c *client, args []string) *input {
-	return &input{
-		client: c,
-		args:   args,
-		mob:    c.mob,
-	}
+func newAction(m *mob, i string) {
+	newActionWithInput(&input{mob: m, args: strings.Split(i, " ")})
 }
 
-func (i *input) matchesCommand(s string) bool {
-	return strings.HasPrefix(s, i.args[0])
-}
-
-func (i *input) matchesSubject(s []string) bool {
-	for _, v := range s {
-		if strings.HasPrefix(v, i.args[1]) {
-			return true
-		}
+func newActionWithInput(i *input) {
+	a := &action{
+		i: i,
 	}
 
-	return false
-}
-
-func parse(i *input) {
-	if i.matchesCommand("look") {
-		look(i)
-	} else if i.matchesCommand("north") {
-		move(north, i)
-	} else if i.matchesCommand("south") {
-		move(south, i)
-	} else if i.matchesCommand("east") {
-		move(east, i)
-	} else if i.matchesCommand("west") {
-		move(west, i)
-	} else if i.matchesCommand("up") {
-		move(up, i)
-	} else if i.matchesCommand("down") {
-		move(down, i)
-	} else if i.matchesCommand("get") {
-		get(i)
-	} else if i.matchesCommand("drop") {
-		drop(i)
-	} else if i.matchesCommand("wear") {
-		wear(i)
-	} else if i.matchesCommand("remove") {
-		remove(i)
-	} else {
+	switch a.i.getCommand() {
+	case cLook:
+		a.look()
+		return
+	case cNorth:
+		a.move(dNorth)
+		return
+	case cSouth:
+		a.move(dSouth)
+		return
+	case cEast:
+		a.move(dEast)
+		return
+	case cWest:
+		a.move(dWest)
+		return
+	case cUp:
+		a.move(dUp)
+		return
+	case cDown:
+		a.move(dDown)
+		return
+	case cDrop:
+		a.drop()
+		return
+	case cGet:
+		a.get()
+		return
+	case cWear:
+		a.wear()
+		return
+	case cRemove:
+		a.remove()
+		return
+	default:
 		i.client.writePrompt("Eh?")
 	}
+
 }
 
-func look(i *input) {
-	r := i.client.mob.room
-	i.client.writePrompt(
+func (a *action) look() {
+	r := a.i.mob.room
+	a.i.mob.notify(
 		fmt.Sprintf(
 			"%s\n%s\n%s\n%s%s",
 			r.name,
 			r.description,
 			exitsString(r),
 			itemsString(r),
-			mobsString(r, i.client.mob),
+			mobsString(r, a.i.mob),
 		),
 	)
 }
 
-func wear(i *input) {
-	for j, item := range i.mob.items {
-		if i.matchesSubject(item.identifiers) {
-			for k, eq := range i.mob.equipped {
+func (a *action) wear() {
+	for j, item := range a.i.mob.items {
+		if a.i.matchesSubject(item.identifiers) {
+			for k, eq := range a.i.mob.equipped {
 				if eq.position == item.position {
-					i.mob.equipped, i.mob.items = transferItem(k, i.mob.equipped, i.mob.items)
-					i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
+					a.i.mob.equipped, a.i.mob.items = transferItem(k, a.i.mob.equipped, a.i.mob.items)
+					a.i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
 				}
 			}
-			i.mob.items, i.mob.equipped = transferItem(j, i.mob.items, i.mob.equipped)
-			i.mob.notify(fmt.Sprintf("You wear %s.", item.String()))
+			a.i.mob.items, a.i.mob.equipped = transferItem(j, a.i.mob.items, a.i.mob.equipped)
+			a.i.mob.notify(fmt.Sprintf("You wear %s.", item.String()))
 			return
 		}
 	}
 
-	i.mob.notify("You can't find that.")
+	a.i.mob.notify("You can't find that.")
 }
 
-func remove(i *input) {
-	for j, item := range i.mob.equipped {
-		if i.matchesSubject(item.identifiers) {
-			i.mob.equipped, i.mob.items = transferItem(j, i.mob.equipped, i.mob.items)
-			i.mob.notify(fmt.Sprintf("You remove %s.", item.String()))
+func (a *action) remove() {
+	for j, item := range a.i.mob.equipped {
+		if a.i.matchesSubject(item.identifiers) {
+			a.i.mob.equipped, a.i.mob.items = transferItem(j, a.i.mob.equipped, a.i.mob.items)
+			a.i.mob.notify(fmt.Sprintf("You remove %s.", item.String()))
 			return
 		}
 	}
 
-	i.mob.notify("You can't find that.")
+	a.i.mob.notify("You can't find that.")
 }
 
-func get(i *input) {
-	for j, item := range i.mob.room.items {
-		if i.matchesSubject(item.identifiers) {
-			i.mob.room.items, i.mob.items = transferItem(j, i.mob.room.items, i.mob.items)
-			message := fmt.Sprintf("%s picks up %s.", i.mob.String(), item.String())
-			for _, m := range i.mob.room.mobs {
-				if m == i.mob {
+func (a *action) get() {
+	for j, item := range a.i.mob.room.items {
+		if a.i.matchesSubject(item.identifiers) {
+			a.i.mob.room.items, a.i.mob.items = transferItem(j, a.i.mob.room.items, a.i.mob.items)
+			message := fmt.Sprintf("%s picks up %s.", a.i.mob.String(), item.String())
+			for _, m := range a.i.mob.room.mobs {
+				if m == a.i.mob {
 					m.notify(fmt.Sprintf("You pick up %s.", item.String()))
 				} else {
 					m.notify(message)
@@ -123,13 +120,13 @@ func get(i *input) {
 	}
 }
 
-func drop(i *input) {
-	for j, item := range i.mob.items {
-		if i.matchesSubject(item.identifiers) {
-			i.mob.items, i.mob.room.items = transferItem(j, i.mob.items, i.mob.room.items)
-			message := fmt.Sprintf("%s drops %s.", i.mob.String(), item.String())
-			for _, m := range i.mob.room.mobs {
-				if m == i.mob {
+func (a *action) drop() {
+	for j, item := range a.i.mob.items {
+		if a.i.matchesSubject(item.identifiers) {
+			a.i.mob.items, a.i.mob.room.items = transferItem(j, a.i.mob.items, a.i.mob.room.items)
+			message := fmt.Sprintf("%s drops %s.", a.i.mob.String(), item.String())
+			for _, m := range a.i.mob.room.mobs {
+				if m == a.i.mob {
 					m.notify(fmt.Sprintf("You drop %s.", item.String()))
 				} else {
 					m.notify(message)
@@ -139,6 +136,17 @@ func drop(i *input) {
 			return
 		}
 	}
+}
+
+func (a *action) move(d direction) {
+	for _, e := range a.i.client.mob.room.exits {
+		if e.direction == d {
+			a.i.client.mob.move(e)
+			newAction(a.i.client.mob, "look")
+			return
+		}
+	}
+	a.i.client.writePrompt("Alas, you cannot go that way.")
 }
 
 func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
@@ -179,15 +187,4 @@ func itemsString(r *room) string {
 	}
 
 	return items
-}
-
-func move(d direction, i *input) {
-	for _, e := range i.client.mob.room.exits {
-		if e.direction == d {
-			i.client.mob.move(e)
-			look(i)
-			return
-		}
-	}
-	i.client.writePrompt("Alas, you cannot go that way.")
 }

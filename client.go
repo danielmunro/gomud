@@ -20,12 +20,8 @@ func (c *client) read() *client {
 	return c
 }
 
-func (c *client) write(m string) {
-	c.conn.Write([]byte(m))
-}
-
 func (c *client) writePrompt(m string) {
-	c.write(fmt.Sprintf("%s\n--> ", m))
+	c.conn.Write([]byte(fmt.Sprintf("%s\n--> ", m)))
 }
 
 func (c *client) String() string {
