@@ -2,7 +2,7 @@ package gomud
 
 import (
 	"fmt"
-	"log"
+	"strings"
 
 	"github.com/jinzhu/gorm"
 )
@@ -14,17 +14,30 @@ const (
 	mobile    role = "mobile"
 )
 
+type disposition int
+
+const (
+	dead disposition = iota
+	incapacitated
+	stunned
+	sleeping
+	sitting
+	fighting
+	standing
+)
+
 type mob struct {
 	gorm.Model
 	name        string
 	description string
 	identifiers []string
 	attributes  *attributes
+	disposition disposition
 	level       int
 	hp          int
 	mana        int
 	mv          int
-	race        race
+	race        *race
 	job         job
 	room        *room
 	lastRoom    *room
@@ -32,6 +45,20 @@ type mob struct {
 	client      *client
 	items       []*item
 	equipped    []*item
+	fight       *fight
+}
+
+func newMob(n string, d string) *mob {
+	return &mob{
+		name:        n,
+		description: d,
+		identifiers: strings.Split(n, " "),
+		attributes:  &attributes{},
+		disposition: standing,
+		level:       1,
+		race:        getRace(""),
+		job:         uninitiated,
+	}
 }
 
 func (m *mob) notify(message string) {
@@ -56,32 +83,29 @@ func (m *mob) hasRole(r role) bool {
 
 func (m *mob) move(e *exit) {
 	m.lastRoom = m.room
-	message := fmt.Sprintf("%s leaves heading %s.\n", m.String(), e.direction)
 	for i, rm := range m.room.mobs {
 		if rm == m {
 			m.room.mobs = append(m.room.mobs[0:i], m.room.mobs[i+1:]...)
 		} else {
-			rm.notify(message)
+			rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.String(), e.direction))
 		}
 	}
 	m.room = e.room
 	m.room.mobs = append(m.room.mobs, m)
-	message = fmt.Sprintf("%s arrives.\n", m.String())
 	for _, rm := range m.room.mobs {
 		if rm != m {
-			rm.notify(message)
+			rm.notify(fmt.Sprintf("%s arrives.\n", m.String()))
 		}
 	}
-	log.Println(fmt.Sprintf("%s moves to %s", m.String(), m.room.String()))
 }
 
 func (m *mob) roam() {
-	c := len(m.room.exits)
-	if c == 0 {
+	switch c := len(m.room.exits); c {
+	case 0:
 		return
-	} else if c == 1 {
+	case 1:
 		m.move(m.room.exits[0])
-	} else {
+	default:
 		for {
 			e := m.room.exits[dice().Intn(c)]
 			if e.room != m.lastRoom {
@@ -95,5 +119,15 @@ func (m *mob) roam() {
 func (m *mob) scavenge() {
 	if len(m.room.items) > 0 {
 		newAction(m, fmt.Sprintf("get %s", m.room.items[0].identifiers[0]))
+	}
+}
+
+func (m *mob) attr(a attribute) int {
+	return m.attributes.a(a) + m.race.attrs.a(a) + jobAttributes(m.job).a(a)
+}
+
+func (m *mob) attack(target *mob) {
+	if target.disposition > dead {
+		target.hp -= dice().Intn(m.attr(aDam)) + m.attr(aHit)
 	}
 }

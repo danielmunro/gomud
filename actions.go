@@ -52,10 +52,39 @@ func newActionWithInput(i *input) {
 	case cRemove:
 		a.remove()
 		return
+	case cKill:
+		a.kill()
+	case cFlee:
+		a.flee()
 	default:
 		i.client.writePrompt("Eh?")
 	}
+}
 
+func (a *action) kill() {
+	if a.i.mob.disposition != standing {
+		a.i.mob.notify(fmt.Sprintf("You can't do that, you're %s!", string(a.i.mob.disposition)))
+		return
+	}
+
+	for _, m := range a.i.mob.room.mobs {
+		if a.i.matchesSubject(m.identifiers) {
+			newFight(a.i.mob, m)
+			return
+		}
+	}
+
+	a.i.mob.notify("You can't find them.")
+}
+
+func (a *action) flee() {
+	if a.i.mob.disposition != fighting {
+		a.i.mob.notify("You're not fighting anyone.")
+		return
+	}
+
+	a.i.mob.fight = nil
+	a.i.mob.move(a.i.mob.room.exits[dice().Intn(len(a.i.mob.room.exits))])
 }
 
 func (a *action) look() {

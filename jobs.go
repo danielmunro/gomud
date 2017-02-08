@@ -1,74 +1,26 @@
 package gomud
 
-import "strings"
+type job string
 
-var j []*job
+const (
+	mage        job = "mage"
+	warrior     job = "warrior"
+	thief       job = "thief"
+	cleric      job = "cleric"
+	uninitiated job = "uninitiated"
+)
 
-func getJob(n string) *job {
-	for _, i := range j {
-		if strings.HasPrefix(i.name, n) {
-			return i
-		}
+func jobAttributes(j job) *attributes {
+	switch j {
+	case mage:
+		return newAttributes(map[attribute]int{aInt: 2, aWis: 1, aDex: 1})
+	case warrior:
+		return newAttributes(map[attribute]int{aStr: 2, aCon: 1, aDex: 1})
+	case cleric:
+		return newAttributes(map[attribute]int{aWis: 2, aInt: 1, aCon: 1})
+	case thief:
+		return newAttributes(map[attribute]int{aDex: 2, aCon: 1, aStr: 1})
+	default:
+		return &attributes{}
 	}
-
-	return j[len(j)]
-}
-
-type job struct {
-	name  string
-	attrs *attributes
-}
-
-func newJob(name string, attrs *attributes) *job {
-	return &job{
-		name:  name,
-		attrs: attrs,
-	}
-}
-
-func init() {
-	j = append(
-		j,
-		newJob(
-			"mage",
-			&attributes{
-				int: 2,
-				wis: 1,
-				dex: 1,
-			},
-		),
-	)
-	j = append(
-		j,
-		newJob(
-			"cleric",
-			&attributes{
-				wis: 2,
-				int: 1,
-				con: 1,
-			},
-		),
-	)
-	j = append(
-		j,
-		newJob(
-			"thief",
-			&attributes{
-				dex: 2,
-				con: 1,
-				str: 1,
-			},
-		),
-	)
-	j = append(
-		j,
-		newJob(
-			"warrior",
-			&attributes{
-				str: 2,
-				con: 1,
-				dex: 1,
-			},
-		),
-	)
 }

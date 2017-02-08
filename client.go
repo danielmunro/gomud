@@ -29,11 +29,8 @@ func (c *client) String() string {
 }
 
 func newClient(c net.Conn, r *room) *client {
-	m := &mob{
-		name:        "a mob",
-		description: "a mob",
-		room:        r,
-	}
+	m := newMob("a test mob", "A test mob")
+	m.room = r
 	cl := &client{
 		conn: c,
 		mob:  m,

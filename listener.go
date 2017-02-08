@@ -64,6 +64,9 @@ func (l *Listener) timing() {
 				if d20() == 1 {
 					roleCheck(m)
 				}
+				if m.fight != nil {
+					m.fight.turn(m)
+				}
 			}
 			break
 		case <-tick.C:

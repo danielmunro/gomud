@@ -31,52 +31,28 @@ func init() {
 		r,
 		newRace(
 			"elf",
-			&attributes{
-				str: 12,
-				int: 17,
-				wis: 16,
-				dex: 16,
-				con: 12,
-			},
+			newAttributes(map[attribute]int{aStr: 12, aInt: 17, aWis: 16, aDex: 16, aCon: 12}),
 		),
 	)
 	r = append(
 		r,
 		newRace(
 			"dwarf",
-			&attributes{
-				str: 18,
-				int: 12,
-				wis: 17,
-				dex: 11,
-				con: 18,
-			},
+			newAttributes(map[attribute]int{aStr: 18, aInt: 12, aWis: 17, aDex: 11, aCon: 18}),
 		),
 	)
 	r = append(
 		r,
 		newRace(
 			"human",
-			&attributes{
-				str: 15,
-				int: 15,
-				wis: 15,
-				dex: 15,
-				con: 15,
-			},
+			newAttributes(map[attribute]int{aStr: 15, aInt: 15, aWis: 15, aDex: 15, aCon: 15}),
 		),
 	)
 	r = append(
 		r,
 		newRace(
-			"amorphous form",
-			&attributes{
-				str: 15,
-				int: 15,
-				wis: 15,
-				dex: 15,
-				con: 15,
-			},
+			"critter",
+			newAttributes(map[attribute]int{aStr: 15, aInt: 15, aWis: 15, aDex: 15, aCon: 15}),
 		),
 	)
 }

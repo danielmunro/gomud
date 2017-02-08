@@ -8,12 +8,7 @@ func startRoom(l *Listener) *room {
 	r1.exits = append(r1.exits, newExit(r2, dSouth))
 	r1.exits = append(r1.exits, newExit(r3, dWest))
 
-	m := &mob{
-		name:        "a test mob",
-		description: "A test mob",
-		room:        r1,
-		roles:       []role{mobile, scavenger},
-	}
+	m := newMob("a test mob", "A test mob")
 	r1.mobs = append(r1.mobs, m)
 	l.mobs = append(l.mobs, m)
 
