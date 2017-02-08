@@ -1,28 +1,49 @@
 package gomud
 
-import (
-	"github.com/jinzhu/gorm"
-)
+import "github.com/jinzhu/gorm"
 
-// Position is a string representing where an item can/is be applied
-// to a Mob. i.e. "head" or "right hand"
-type Position string
+type position string
 
-// The default five Positions for items.
 const (
-	Head      Position = "head"
-	Torso     Position = "torso"
-	Legs      Position = "legs"
-	RightHand Position = "right hand"
-	LeftHand  Position = "left hand"
+	light     position = "light"
+	finger1   position = "finger"
+	finger2   position = "finger"
+	neck1     position = "neck"
+	neck2     position = "neck"
+	torso     position = "torso"
+	head      position = "head"
+	legs      position = "legs"
+	feet      position = "feet"
+	hands     position = "hands"
+	arms      position = "arms"
+	shield    position = "shield"
+	body      position = "body"
+	waist     position = "waist"
+	wrist1    position = "wrist"
+	wrist2    position = "wrist"
+	wield     position = "wield"
+	held      position = "held"
+	floating  position = "floating"
+	secondary position = "secondary"
 )
 
-// Item is an interface for objects within the game world.
-// String() - converts the Item to a string.
-type Item struct {
+type item struct {
 	gorm.Model
-	ShortName, LongName string
-	Attributes          *Attributes
-	Position            Position
-	Items               []Item
+	name        string
+	description string
+	identifiers []string
+	attributes  *attributes
+	position    position
+}
+
+func newItem(name string, description string, identifiers []string) *item {
+	return &item{
+		name:        name,
+		description: description,
+		identifiers: identifiers,
+	}
+}
+
+func (i *item) String() string {
+	return i.name
 }

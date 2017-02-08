@@ -5,5 +5,5 @@ import (
 )
 
 func main() {
-	gomud.NewServer(8080).Run()
+	gomud.NewListener().Listen(8080)
 }

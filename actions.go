@@ -1,166 +1,219 @@
 package gomud
 
-import "strings"
-
-// ActionName is the string name of a valid command in the game.
-type ActionName string
-
-// The default Actions available to players
-const (
-	NorthAction    ActionName = "north"
-	SouthAction    ActionName = "south"
-	EastAction     ActionName = "east"
-	WestAction     ActionName = "west"
-	UpAction       ActionName = "up"
-	DownAction     ActionName = "down"
-	LookAction     ActionName = "look"
-	SayAction      ActionName = "say"
-	EquippedAction ActionName = "equipped"
-	QuitAction     ActionName = "quit"
-	ScoreAction    ActionName = "score"
-	KillAction     ActionName = "kill"
+import (
+	"fmt"
+	"strings"
 )
 
-// Action defines a single action available to Mobs.
-// Name - an ActionName for this action.
-// Func - the function to call when this action is taken.
-type Action struct {
-	Name ActionName
-	Func func(m *Mob, args []string) string
+type action struct {
+	i *input
 }
 
-// actions is a global array of available actions.
-var actions []*Action
+func newAction(m *mob, i string) {
+	newActionWithInput(&input{mob: m, args: strings.Split(i, " ")})
+}
 
-// init populates the global actions array.
-func init() {
-	actions = []*Action{
-		&Action{
-			Name: NorthAction,
-			Func: func(m *Mob, args []string) string {
-				return m.Move(North)
-			},
-		},
-		&Action{
-			Name: SouthAction,
-			Func: func(m *Mob, args []string) string {
-				return m.Move(South)
-			},
-		},
-		&Action{
-			Name: EastAction,
-			Func: func(m *Mob, args []string) string {
-				return m.Move(East)
-			},
-		},
-		&Action{
-			Name: WestAction,
-			Func: func(m *Mob, args []string) string {
-				return m.Move(West)
-			},
-		},
-		&Action{
-			Name: UpAction,
-			Func: func(m *Mob, args []string) string {
-				return m.Move(Up)
-			},
-		},
-		&Action{
-			Name: DownAction,
-			Func: func(m *Mob, args []string) string {
-				return m.Move(Down)
-			},
-		},
-		&Action{
-			Name: LookAction,
-			Func: func(m *Mob, args []string) (output string) {
-				if len(args) > 1 {
-					mob := m.Room.FindMob(args[1])
-					if mob != nil {
-						output = mob.LongName + "\n"
-						output += mob.ShortName + " " + m.Status() + ".\n"
-					}
-				} else {
-
-					output = m.Room.Title + "\n" + m.Room.Description + "\n\n[Exits "
-					for _, e := range m.Room.Exits {
-						output += string(e.Direction)[:1]
-					}
-					output += "]\n"
-					for _, i := range m.Room.Items {
-						output += strings.ToUpper(i.ShortName) + " is here.\n"
-					}
-					for _, mob := range m.Room.Mobs {
-						if mob != m {
-							output += mob.ShortName + " is " + string(mob.Disposition) + " here.\n"
-						}
-					}
-				}
-				if output == "" {
-					output = "You don't see that here.\n"
-				}
-				return output
-			},
-		},
-		&Action{
-			Name: ScoreAction,
-			Func: func(m *Mob, args []string) string {
-				output := "You are " + m.ShortName + ", a " + string(m.Race) + "\n"
-
-				return output
-			},
-		},
-		&Action{
-			Name: SayAction,
-			Func: func(m *Mob, args []string) string {
-				message := strings.Join(args[1:], " ")
-				for _, mob := range m.Room.Mobs {
-					if mob != m {
-						mob.Notify(m.ShortName + " says, \"" + message + "\"\n")
-					}
-				}
-				return "You say, \"" + message + "\"\n"
-			},
-		},
-		&Action{
-			Name: KillAction,
-			Func: func(m *Mob, args []string) string {
-
-				if m.target != nil {
-					return "You are already fighting!\n"
-				}
-
-				target := m.Room.FindMob(args[1])
-				if target != nil {
-					m.target = target
-					m.Room.Announce(m, m.ShortName+" screams and attacks "+target.ShortName+"\n")
-					return "You scream and attack!\n"
-				}
-				return "You don't see them here.\n"
-			},
-		},
-		&Action{
-			Name: EquippedAction,
-			Func: func(m *Mob, args []string) string {
-				equipped := ""
-				for key, value := range m.Equipped.getAll() {
-					if value != nil {
-						equipped += string(key) + ": " + value.ShortName
-					} else {
-						equipped += string(key) + ": <none>"
-					}
-					equipped += "\n"
-				}
-				return equipped
-			},
-		},
-		&Action{
-			Name: QuitAction,
-			Func: func(m *Mob, args []string) string {
-				m.client.write("Goodbye!\n")
-				m.client.server.removeClient(m.client)
-				return ""
-			},
-		},
+func newActionWithInput(i *input) {
+	a := &action{
+		i: i,
 	}
+
+	switch a.i.getCommand() {
+	case cLook:
+		a.look()
+		return
+	case cNorth:
+		a.move(dNorth)
+		return
+	case cSouth:
+		a.move(dSouth)
+		return
+	case cEast:
+		a.move(dEast)
+		return
+	case cWest:
+		a.move(dWest)
+		return
+	case cUp:
+		a.move(dUp)
+		return
+	case cDown:
+		a.move(dDown)
+		return
+	case cDrop:
+		a.drop()
+		return
+	case cGet:
+		a.get()
+		return
+	case cWear:
+		a.wear()
+		return
+	case cRemove:
+		a.remove()
+		return
+	case cKill:
+		a.kill()
+	case cFlee:
+		a.flee()
+	default:
+		i.client.writePrompt("Eh?")
+	}
+}
+
+func (a *action) kill() {
+	if a.i.mob.disposition != standing {
+		a.i.mob.notify(fmt.Sprintf("You can't do that, you're %s!", string(a.i.mob.disposition)))
+		return
+	}
+
+	for _, m := range a.i.mob.room.mobs {
+		if a.i.matchesSubject(m.identifiers) {
+			newFight(a.i.mob, m)
+			return
+		}
+	}
+
+	a.i.mob.notify("You can't find them.")
+}
+
+func (a *action) flee() {
+	if a.i.mob.disposition != fighting {
+		a.i.mob.notify("You're not fighting anyone.")
+		return
+	}
+
+	a.i.mob.fight = nil
+	a.i.mob.move(a.i.mob.room.exits[dice().Intn(len(a.i.mob.room.exits))])
+}
+
+func (a *action) look() {
+	r := a.i.mob.room
+	a.i.mob.notify(
+		fmt.Sprintf(
+			"%s\n%s\n%s\n%s%s",
+			r.name,
+			r.description,
+			exitsString(r),
+			itemsString(r),
+			mobsString(r, a.i.mob),
+		),
+	)
+}
+
+func (a *action) wear() {
+	for j, item := range a.i.mob.items {
+		if a.i.matchesSubject(item.identifiers) {
+			for k, eq := range a.i.mob.equipped {
+				if eq.position == item.position {
+					a.i.mob.equipped, a.i.mob.items = transferItem(k, a.i.mob.equipped, a.i.mob.items)
+					a.i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
+				}
+			}
+			a.i.mob.items, a.i.mob.equipped = transferItem(j, a.i.mob.items, a.i.mob.equipped)
+			a.i.mob.notify(fmt.Sprintf("You wear %s.", item.String()))
+			return
+		}
+	}
+
+	a.i.mob.notify("You can't find that.")
+}
+
+func (a *action) remove() {
+	for j, item := range a.i.mob.equipped {
+		if a.i.matchesSubject(item.identifiers) {
+			a.i.mob.equipped, a.i.mob.items = transferItem(j, a.i.mob.equipped, a.i.mob.items)
+			a.i.mob.notify(fmt.Sprintf("You remove %s.", item.String()))
+			return
+		}
+	}
+
+	a.i.mob.notify("You can't find that.")
+}
+
+func (a *action) get() {
+	for j, item := range a.i.mob.room.items {
+		if a.i.matchesSubject(item.identifiers) {
+			a.i.mob.room.items, a.i.mob.items = transferItem(j, a.i.mob.room.items, a.i.mob.items)
+			message := fmt.Sprintf("%s picks up %s.", a.i.mob.String(), item.String())
+			for _, m := range a.i.mob.room.mobs {
+				if m == a.i.mob {
+					m.notify(fmt.Sprintf("You pick up %s.", item.String()))
+				} else {
+					m.notify(message)
+				}
+			}
+
+			return
+		}
+	}
+}
+
+func (a *action) drop() {
+	for j, item := range a.i.mob.items {
+		if a.i.matchesSubject(item.identifiers) {
+			a.i.mob.items, a.i.mob.room.items = transferItem(j, a.i.mob.items, a.i.mob.room.items)
+			message := fmt.Sprintf("%s drops %s.", a.i.mob.String(), item.String())
+			for _, m := range a.i.mob.room.mobs {
+				if m == a.i.mob {
+					m.notify(fmt.Sprintf("You drop %s.", item.String()))
+				} else {
+					m.notify(message)
+				}
+			}
+
+			return
+		}
+	}
+}
+
+func (a *action) move(d direction) {
+	for _, e := range a.i.client.mob.room.exits {
+		if e.direction == d {
+			a.i.client.mob.move(e)
+			newAction(a.i.client.mob, "look")
+			return
+		}
+	}
+	a.i.client.writePrompt("Alas, you cannot go that way.")
+}
+
+func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
+	item := from[i]
+	from = append(from[0:i], from[i+1:]...)
+	to = append(to, item)
+
+	return from, to
+}
+
+func exitsString(r *room) string {
+	var exits string
+
+	for _, e := range r.exits {
+		exits = fmt.Sprintf("%s%s", exits, string(e.direction[0]))
+	}
+
+	return fmt.Sprintf("[%s]", exits)
+}
+
+func mobsString(r *room, mob *mob) string {
+	var mobs string
+
+	for _, m := range r.mobs {
+		if m != mob {
+			mobs = fmt.Sprintf("%s is here.\n%s", m.String(), mobs)
+		}
+	}
+
+	return mobs
+}
+
+func itemsString(r *room) string {
+	var items string
+
+	for _, i := range r.items {
+		items = fmt.Sprintf("%s is here.\n%s", i.String(), items)
+	}
+
+	return items
 }
