@@ -15,6 +15,15 @@ func newLocationService() *LocationService {
 	}
 }
 
+func (ls *LocationService) changeMobRoom(mob *mob, room *room) {
+	for _, mr := range ls.mobRooms {
+		if mr.mob == mob {
+			mr.room = room
+			return
+		}
+	}
+}
+
 func (ls *LocationService) getRoomForMob(mob *mob) *room {
 	for _, mr := range ls.mobRooms {
 		if mr.mob == mob {
