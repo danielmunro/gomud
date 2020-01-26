@@ -11,16 +11,16 @@ const (
 )
 
 type output struct {
-	input *io.Input
+	buffer *io.Buffer
 	status status
 	messageToRequestCreator string
 	messageToTarget string
 	messageToObservers string
 }
 
-func newOutput(input *io.Input, status status, messageToRequestCreator string, messageToTarget string, messageToObservers string) *output {
+func newOutput(buffer *io.Buffer, status status, messageToRequestCreator string, messageToTarget string, messageToObservers string) *output {
 	return &output{
-		input,
+		buffer,
 		status,
 		messageToRequestCreator,
 		messageToTarget,
@@ -28,9 +28,9 @@ func newOutput(input *io.Input, status status, messageToRequestCreator string, m
 	}
 }
 
-func newOutputToRequestCreator(input *io.Input, status status, messageToRequestCreator string) *output {
+func newOutputToRequestCreator(buffer *io.Buffer, status status, messageToRequestCreator string) *output {
 	return &output{
-		input,
+		buffer,
 		status,
 		messageToRequestCreator,
 		"",

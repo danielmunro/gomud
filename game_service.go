@@ -4,7 +4,6 @@ import (
 	"errors"
 	"github.com/danielmunro/gomud/io"
 	"log"
-	"strings"
 )
 
 type GameService struct {
@@ -51,18 +50,17 @@ func (gs *GameService) HandleBuffer(b *io.Buffer) *output {
 		mob, _ = gs.findMobForClient(b.Client)
 	}
 	log.Printf("handling buffer: %s", b.ToString())
-	input := io.NewInput(b.Client, strings.Split(b.Input, " "))
-	action := findActionByCommand(input.GetCommand())
-	output := action.mutator(input, gs.buildActionContext(mob, action, input), gs.eventService)
+	action := findActionByCommand(b.GetCommand())
+	output := action.mutator(b, gs.buildActionContext(mob, action, b), gs.eventService)
 	b.Client.WritePrompt(output.messageToRequestCreator)
 	if action.chainToCommand != "" {
 		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
 		action = findActionByCommand(action.chainToCommand)
 		output = action.mutator(
-			io.NewInput(
+			io.NewBuffer(
 				b.Client,
-				[]string{string(action.command)}),
-			gs.buildActionContext(mob, action, input),
+				string(action.command)),
+			gs.buildActionContext(mob, action, b),
 			gs.eventService)
 		b.Client.WritePrompt(output.messageToRequestCreator)
 	}
@@ -135,16 +133,16 @@ func (gs *GameService) dummyLogin(client *io.Client) {
 	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }
 
-func (gs *GameService) getThingFromSyntax(syntax syntax, input *io.Input, ac *ActionContext) interface{} {
+func (gs *GameService) getThingFromSyntax(syntax syntax, buffer *io.Buffer, ac *ActionContext) interface{} {
 	switch syntax {
 	case mobInRoomSyntax:
-		return gs.locationService.findMobInRoom(input, ac.room)
+		return gs.locationService.findMobInRoom(buffer, ac.room)
 	default:
 		return nil
 	}
 }
 
-func (gs *GameService) buildActionContext(mob *Mob, action *action, input *io.Input) *ActionContext {
+func (gs *GameService) buildActionContext(mob *Mob, action *action, buffer *io.Buffer) *ActionContext {
 	actionContext := &ActionContext{}
 	actionContext.mob = mob
 	actionContext.room = gs.locationService.getRoomForMob(mob)
@@ -152,7 +150,7 @@ func (gs *GameService) buildActionContext(mob *Mob, action *action, input *io.In
 	for _, s := range action.syntax {
 		actionContext.results = append(actionContext.results, &context{
 			syntax: s,
-			thing: gs.getThingFromSyntax(s, input, actionContext),
+			thing: gs.getThingFromSyntax(s, buffer, actionContext),
 		})
 	}
 	return actionContext

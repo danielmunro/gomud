@@ -5,7 +5,7 @@ import (
 	"github.com/danielmunro/gomud/io"
 )
 
-type mutator func(i *io.Input, actionContext *ActionContext, eventService *EventService) *output
+type mutator func(buffer *io.Buffer, actionContext *ActionContext, eventService *EventService) *output
 
 type action struct {
 	command        io.Command

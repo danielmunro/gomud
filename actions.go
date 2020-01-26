@@ -71,8 +71,8 @@ func newMoveAction(command io.Command, direction direction) *action {
 	return &action{
 		command: command,
 		dispositions: []disposition{standingDisposition},
-		mutator: func (i *io.Input, actionContext *ActionContext, eventService *EventService) *output {
-			return move(direction, i, actionContext, eventService)
+		mutator: func (b *io.Buffer, actionContext *ActionContext, eventService *EventService) *output {
+			return move(direction, b, actionContext, eventService)
 		},
 		chainToCommand: io.LookCommand,
 	}
@@ -82,8 +82,8 @@ func newNoopAction() *action {
 	return &action{
 		command:      io.NoopCommand,
 		dispositions: []disposition{},
-		mutator: func(i *io.Input, actionContext *ActionContext, eventService *EventService) *output {
-			return newOutputToRequestCreator(i, CompletedStatus, "What was that?")
+		mutator: func(b *io.Buffer, actionContext *ActionContext, eventService *EventService) *output {
+			return newOutputToRequestCreator(b, CompletedStatus, "What was that?")
 		},
 	}
 }

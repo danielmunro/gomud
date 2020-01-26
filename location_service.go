@@ -35,9 +35,9 @@ func (ls *LocationService) getRoomForMob(mob *Mob) *Room {
 	return nil
 }
 
-func (ls *LocationService) findMobInRoom(i *io.Input, room *Room) *Mob {
+func (ls *LocationService) findMobInRoom(buffer *io.Buffer, room *Room) *Mob {
 	for _, mr := range ls.mobRooms {
-		if i.MatchesSubject(mr.mob.identifiers) && mr.room == room {
+		if buffer.MatchesSubject(mr.mob.identifiers) && mr.room == room {
 			return mr.mob
 		}
 	}
