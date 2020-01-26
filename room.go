@@ -54,7 +54,7 @@ type room struct {
 	name        string
 	description string
 	exits       []*exit
-	mobs        []*mob `gorm:"ForeignKey:mob"`
+	mobs        []*Mob `gorm:"ForeignKey:Mob"`
 	items       []*item
 }
 

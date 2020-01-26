@@ -1,20 +1,23 @@
 package gomud
 
-import "strings"
+import (
+	"github.com/danielmunro/gomud/io"
+	"strings"
+)
 
 type input struct {
-	mob    *mob
-	client *client
+	mob    *Mob
+	client *io.Client
 	room   *room
 	args   []string
 }
 
-func newInput(c *client, room *room, args []string) *input {
+func newInput(client *io.Client, mob *Mob, room *room, args []string) *input {
 	return &input{
-		client: c,
-		args:   args,
-		room:   room,
-		mob:    c.mob,
+		mob,
+		client,
+		room,
+		args,
 	}
 }
 

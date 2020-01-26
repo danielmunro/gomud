@@ -1,13 +1,13 @@
 package gomud
 
 type MobReset struct {
-	mob *mob
+	mob *Mob
 	room *room
 	maxInRoom int
 	maxInGame int
 }
 
-func NewMobReset(mob *mob, room *room, maxInRoom int, maxInGame int) *MobReset {
+func NewMobReset(mob *Mob, room *room, maxInRoom int, maxInGame int) *MobReset {
 	return &MobReset{
 		mob,
 		room,

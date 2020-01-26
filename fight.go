@@ -1,16 +1,14 @@
 package gomud
 
-import "fmt"
-
 type fight struct {
-	m1 *mob
-	m2 *mob
+	m1 *Mob
+	m2 *Mob
 }
 
-func newFight(m1 *mob, m2 *mob) *fight {
+func newFight(m1 *Mob, m2 *Mob) *fight {
 	m1.disposition = fightingDisposition
 	m2.disposition = fightingDisposition
-	m1.notify(fmt.Sprintf("You scream and attack %s!", m2.String()))
+	//m1.notify(fmt.Sprintf("You scream and attack %s!", m2.String()))
 
 	f := &fight{
 		m1: m1,
@@ -25,7 +23,7 @@ func newFight(m1 *mob, m2 *mob) *fight {
 	return f
 }
 
-func (f *fight) turn(m *mob) {
+func (f *fight) turn(m *Mob) {
 	if m == f.m1 {
 		m.attack(f.m2)
 	} else if m == f.m2 {

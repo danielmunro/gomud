@@ -2,6 +2,6 @@ package gomud
 
 type Event struct {
 	eventType EventType
-	mob *mob
+	mob *Mob
 	room *room
 }

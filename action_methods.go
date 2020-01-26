@@ -39,7 +39,7 @@ func wear(i *input, actionContext *ActionContext, eventService *EventService) *o
 			for k, eq := range i.mob.equipped {
 				if eq.position == item.position {
 					i.mob.equipped, i.mob.items = transferItem(k, i.mob.equipped, i.mob.items)
-					i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
+					//i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
 				}
 			}
 			i.mob.items, i.mob.equipped = transferItem(j, i.mob.items, i.mob.equipped)

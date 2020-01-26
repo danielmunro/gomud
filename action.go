@@ -14,7 +14,7 @@ type action struct {
 	chainToCommand command
 }
 
-func (a *action) mobHasDisposition(mob *mob) bool {
+func (a *action) mobHasDisposition(mob *Mob) bool {
 	for _, d := range a.dispositions {
 		if d == mob.disposition {
 			return true
@@ -41,7 +41,7 @@ func exitsString(r *room) string {
 	return fmt.Sprintf("[%s]", exits)
 }
 
-func mobsString(r *room, mob *mob) string {
+func mobsString(r *room, mob *Mob) string {
 	var mobs string
 
 	for _, m := range r.mobs {

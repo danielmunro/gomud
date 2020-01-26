@@ -1,6 +1,8 @@
 package gomud
 
 import (
+	"errors"
+	"github.com/danielmunro/gomud/io"
 	"log"
 	"strings"
 )
@@ -10,8 +12,9 @@ type GameService struct {
 	locationService *LocationService
 	roomService *RoomService
 	server *Server
-	buffers []*Buffer
+	buffers []*io.Buffer
 	eventService *EventService
+	logins []*Login
 }
 
 func NewGameService(server *Server) *GameService {
@@ -26,12 +29,12 @@ func NewGameService(server *Server) *GameService {
 }
 
 func (gs *GameService) StartServer() {
-	bufferWriter := make(chan *Buffer)
+	bufferWriter := make(chan *io.Buffer)
 	go gs.server.Listen(bufferWriter)
 	gs.ListenForNewBuffers(bufferWriter)
 }
 
-func (gs *GameService) ListenForNewBuffers(bufferWriter chan *Buffer) {
+func (gs *GameService) ListenForNewBuffers(bufferWriter chan *io.Buffer) {
 	for {
 		select {
 		case b := <- bufferWriter:
@@ -41,27 +44,30 @@ func (gs *GameService) ListenForNewBuffers(bufferWriter chan *Buffer) {
 	}
 }
 
-func (gs *GameService) HandleBuffer(b *Buffer) *output {
-	if b.client.mob == nil {
-		gs.dummyLogin(b.client)
+func (gs *GameService) HandleBuffer(b *io.Buffer) *output {
+	mob, err := gs.findMobForClient(b.Client)
+	if err != nil {
+		gs.dummyLogin(b.Client)
+		mob, _ = gs.findMobForClient(b.Client)
 	}
 	log.Printf("handling buffer: %s", b.ToString())
-	room := gs.locationService.getRoomForMob(b.client.mob)
-	input := newInput(b.client, room, strings.Split(b.input, " "))
+	room := gs.locationService.getRoomForMob(mob)
+	input := newInput(b.Client, mob, room, strings.Split(b.Input, " "))
 	action := findActionByCommand(input.getCommand())
-	output := action.mutator(input, gs.buildActionContext(b.client.mob, action, input), gs.eventService)
-	b.client.writePrompt(output.messageToRequestCreator)
+	output := action.mutator(input, gs.buildActionContext(mob, action, input), gs.eventService)
+	b.Client.WritePrompt(output.messageToRequestCreator)
 	if action.chainToCommand != "" {
 		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
 		action = findActionByCommand(action.chainToCommand)
 		output = action.mutator(
 			newInput(
-				b.client,
-				gs.locationService.getRoomForMob(b.client.mob),
+				b.Client,
+				mob,
+				gs.locationService.getRoomForMob(mob),
 				[]string{string(action.command)}),
-			gs.buildActionContext(b.client.mob, action, input),
+			gs.buildActionContext(mob, action, input),
 			gs.eventService)
-		b.client.writePrompt(output.messageToRequestCreator)
+		b.Client.WritePrompt(output.messageToRequestCreator)
 	}
 	return output
 }
@@ -92,7 +98,7 @@ func (gs *GameService) CreateFixtures() {
 	r1.exits = append(r1.exits, newExit(r2, dSouth))
 	r1.exits = append(r1.exits, newExit(r3, dWest))
 
-	m := newMob("a test mob", "A test mob")
+	m := newMob("a test Mob", "A test Mob")
 
 	r2.exits = append(r2.exits, newExit(r1, dNorth))
 	r3.exits = append(r3.exits, newExit(r1, dEast))
@@ -113,13 +119,23 @@ func (gs *GameService) CreateFixtures() {
 	gs.RespawnResets()
 }
 
-func (gs *GameService) ChangeMobRoom(mob *mob, room *room) {
+func (gs *GameService) ChangeMobRoom(mob *Mob, room *room) {
 	gs.locationService.changeMobRoom(mob, room)
 }
 
-func (gs *GameService) dummyLogin(client *client) {
-	client.mob = newMob("tester mctesterson", "A test mob.")
-	gs.locationService.spawnMobToRoom(client.mob, gs.roomService.rooms[0])
+func (gs *GameService) findMobForClient(client *io.Client) (*Mob, error) {
+	for _, l := range gs.logins {
+		if l.client == client {
+			return l.mob, nil
+		}
+	}
+	return nil, errors.New("no mob found")
+}
+
+func (gs *GameService) dummyLogin(client *io.Client) {
+	login := NewLogin(client, newMob("tester mctesterson", "A test Mob."))
+	gs.logins = append(gs.logins, login)
+	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }
 
 func (gs *GameService) getThingFromSyntax(syntax syntax, input *input) interface{} {
@@ -131,7 +147,7 @@ func (gs *GameService) getThingFromSyntax(syntax syntax, input *input) interface
 	}
 }
 
-func (gs *GameService) buildActionContext(mob *mob, action *action, input *input) *ActionContext {
+func (gs *GameService) buildActionContext(mob *Mob, action *action, input *input) *ActionContext {
 	actionContext := &ActionContext{}
 	actionContext.hasDisposition = action.mobHasDisposition(mob)
 	for _, s := range action.syntax {
