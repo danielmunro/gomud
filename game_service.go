@@ -41,7 +41,7 @@ func (gs *GameService) ListenForNewBuffers(bufferWriter chan *Buffer) {
 	}
 }
 
-func (gs *GameService) HandleBuffer(b *Buffer) {
+func (gs *GameService) HandleBuffer(b *Buffer) *output {
 	if b.client.mob == nil {
 		gs.dummyLogin(b.client)
 	}
@@ -54,7 +54,7 @@ func (gs *GameService) HandleBuffer(b *Buffer) {
 	if action.chainToCommand != "" {
 		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
 		action = findActionByCommand(action.chainToCommand)
-		output := action.mutator(
+		output = action.mutator(
 			newInput(
 				b.client,
 				gs.locationService.getRoomForMob(b.client.mob),
@@ -63,13 +63,7 @@ func (gs *GameService) HandleBuffer(b *Buffer) {
 			gs.eventService)
 		b.client.writePrompt(output.messageToRequestCreator)
 	}
-}
-
-func (gs *GameService) GenerateOutput(client *client, room *room, buffer string) *output {
-	input := newInput(client, room, strings.Split(buffer, " "))
-	action := findActionByCommand(input.getCommand())
-	actionContext := gs.buildActionContext(client.mob, action, input)
-	return action.mutator(input, actionContext, gs.eventService)
+	return output
 }
 
 func (gs *GameService) AddMobReset(mobReset *MobReset) {

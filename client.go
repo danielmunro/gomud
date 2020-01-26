@@ -3,6 +3,7 @@ package gomud
 import (
 	"bufio"
 	"fmt"
+	"github.com/google/uuid"
 	"net"
 	"strings"
 )
@@ -11,6 +12,7 @@ type client struct {
 	conn    net.Conn
 	mob     *mob
 	message string
+	id      string
 }
 
 func (c *client) read() *client {
@@ -31,6 +33,7 @@ func (c *client) String() string {
 func newClient(c net.Conn) *client {
 	cl := &client{
 		conn: c,
+		id: uuid.New().String(),
 	}
 
 	return cl

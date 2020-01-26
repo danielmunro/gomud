@@ -15,5 +15,5 @@ func NewBuffer(client *client, input string) *Buffer {
 }
 
 func (b *Buffer) ToString() string {
-	return fmt.Sprintf("client: %s, input: '%s'", b.client.conn.RemoteAddr().String(), b.input)
+	return fmt.Sprintf("client: %s, input: '%s'", b.client.id, b.input)
 }
