@@ -7,7 +7,7 @@ import (
 )
 
 const room1 = `Room 1
-You are in the first room
+You are in the first Room
 [sw]
 an item is here.
 an item is here.

@@ -2,23 +2,24 @@ package gomud
 
 import (
 	"fmt"
+	"github.com/danielmunro/gomud/io"
 	"log"
 )
 
-func kill(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	mob := actionContext.getMobBySyntax(mobInRoomSyntax)
-	newFight(i.mob, mob)
+func kill(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	mob := ac.getMobBySyntax(mobInRoomSyntax)
+	newFight(ac.mob, mob)
 	return newOutputToRequestCreator(i, CompletedStatus, "You scream and attack!")
 }
 
-func flee(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	i.mob.fight = nil
-	i.mob.move(i.mob.room.exits[dice().Intn(len(i.mob.room.exits))])
+func flee(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	ac.mob.fight = nil
+	ac.mob.move(ac.mob.room.exits[dice().Intn(len(ac.mob.room.exits))])
 	return newOutputToRequestCreator(i, CompletedStatus, "you flee!")
 }
 
-func look(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	r := i.room
+func look(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	r := ac.room
 	return newOutputToRequestCreator(
 		i,
 		CompletedStatus,
@@ -28,21 +29,21 @@ func look(i *input, actionContext *ActionContext, eventService *EventService) *o
 			r.description,
 			exitsString(r),
 			itemsString(r),
-			mobsString(r, i.mob),
+			mobsString(r, ac.mob),
 		),
 	)
 }
 
-func wear(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	for j, item := range i.mob.items {
-		if i.matchesSubject(item.identifiers) {
-			for k, eq := range i.mob.equipped {
+func wear(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	for j, item := range ac.mob.items {
+		if i.MatchesSubject(item.identifiers) {
+			for k, eq := range ac.mob.equipped {
 				if eq.position == item.position {
-					i.mob.equipped, i.mob.items = transferItem(k, i.mob.equipped, i.mob.items)
+					ac.mob.equipped, ac.mob.items = transferItem(k, ac.mob.equipped, ac.mob.items)
 					//i.mob.notify(fmt.Sprintf("You remove %s and put it in your inventory.", eq.String()))
 				}
 			}
-			i.mob.items, i.mob.equipped = transferItem(j, i.mob.items, i.mob.equipped)
+			ac.mob.items, ac.mob.equipped = transferItem(j, ac.mob.items, ac.mob.equipped)
 			return newOutputToRequestCreator(i, CompletedStatus, fmt.Sprintf("You wear %s.", item.String()))
 		}
 	}
@@ -52,10 +53,10 @@ func wear(i *input, actionContext *ActionContext, eventService *EventService) *o
 		"You can't find that.")
 }
 
-func remove(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	for j, item := range i.mob.equipped {
-		if i.matchesSubject(item.identifiers) {
-			i.mob.equipped, i.mob.items = transferItem(j, i.mob.equipped, i.mob.items)
+func remove(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	for j, item := range ac.mob.equipped {
+		if i.MatchesSubject(item.identifiers) {
+			ac.mob.equipped, ac.mob.items = transferItem(j, ac.mob.equipped, ac.mob.items)
 			return newOutputToRequestCreator(i, CompletedStatus, fmt.Sprintf("You remove %s.", item.String()))
 		}
 	}
@@ -65,16 +66,16 @@ func remove(i *input, actionContext *ActionContext, eventService *EventService) 
 		"You can't find that.")
 }
 
-func get(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	for j, item := range i.room.items {
-		if i.matchesSubject(item.identifiers) {
-			i.room.items, i.mob.items = transferItem(j, i.room.items, i.mob.items)
+func get(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	for j, item := range ac.room.items {
+		if i.MatchesSubject(item.identifiers) {
+			ac.room.items, ac.mob.items = transferItem(j, ac.room.items, ac.mob.items)
 			return newOutput(
 				i,
 				CompletedStatus,
 				fmt.Sprintf("You pick up %s", item.String()),
-				fmt.Sprintf("%s picks up %s", i.mob.name, item.String()),
-				fmt.Sprintf("%s picks up %s", i.mob.name, item.String()))
+				fmt.Sprintf("%s picks up %s", ac.mob.name, item.String()),
+				fmt.Sprintf("%s picks up %s", ac.mob.name, item.String()))
 		}
 	}
 	return newOutputToRequestCreator(
@@ -83,16 +84,16 @@ func get(i *input, actionContext *ActionContext, eventService *EventService) *ou
 		"You can't find that.")
 }
 
-func drop(i *input, actionContext *ActionContext, eventService *EventService) *output {
-	for j, item := range i.mob.items {
-		if i.matchesSubject(item.identifiers) {
-			i.mob.items, i.room.items = transferItem(j, i.mob.items, i.room.items)
+func drop(i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	for j, item := range ac.mob.items {
+		if i.MatchesSubject(item.identifiers) {
+			ac.mob.items, ac.room.items = transferItem(j, ac.mob.items, ac.room.items)
 			return newOutput(
 				i,
 				CompletedStatus,
 				fmt.Sprintf("You drop %s", item.String()),
-				fmt.Sprintf("%s drops %s", i.mob.name, item.String()),
-				fmt.Sprintf("%s drops %s", i.mob.name, item.String()))
+				fmt.Sprintf("%s drops %s", ac.mob.name, item.String()),
+				fmt.Sprintf("%s drops %s", ac.mob.name, item.String()))
 		}
 	}
 	return newOutputToRequestCreator(
@@ -101,13 +102,13 @@ func drop(i *input, actionContext *ActionContext, eventService *EventService) *o
 		"You can't find that.")
 }
 
-func move(d direction, i *input, actionContext *ActionContext, eventService *EventService) *output {
-	log.Printf("move: direction: %s, command: %s", d, i.getCommand())
-	for _, e := range i.room.exits {
+func move(d direction, i *io.Input, ac *ActionContext, eventService *EventService) *output {
+	log.Printf("move: direction: %s, Command: %s", d, i.GetCommand())
+	for _, e := range ac.room.exits {
 		if e.direction == d {
 			eventService.Publish(&Event{
 				eventType:MobMoveEventType,
-				mob: i.mob,
+				mob: ac.mob,
 				room: e.room,
 			})
 			return newOutputToRequestCreator(i, CompletedStatus, fmt.Sprintf("You move %s.", d))

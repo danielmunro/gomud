@@ -51,19 +51,16 @@ func (gs *GameService) HandleBuffer(b *io.Buffer) *output {
 		mob, _ = gs.findMobForClient(b.Client)
 	}
 	log.Printf("handling buffer: %s", b.ToString())
-	room := gs.locationService.getRoomForMob(mob)
-	input := newInput(b.Client, mob, room, strings.Split(b.Input, " "))
-	action := findActionByCommand(input.getCommand())
+	input := io.NewInput(b.Client, strings.Split(b.Input, " "))
+	action := findActionByCommand(input.GetCommand())
 	output := action.mutator(input, gs.buildActionContext(mob, action, input), gs.eventService)
 	b.Client.WritePrompt(output.messageToRequestCreator)
 	if action.chainToCommand != "" {
 		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
 		action = findActionByCommand(action.chainToCommand)
 		output = action.mutator(
-			newInput(
+			io.NewInput(
 				b.Client,
-				mob,
-				gs.locationService.getRoomForMob(mob),
 				[]string{string(action.command)}),
 			gs.buildActionContext(mob, action, input),
 			gs.eventService)
@@ -76,7 +73,7 @@ func (gs *GameService) AddMobReset(mobReset *MobReset) {
 	gs.mobService.addMobReset(mobReset)
 }
 
-func (gs *GameService) AddRoom(room *room) {
+func (gs *GameService) AddRoom(room *Room) {
 	gs.roomService.addRoom(room)
 }
 
@@ -91,9 +88,9 @@ func (gs *GameService) RespawnResets() {
 }
 
 func (gs *GameService) CreateFixtures() {
-	r1 := newRoom("Room 1", "You are in the first room")
-	r2 := newRoom("Room 2", "You are in the second room")
-	r3 := newRoom("Room 3", "You are in the third room")
+	r1 := newRoom("Room 1", "You are in the first Room")
+	r2 := newRoom("Room 2", "You are in the second Room")
+	r3 := newRoom("Room 3", "You are in the third Room")
 
 	r1.exits = append(r1.exits, newExit(r2, dSouth))
 	r1.exits = append(r1.exits, newExit(r3, dWest))
@@ -119,7 +116,7 @@ func (gs *GameService) CreateFixtures() {
 	gs.RespawnResets()
 }
 
-func (gs *GameService) ChangeMobRoom(mob *Mob, room *room) {
+func (gs *GameService) ChangeMobRoom(mob *Mob, room *Room) {
 	gs.locationService.changeMobRoom(mob, room)
 }
 
@@ -138,22 +135,24 @@ func (gs *GameService) dummyLogin(client *io.Client) {
 	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }
 
-func (gs *GameService) getThingFromSyntax(syntax syntax, input *input) interface{} {
+func (gs *GameService) getThingFromSyntax(syntax syntax, input *io.Input, ac *ActionContext) interface{} {
 	switch syntax {
 	case mobInRoomSyntax:
-		return gs.locationService.findMobInRoom(input)
+		return gs.locationService.findMobInRoom(input, ac.room)
 	default:
 		return nil
 	}
 }
 
-func (gs *GameService) buildActionContext(mob *Mob, action *action, input *input) *ActionContext {
+func (gs *GameService) buildActionContext(mob *Mob, action *action, input *io.Input) *ActionContext {
 	actionContext := &ActionContext{}
+	actionContext.mob = mob
+	actionContext.room = gs.locationService.getRoomForMob(mob)
 	actionContext.hasDisposition = action.mobHasDisposition(mob)
 	for _, s := range action.syntax {
 		actionContext.results = append(actionContext.results, &context{
 			syntax: s,
-			thing: gs.getThingFromSyntax(s, input),
+			thing: gs.getThingFromSyntax(s, input, actionContext),
 		})
 	}
 	return actionContext

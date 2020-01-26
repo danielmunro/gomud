@@ -1,86 +1,88 @@
 package gomud
 
+import "github.com/danielmunro/gomud/io"
+
 var actions []*action
 
 func newLookAction() *action {
 	return &action{
-		command: LookCommand,
+		command:      io.LookCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition, sittingDisposition},
-		mutator: look,
-		syntax: []syntax{commandSyntax},
+		mutator:      look,
+		syntax:       []syntax{commandSyntax},
 	}
 }
 
 func newKillAction() *action {
 	return &action{
-		command: KillCommand,
+		command:      io.KillCommand,
 		dispositions: []disposition{standingDisposition},
-		mutator: kill,
-		syntax: []syntax{commandSyntax, mobInRoomSyntax},
+		mutator:      kill,
+		syntax:       []syntax{commandSyntax, mobInRoomSyntax},
 	}
 }
 
 func newFleeAction() *action {
 	return &action{
-		command: FleeCommand,
+		command:      io.FleeCommand,
 		dispositions: []disposition{fightingDisposition},
-		mutator: flee,
-		syntax: []syntax{commandSyntax},
+		mutator:      flee,
+		syntax:       []syntax{commandSyntax},
 	}
 }
 
 func newWearAction() *action {
 	return &action{
-		command: WearCommand,
+		command:      io.WearCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
-		mutator: wear,
-		syntax: []syntax{commandSyntax, itemInInventorySyntax},
+		mutator:      wear,
+		syntax:       []syntax{commandSyntax, itemInInventorySyntax},
 	}
 }
 
 func newRemoveAction() *action {
 	return &action{
-		command: RemoveCommand,
+		command:      io.RemoveCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
-		mutator: remove,
-		syntax: []syntax{commandSyntax, itemEquippedSyntax},
+		mutator:      remove,
+		syntax:       []syntax{commandSyntax, itemEquippedSyntax},
 	}
 }
 
 func newGetAction() *action {
 	return &action{
-		command: GetCommand,
+		command:      io.GetCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
-		mutator: get,
-		syntax: []syntax{commandSyntax, itemInRoomSyntax},
+		mutator:      get,
+		syntax:       []syntax{commandSyntax, itemInRoomSyntax},
 	}
 }
 
 func newDropAction() *action {
 	return &action{
-		command: DropCommand,
+		command:      io.DropCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
-		mutator: drop,
-		syntax: []syntax{commandSyntax, itemInInventorySyntax},
+		mutator:      drop,
+		syntax:       []syntax{commandSyntax, itemInInventorySyntax},
 	}
 }
 
-func newMoveAction(command command, direction direction) *action {
+func newMoveAction(command io.Command, direction direction) *action {
 	return &action{
 		command: command,
 		dispositions: []disposition{standingDisposition},
-		mutator: func (i *input, actionContext *ActionContext, eventService *EventService) *output {
+		mutator: func (i *io.Input, actionContext *ActionContext, eventService *EventService) *output {
 			return move(direction, i, actionContext, eventService)
 		},
-		chainToCommand: LookCommand,
+		chainToCommand: io.LookCommand,
 	}
 }
 
 func newNoopAction() *action {
 	return &action{
-		command: NoopCommand,
+		command:      io.NoopCommand,
 		dispositions: []disposition{},
-		mutator: func(i *input, actionContext *ActionContext, eventService *EventService) *output {
+		mutator: func(i *io.Input, actionContext *ActionContext, eventService *EventService) *output {
 			return newOutputToRequestCreator(i, CompletedStatus, "What was that?")
 		},
 	}
@@ -95,16 +97,16 @@ func init() {
 		newRemoveAction(),
 		newGetAction(),
 		newDropAction(),
-		newMoveAction(NorthCommand, dNorth),
-		newMoveAction(SouthCommand, dSouth),
-		newMoveAction(EastCommand, dEast),
-		newMoveAction(WestCommand, dWest),
-		newMoveAction(UpCommand, dUp),
-		newMoveAction(DownCommand, dDown),
+		newMoveAction(io.NorthCommand, dNorth),
+		newMoveAction(io.SouthCommand, dSouth),
+		newMoveAction(io.EastCommand, dEast),
+		newMoveAction(io.WestCommand, dWest),
+		newMoveAction(io.UpCommand, dUp),
+		newMoveAction(io.DownCommand, dDown),
 	}
 }
 
-func findActionByCommand(command command) *action {
+func findActionByCommand(command io.Command) *action {
 	for _, a := range actions {
 		if a.command == command {
 			return a

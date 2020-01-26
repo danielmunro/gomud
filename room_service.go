@@ -1,15 +1,15 @@
 package gomud
 
 type RoomService struct {
-	rooms []*room
+	rooms []*Room
 }
 
 func newRoomService() *RoomService {
 	return &RoomService{
-		rooms: []*room{},
+		rooms: []*Room{},
 	}
 }
 
-func (rs *RoomService) addRoom(room *room) {
+func (rs *RoomService) addRoom(room *Room) {
 	rs.rooms = append(rs.rooms, room)
 }

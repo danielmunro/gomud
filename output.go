@@ -1,5 +1,7 @@
 package gomud
 
+import "github.com/danielmunro/gomud/io"
+
 type status string
 
 const (
@@ -9,14 +11,14 @@ const (
 )
 
 type output struct {
-	input *input
+	input *io.Input
 	status status
 	messageToRequestCreator string
 	messageToTarget string
 	messageToObservers string
 }
 
-func newOutput(input *input, status status, messageToRequestCreator string, messageToTarget string, messageToObservers string) *output {
+func newOutput(input *io.Input, status status, messageToRequestCreator string, messageToTarget string, messageToObservers string) *output {
 	return &output{
 		input,
 		status,
@@ -26,7 +28,7 @@ func newOutput(input *input, status status, messageToRequestCreator string, mess
 	}
 }
 
-func newOutputToRequestCreator(input *input, status status, messageToRequestCreator string) *output {
+func newOutputToRequestCreator(input *io.Input, status status, messageToRequestCreator string) *output {
 	return &output{
 		input,
 		status,

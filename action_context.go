@@ -7,6 +7,8 @@ type context struct {
 
 type ActionContext struct {
 	hasDisposition bool
+	room *Room
+	mob *Mob
 	results []*context
 }
 

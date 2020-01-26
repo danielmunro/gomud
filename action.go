@@ -2,16 +2,17 @@ package gomud
 
 import (
 	"fmt"
+	"github.com/danielmunro/gomud/io"
 )
 
-type mutator func(i *input, actionContext *ActionContext, eventService *EventService) *output
+type mutator func(i *io.Input, actionContext *ActionContext, eventService *EventService) *output
 
 type action struct {
-	command command
-	dispositions []disposition
-	mutator mutator
-	syntax []syntax
-	chainToCommand command
+	command        io.Command
+	dispositions   []disposition
+	mutator        mutator
+	syntax         []syntax
+	chainToCommand io.Command
 }
 
 func (a *action) mobHasDisposition(mob *Mob) bool {
@@ -31,7 +32,7 @@ func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
 	return from, to
 }
 
-func exitsString(r *room) string {
+func exitsString(r *Room) string {
 	var exits string
 
 	for _, e := range r.exits {
@@ -41,7 +42,7 @@ func exitsString(r *room) string {
 	return fmt.Sprintf("[%s]", exits)
 }
 
-func mobsString(r *room, mob *Mob) string {
+func mobsString(r *Room, mob *Mob) string {
 	var mobs string
 
 	for _, m := range r.mobs {
@@ -53,7 +54,7 @@ func mobsString(r *room, mob *Mob) string {
 	return mobs
 }
 
-func itemsString(r *room) string {
+func itemsString(r *Room) string {
 	var items string
 
 	for _, i := range r.items {

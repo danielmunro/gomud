@@ -3,9 +3,9 @@ package gomud
 type syntax string
 
 const (
-	commandSyntax         syntax = "command"
-	mobInRoomSyntax       syntax = "Mob in room"
+	commandSyntax         syntax = "Command"
+	mobInRoomSyntax       syntax = "Mob in Room"
 	itemInInventorySyntax syntax = "item in inventory"
-	itemInRoomSyntax      syntax = "item in room"
+	itemInRoomSyntax      syntax = "item in Room"
 	itemEquippedSyntax    syntax = "item equipped"
 )

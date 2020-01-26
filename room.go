@@ -38,18 +38,18 @@ func reverseDirection(d direction) (direction, error) {
 
 type exit struct {
 	gorm.Model
-	room      *room
+	room      *Room
 	direction direction
 }
 
-func newExit(r *room, d direction) *exit {
+func newExit(r *Room, d direction) *exit {
 	return &exit{
 		room:      r,
 		direction: d,
 	}
 }
 
-type room struct {
+type Room struct {
 	gorm.Model
 	name        string
 	description string
@@ -58,14 +58,14 @@ type room struct {
 	items       []*item
 }
 
-func newRoom(n string, d string) *room {
-	return &room{
+func newRoom(n string, d string) *Room {
+	return &Room{
 		name:        n,
 		description: d,
 		items:       []*item{},
 	}
 }
 
-func (r *room) String() string {
+func (r *Room) String() string {
 	return r.name
 }

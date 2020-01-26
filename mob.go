@@ -38,8 +38,8 @@ type Mob struct {
 	mv          int
 	race        *race
 	job         job
-	room        *room
-	lastRoom    *room
+	room        *Room
+	lastRoom    *Room
 	roles       []role
 	items       []*item
 	equipped    []*item
@@ -110,7 +110,7 @@ func (m *Mob) roam() {
 
 func (m *Mob) scavenge() {
 	if len(m.room.items) > 0 {
-		//newActionWithMob(m, fmt.Sprintf("get %s", m.room.items[0].identifiers[0]))
+		//newActionWithMob(m, fmt.Sprintf("get %s", m.Room.items[0].identifiers[0]))
 	}
 }
 
