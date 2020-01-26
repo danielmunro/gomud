@@ -24,10 +24,10 @@ func Test_Look_AtRoom(t *testing.T) {
 		Client: client,
 	})
 
-	if output.status != CompletedStatus {
-		t.Error("expected completed status")
+	if output.Status != io.CompletedStatus {
+		t.Error("expected completed Status")
 	}
-	if output.messageToRequestCreator != room1 {
-		t.Error("expected message: " + output.messageToRequestCreator)
+	if output.MessageToRequestCreator != room1 {
+		t.Error("expected message: " + output.MessageToRequestCreator)
 	}
 }

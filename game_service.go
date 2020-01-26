@@ -43,16 +43,16 @@ func (gs *GameService) ListenForNewBuffers(bufferWriter chan *io.Buffer) {
 	}
 }
 
-func (gs *GameService) HandleBuffer(b *io.Buffer) *output {
+func (gs *GameService) HandleBuffer(b *io.Buffer) *io.Output {
 	mob, err := gs.findMobForClient(b.Client)
 	if err != nil {
 		gs.dummyLogin(b.Client)
 		mob, _ = gs.findMobForClient(b.Client)
 	}
-	log.Printf("handling buffer: %s", b.ToString())
+	log.Printf("handling Buffer: %s", b.ToString())
 	action := findActionByCommand(b.GetCommand())
 	output := action.mutator(b, gs.buildActionContext(mob, action, b), gs.eventService)
-	b.Client.WritePrompt(output.messageToRequestCreator)
+	b.Client.WritePrompt(output.MessageToRequestCreator)
 	if action.chainToCommand != "" {
 		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
 		action = findActionByCommand(action.chainToCommand)
@@ -62,7 +62,7 @@ func (gs *GameService) HandleBuffer(b *io.Buffer) *output {
 				string(action.command)),
 			gs.buildActionContext(mob, action, b),
 			gs.eventService)
-		b.Client.WritePrompt(output.messageToRequestCreator)
+		b.Client.WritePrompt(output.MessageToRequestCreator)
 	}
 	return output
 }
