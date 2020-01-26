@@ -28,15 +28,10 @@ func (c *client) String() string {
 	return c.conn.RemoteAddr().String()
 }
 
-func newClient(c net.Conn, r *room) *client {
-	m := newMob("a test mob", "A test mob")
-	m.room = r
+func newClient(c net.Conn) *client {
 	cl := &client{
 		conn: c,
-		mob:  m,
 	}
-	m.client = cl
-	m.room.mobs = append(m.room.mobs, m)
 
 	return cl
 }

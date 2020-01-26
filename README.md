@@ -7,7 +7,7 @@ To Play
 -------
 
 Clone this repository and 
-```$ go run main.go```
+```$ go run cmd/run/main.go```
 
 Then,
 ```$ telnet localhost 8080```

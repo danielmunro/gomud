@@ -8,8 +8,8 @@ type fight struct {
 }
 
 func newFight(m1 *mob, m2 *mob) *fight {
-	m1.disposition = fighting
-	m2.disposition = fighting
+	m1.disposition = fightingDisposition
+	m2.disposition = fightingDisposition
 	m1.notify(fmt.Sprintf("You scream and attack %s!", m2.String()))
 
 	f := &fight{

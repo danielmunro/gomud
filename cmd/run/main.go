@@ -5,5 +5,7 @@ import (
 )
 
 func main() {
-	gomud.NewListener().Listen(8080)
+	svc := gomud.NewGameService(gomud.NewServer(8080))
+	svc.CreateFixtures()
+	svc.StartServer()
 }

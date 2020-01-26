@@ -5,13 +5,15 @@ import "strings"
 type input struct {
 	mob    *mob
 	client *client
+	room   *room
 	args   []string
 }
 
-func newInput(c *client, args []string) *input {
+func newInput(c *client, room *room, args []string) *input {
 	return &input{
 		client: c,
 		args:   args,
+		room:   room,
 		mob:    c.mob,
 	}
 }
@@ -23,7 +25,7 @@ func (i *input) getCommand() command {
 		}
 	}
 
-	return cNoop
+	return NoopCommand
 }
 
 func (i *input) matchesSubject(s []string) bool {

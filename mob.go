@@ -17,13 +17,13 @@ const (
 type disposition int
 
 const (
-	dead disposition = iota
-	incapacitated
-	stunned
-	sleeping
-	sitting
-	fighting
-	standing
+	deadDisposition disposition = iota
+	incapacitatedDisposition
+	stunnedDisposition
+	sleepingDisposition
+	sittingDisposition
+	fightingDisposition
+	standingDisposition
 )
 
 type mob struct {
@@ -54,7 +54,7 @@ func newMob(n string, d string) *mob {
 		description: d,
 		identifiers: strings.Split(n, " "),
 		attributes:  &attributes{},
-		disposition: standing,
+		disposition: standingDisposition,
 		level:       1,
 		race:        getRace(""),
 		job:         uninitiated,
@@ -118,7 +118,7 @@ func (m *mob) roam() {
 
 func (m *mob) scavenge() {
 	if len(m.room.items) > 0 {
-		newAction(m, fmt.Sprintf("get %s", m.room.items[0].identifiers[0]))
+		//newActionWithMob(m, fmt.Sprintf("get %s", m.room.items[0].identifiers[0]))
 	}
 }
 
@@ -127,7 +127,7 @@ func (m *mob) attr(a attribute) int {
 }
 
 func (m *mob) attack(target *mob) {
-	if target.disposition > dead {
+	if target.disposition > deadDisposition {
 		target.hp -= dice().Intn(m.attr(aDam)) + m.attr(aHit)
 	}
 }
