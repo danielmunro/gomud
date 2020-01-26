@@ -14,7 +14,7 @@ an item is here.
 `
 
 func Test_Look_AtRoom(t *testing.T) {
-	gs := NewGameService(NewServer(1234))
+	gs := NewGameService(io.NewServer(1234))
 	gs.CreateFixtures()
 	client := io.NewClient(&net.TCPConn{})
 	gs.dummyLogin(client)

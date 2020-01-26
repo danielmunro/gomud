@@ -10,13 +10,13 @@ type GameService struct {
 	mobService *MobService
 	locationService *LocationService
 	roomService *RoomService
-	server *Server
+	server *io.Server
 	buffers []*io.Buffer
 	eventService *EventService
 	logins []*Login
 }
 
-func NewGameService(server *Server) *GameService {
+func NewGameService(server *io.Server) *GameService {
 	gs := &GameService{
 		mobService:      newMobService(),
 		locationService: newLocationService(),

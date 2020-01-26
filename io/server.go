@@ -1,7 +1,6 @@
-package gomud
+package io
 
 import (
-	"github.com/danielmunro/gomud/io"
 	"log"
 	"net"
 	"strconv"
@@ -9,8 +8,8 @@ import (
 )
 
 type Server struct {
-	clients []*io.Client
-	updater chan *io.Client
+	clients []*Client
+	updater chan *Client
 	listener net.Listener
 }
 
@@ -21,35 +20,35 @@ func NewServer(port int) *Server {
 		log.Fatal(err)
 	}
 	return &Server{
-		updater: make(chan *io.Client),
+		updater: make(chan *Client),
 		listener: listener,
 	}
 }
 
-func (s *Server) Listen(bufferWriter chan *io.Buffer) error {
+func (s *Server) Listen(bufferWriter chan *Buffer) error {
 	defer s.listener.Close()
 	go s.readClientInput(bufferWriter)
 	go s.loop()
 	log.Printf("server started on %s", s.listener.Addr().String())
 	for {
-		client := io.NewClient(listen(s.listener))
+		client := NewClient(listen(s.listener))
 		go s.addClientAndListen(client)
 		log.Printf("connection established from %s", client.String())
 	}
 }
 
-func (s *Server) addClientAndListen(c *io.Client) {
+func (s *Server) addClientAndListen(c *Client) {
 	s.clients = append(s.clients, c)
 	for {
 		s.updater <- c.Read()
 	}
 }
 
-func (s *Server) readClientInput(bufferWriter chan *io.Buffer) {
+func (s *Server) readClientInput(bufferWriter chan *Buffer) {
 	for {
 		select {
 		case c := <- s.updater:
-			bufferWriter <- io.NewBuffer(c, c.Message)
+			bufferWriter <- NewBuffer(c, c.Message)
 		}
 	}
 }
