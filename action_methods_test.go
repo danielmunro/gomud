@@ -2,7 +2,6 @@ package gomud
 
 import (
 	"github.com/danielmunro/gomud/io"
-	"net"
 	"testing"
 )
 
@@ -14,21 +13,30 @@ an item is here.
 a test Mob is here.
 `
 
+const room2 = `Room 3
+You are in the third Room
+[e]
+`
+
 func Test_Look_AtRoom(t *testing.T) {
-	gs := NewGameService(io.NewServer(1234))
-	gs.CreateFixtures()
-	client := io.NewClient(&net.TCPConn{})
-	gs.dummyLogin(client)
+	// setup
+	test := NewTest(t)
 
-	output := gs.HandleBuffer(&io.Buffer{
-		Input: "look",
-		Client: client,
-	})
+	// when
+	output := test.GetOutputFromInput("look")
 
-	if output.Status != io.CompletedStatus {
-		t.Error("expected completed Status")
-	}
-	if output.MessageToRequestCreator != room1 {
-		t.Error("expected message: " + output.MessageToRequestCreator)
-	}
+	// then
+	test.Expect(output.Status == io.CompletedStatus, "expected completed Status")
+	test.Expect(output.MessageToRequestCreator == room1, "expected message: " + output.MessageToRequestCreator)
+}
+
+func Test_Look_AfterMove(t *testing.T) {
+	// setup
+	test := NewTest(t)
+
+	// when
+	output := test.GetOutputFromInput("w")
+
+	// then
+	test.Expect(output.MessageToRequestCreator == room2, "expected output to be room2")
 }

@@ -13,16 +13,16 @@ type Server struct {
 	listener net.Listener
 }
 
-func NewServer(port int) *Server {
+func NewServer(port int) (*Server, error) {
 	connection := ":"+strconv.Itoa(port)
 	listener, err := net.Listen("tcp", connection)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	return &Server{
 		updater: make(chan *Client),
 		listener: listener,
-	}
+	}, nil
 }
 
 func (s *Server) Listen(bufferWriter chan *Buffer) error {
