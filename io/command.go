@@ -16,11 +16,27 @@ const (
 	RemoveCommand Command = "remove"
 	KillCommand   Command = "kill"
 	FleeCommand   Command = "flee"
+	InventoryCommand Command = "inventory"
 	NoopCommand   Command = "noop"
 )
 
 var Commands []Command
 
 func init() {
-	Commands = []Command{LookCommand, NorthCommand, SouthCommand, EastCommand, WestCommand, UpCommand, DownCommand, GetCommand, DropCommand, WearCommand, RemoveCommand, KillCommand, FleeCommand}
+	Commands = []Command{
+		LookCommand,
+		NorthCommand,
+		SouthCommand,
+		EastCommand,
+		WestCommand,
+		UpCommand,
+		DownCommand,
+		GetCommand,
+		DropCommand,
+		WearCommand,
+		RemoveCommand,
+		KillCommand,
+		FleeCommand,
+		InventoryCommand,
+	}
 }

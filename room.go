@@ -1,7 +1,9 @@
 package gomud
 
 import (
+	"errors"
 	"fmt"
+	"github.com/danielmunro/gomud/io"
 
 	"github.com/jinzhu/gorm"
 )
@@ -64,6 +66,15 @@ func newRoom(n string, d string) *Room {
 		description: d,
 		items:       []*item{},
 	}
+}
+
+func (r *Room) FindItem(b *io.Buffer) (*item, error) {
+	for _, i := range r.items {
+		if b.MatchesSubject(i.identifiers) {
+			return i, nil
+		}
+	}
+	return nil, errors.New("no item found")
 }
 
 func (r *Room) String() string {

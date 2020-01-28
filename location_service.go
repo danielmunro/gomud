@@ -1,6 +1,9 @@
 package gomud
 
-import "github.com/danielmunro/gomud/io"
+import (
+	"errors"
+	"github.com/danielmunro/gomud/io"
+)
 
 type mobRoom struct {
 	mob *Mob
@@ -35,13 +38,13 @@ func (ls *LocationService) getRoomForMob(mob *Mob) *Room {
 	return nil
 }
 
-func (ls *LocationService) findMobInRoom(buffer *io.Buffer, room *Room) *Mob {
+func (ls *LocationService) findMobInRoom(buffer *io.Buffer, room *Room) (*Mob, error) {
 	for _, mr := range ls.mobRooms {
 		if buffer.MatchesSubject(mr.mob.identifiers) && mr.room == room {
-			return mr.mob
+			return mr.mob, nil
 		}
 	}
-	return nil
+	return nil, errors.New("no mob found")
 }
 
 func (ls *LocationService) countMobsInRoom(mob *Mob, room *Room) int {

@@ -51,7 +51,15 @@ func (gs *GameService) HandleBuffer(b *io.Buffer) *io.Output {
 	}
 	log.Printf("handling Buffer: %s", b.ToString())
 	action := findActionByCommand(b.GetCommand())
-	output := action.mutator(b, gs.buildActionContext(mob, action, b), gs.eventService)
+	context := gs.buildActionContext(mob, action, b)
+	ctx := context.findErrorContext()
+	if ctx != nil {
+		log.Printf("context failed: %s, %s", ctx.syntax, ctx.error.Error())
+		output := io.NewOutputToRequestCreator(b, io.FailedStatus, ctx.error.Error())
+		b.Client.WritePrompt(output.MessageToRequestCreator)
+		return output
+	}
+	output := action.mutator(b, context, gs.eventService)
 	b.Client.WritePrompt(output.MessageToRequestCreator)
 	if action.chainToCommand != "" {
 		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
@@ -133,12 +141,27 @@ func (gs *GameService) dummyLogin(client *io.Client) {
 	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }
 
-func (gs *GameService) getThingFromSyntax(syntax syntax, buffer *io.Buffer, ac *ActionContext) interface{} {
+func (gs *GameService) getThingFromSyntax(syntax syntax, buffer *io.Buffer, ac *ActionContext) (interface{}, error) {
 	switch syntax {
+	case commandSyntax:
+		return string(syntax), nil
 	case mobInRoomSyntax:
 		return gs.locationService.findMobInRoom(buffer, ac.room)
+	case itemInInventorySyntax:
+		return ac.mob.FindItem(buffer)
+	case itemInRoomSyntax:
+		return ac.room.FindItem(buffer)
+	case itemEquippedSyntax:
+		return ac.mob.FindEquipped(buffer)
+	case exitDirectionSyntax:
+		for _, e := range ac.room.exits {
+			if string(e.direction) == string(buffer.GetCommand()) {
+				return e, nil
+			}
+		}
+		return nil, errors.New("no direction found")
 	default:
-		return nil
+		return nil, errors.New("syntax not implemented")
 	}
 }
 
@@ -147,11 +170,9 @@ func (gs *GameService) buildActionContext(mob *Mob, action *action, buffer *io.B
 	actionContext.mob = mob
 	actionContext.room = gs.locationService.getRoomForMob(mob)
 	actionContext.hasDisposition = action.mobHasDisposition(mob)
-	for _, s := range action.syntax {
-		actionContext.results = append(actionContext.results, &context{
-			syntax: s,
-			thing: gs.getThingFromSyntax(s, buffer, actionContext),
-		})
+	for _, syntax := range action.syntax {
+		thing, err := gs.getThingFromSyntax(syntax, buffer, actionContext)
+		actionContext.results = append(actionContext.results, newContext(syntax, thing, err))
 	}
 	return actionContext
 }

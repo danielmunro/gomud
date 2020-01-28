@@ -24,7 +24,18 @@ func (a *action) mobHasDisposition(mob *Mob) bool {
 	return false
 }
 
-func transferItem(i int, from []*item, to []*item) ([]*item, []*item) {
+func transferItem(item *item, from []*item, to []*item) ([]*item, []*item) {
+	for i, x := range from {
+		if x == item {
+			from = append(from[0:i], from[i+1:]...)
+			to = append(to, item)
+		}
+	}
+
+	return from, to
+}
+
+func transferItemByIndex(i int, from []*item, to []*item) ([]*item, []*item) {
 	item := from[i]
 	from = append(from[0:i], from[i+1:]...)
 	to = append(to, item)

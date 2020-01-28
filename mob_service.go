@@ -2,11 +2,19 @@ package gomud
 
 type MobService struct {
 	mobResets []*MobReset
+	fights []*fight
 }
 
 func newMobService() *MobService {
-	return &MobService{
-		mobResets: []*MobReset{},
+	return &MobService{}
+}
+
+func (ms *MobService) EndFightForMob(mob *Mob) {
+	for _, f := range ms.fights {
+		if f.IncludesMob(mob) {
+			f.End()
+			return
+		}
 	}
 }
 

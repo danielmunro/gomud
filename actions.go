@@ -67,6 +67,15 @@ func newDropAction() *action {
 	}
 }
 
+func newInventoryAction() *action {
+	return &action{
+		command:      io.InventoryCommand,
+		dispositions: []disposition{standingDisposition, fightingDisposition, sittingDisposition, sleepingDisposition},
+		mutator:      inventory,
+		syntax:       []syntax{commandSyntax},
+	}
+}
+
 func newMoveAction(command io.Command, direction direction) *action {
 	return &action{
 		command: command,
@@ -74,6 +83,7 @@ func newMoveAction(command io.Command, direction direction) *action {
 		mutator: func (b *io.Buffer, actionContext *ActionContext, eventService *EventService) *io.Output {
 			return move(direction, b, actionContext, eventService)
 		},
+		syntax: []syntax{exitDirectionSyntax},
 		chainToCommand: io.LookCommand,
 	}
 }
@@ -97,6 +107,7 @@ func init() {
 		newRemoveAction(),
 		newGetAction(),
 		newDropAction(),
+		newInventoryAction(),
 		newMoveAction(io.NorthCommand, dNorth),
 		newMoveAction(io.SouthCommand, dSouth),
 		newMoveAction(io.EastCommand, dEast),

@@ -3,6 +3,15 @@ package gomud
 type context struct {
 	syntax syntax
 	thing interface{}
+	error error
+}
+
+func newContext(syntax syntax, thing interface{}, error error) *context {
+	return &context{
+		syntax,
+		thing,
+		error,
+	}
 }
 
 type ActionContext struct {
@@ -12,10 +21,37 @@ type ActionContext struct {
 	results []*context
 }
 
+func (ac *ActionContext) findErrorContext() *context {
+	for _, r := range ac.results {
+		if r.error != nil {
+			return r
+		}
+	}
+	return nil
+}
+
 func (ac *ActionContext) getMobBySyntax(syntax syntax) *Mob {
 	for _, r := range ac.results {
 		if r.syntax == syntax {
 			return r.thing.(*Mob)
+		}
+	}
+	return nil
+}
+
+func (ac *ActionContext) getItemBySyntax(syntax syntax) *item {
+	for _, r := range ac.results {
+		if r.syntax == syntax {
+			return r.thing.(*item)
+		}
+	}
+	return nil
+}
+
+func (ac *ActionContext) getExitBySyntax(syntax syntax) *exit {
+	for _, r := range ac.results {
+		if r.syntax == syntax {
+			return r.thing.(*exit)
 		}
 	}
 	return nil

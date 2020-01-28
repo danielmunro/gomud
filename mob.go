@@ -1,6 +1,8 @@
 package gomud
 
 import (
+	"errors"
+	"github.com/danielmunro/gomud/io"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -57,6 +59,24 @@ func newMob(n string, d string) *Mob {
 		race:        getRace(""),
 		job:         uninitiated,
 	}
+}
+
+func (m *Mob) FindItem(b *io.Buffer) (*item, error) {
+	for _, i := range m.items {
+		if b.MatchesSubject(i.identifiers) {
+			return i, nil
+		}
+	}
+	return nil, errors.New("no item found")
+}
+
+func (m *Mob) FindEquipped(b *io.Buffer) (*item, error) {
+	for _, i := range m.equipped {
+		if b.MatchesSubject(i.identifiers) {
+			return i, nil
+		}
+	}
+	return nil, errors.New("no equipment found")
 }
 
 func (m *Mob) String() string {
