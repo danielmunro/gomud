@@ -11,6 +11,7 @@ You are in the first Room
 [sw]
 an item is here.
 an item is here.
+a test Mob is here.
 `
 
 func Test_Look_AtRoom(t *testing.T) {

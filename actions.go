@@ -2,10 +2,10 @@ package gomud
 
 import "github.com/danielmunro/gomud/io"
 
-var actions []*action
+var actions []*Action
 
-func newLookAction() *action {
-	return &action{
+func newLookAction() *Action {
+	return &Action{
 		command:      io.LookCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition, sittingDisposition},
 		mutator:      look,
@@ -13,8 +13,8 @@ func newLookAction() *action {
 	}
 }
 
-func newKillAction() *action {
-	return &action{
+func newKillAction() *Action {
+	return &Action{
 		command:      io.KillCommand,
 		dispositions: []disposition{standingDisposition},
 		mutator:      kill,
@@ -22,8 +22,8 @@ func newKillAction() *action {
 	}
 }
 
-func newFleeAction() *action {
-	return &action{
+func newFleeAction() *Action {
+	return &Action{
 		command:      io.FleeCommand,
 		dispositions: []disposition{fightingDisposition},
 		mutator:      flee,
@@ -31,8 +31,8 @@ func newFleeAction() *action {
 	}
 }
 
-func newWearAction() *action {
-	return &action{
+func newWearAction() *Action {
+	return &Action{
 		command:      io.WearCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
 		mutator:      wear,
@@ -40,8 +40,8 @@ func newWearAction() *action {
 	}
 }
 
-func newRemoveAction() *action {
-	return &action{
+func newRemoveAction() *Action {
+	return &Action{
 		command:      io.RemoveCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
 		mutator:      remove,
@@ -49,8 +49,8 @@ func newRemoveAction() *action {
 	}
 }
 
-func newGetAction() *action {
-	return &action{
+func newGetAction() *Action {
+	return &Action{
 		command:      io.GetCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
 		mutator:      get,
@@ -58,8 +58,8 @@ func newGetAction() *action {
 	}
 }
 
-func newDropAction() *action {
-	return &action{
+func newDropAction() *Action {
+	return &Action{
 		command:      io.DropCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition},
 		mutator:      drop,
@@ -67,8 +67,8 @@ func newDropAction() *action {
 	}
 }
 
-func newInventoryAction() *action {
-	return &action{
+func newInventoryAction() *Action {
+	return &Action{
 		command:      io.InventoryCommand,
 		dispositions: []disposition{standingDisposition, fightingDisposition, sittingDisposition, sleepingDisposition},
 		mutator:      inventory,
@@ -76,30 +76,30 @@ func newInventoryAction() *action {
 	}
 }
 
-func newMoveAction(command io.Command, direction direction) *action {
-	return &action{
+func newMoveAction(command io.Command, direction direction) *Action {
+	return &Action{
 		command: command,
 		dispositions: []disposition{standingDisposition},
-		mutator: func (b *io.Buffer, actionContext *ActionContext, eventService *EventService) *io.Output {
-			return move(direction, b, actionContext, eventService)
+		mutator: func (actionContext *ActionContext, actionService *ActionService) *io.Output {
+			return move(direction, actionContext, actionService)
 		},
 		syntax: []syntax{exitDirectionSyntax},
 		chainToCommand: io.LookCommand,
 	}
 }
 
-func newNoopAction() *action {
-	return &action{
+func newNoopAction() *Action {
+	return &Action{
 		command:      io.NoopCommand,
 		dispositions: []disposition{},
-		mutator: func(b *io.Buffer, actionContext *ActionContext, eventService *EventService) *io.Output {
-			return io.NewOutputToRequestCreator(b, io.CompletedStatus, "What was that?")
+		mutator: func(actionContext *ActionContext, actionService *ActionService) *io.Output {
+			return actionContext.buffer.CreateOutputToRequestCreator("What was that?")
 		},
 	}
 }
 
 func init() {
-	actions = []*action{
+	actions = []*Action{
 		newLookAction(),
 		newKillAction(),
 		newFleeAction(),
@@ -117,7 +117,7 @@ func init() {
 	}
 }
 
-func findActionByCommand(command io.Command) *action {
+func findActionByCommand(command io.Command) *Action {
 	for _, a := range actions {
 		if a.command == command {
 			return a

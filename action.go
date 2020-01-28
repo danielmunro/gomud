@@ -5,17 +5,17 @@ import (
 	"github.com/danielmunro/gomud/io"
 )
 
-type mutator func(buffer *io.Buffer, actionContext *ActionContext, eventService *EventService) *io.Output
+type Mutator func(actionContext *ActionContext, actionService *ActionService) *io.Output
 
-type action struct {
+type Action struct {
 	command        io.Command
 	dispositions   []disposition
-	mutator        mutator
+	mutator        Mutator
 	syntax         []syntax
 	chainToCommand io.Command
 }
 
-func (a *action) mobHasDisposition(mob *Mob) bool {
+func (a *Action) mobHasDisposition(mob *Mob) bool {
 	for _, d := range a.dispositions {
 		if d == mob.disposition {
 			return true
@@ -53,16 +53,14 @@ func exitsString(r *Room) string {
 	return fmt.Sprintf("[%s]", exits)
 }
 
-func mobsString(r *Room, mob *Mob) string {
-	var mobs string
+func mobsString(mobs []*Mob) string {
+	var buf string
 
-	for _, m := range r.mobs {
-		if m != mob {
-			mobs = fmt.Sprintf("%s is here.\n%s", m.String(), mobs)
-		}
+	for _, m := range mobs {
+		buf = fmt.Sprintf("%s is here.\n%s", m.String(), buf)
 	}
 
-	return mobs
+	return buf
 }
 
 func itemsString(r *Room) string {

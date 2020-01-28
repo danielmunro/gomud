@@ -68,6 +68,15 @@ func newRoom(n string, d string) *Room {
 	}
 }
 
+func (r *Room) GetExitFromDirection(direction string) (*exit, error) {
+	for _, e := range r.exits {
+		if string(e.direction) == direction {
+			return e, nil
+		}
+	}
+	return nil, errors.New("that direction does not exist")
+}
+
 func (r *Room) FindItem(b *io.Buffer) (*item, error) {
 	for _, i := range r.items {
 		if b.MatchesSubject(i.identifiers) {

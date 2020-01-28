@@ -1,5 +1,7 @@
 package gomud
 
+import "github.com/danielmunro/gomud/io"
+
 type context struct {
 	syntax syntax
 	thing interface{}
@@ -18,6 +20,7 @@ type ActionContext struct {
 	hasDisposition bool
 	room *Room
 	mob *Mob
+	buffer *io.Buffer
 	results []*context
 }
 

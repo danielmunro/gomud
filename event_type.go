@@ -5,4 +5,5 @@ type EventType string
 const (
 	MobMoveEventType EventType = "mob move"
 	FleeEventType EventType = "flee"
+	LookEventType EventType = "look"
 )

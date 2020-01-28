@@ -47,6 +47,16 @@ func (ls *LocationService) findMobInRoom(buffer *io.Buffer, room *Room) (*Mob, e
 	return nil, errors.New("no mob found")
 }
 
+func (ls *LocationService) getMobsInRoom(room *Room) []*Mob {
+	var mobs []*Mob
+	for _, mr := range ls.mobRooms {
+		if mr.room == room {
+			mobs = append(mobs, mr.mob)
+		}
+	}
+	return mobs
+}
+
 func (ls *LocationService) countMobsInRoom(mob *Mob, room *Room) int {
 	amount := 0
 	for _, mr := range ls.mobRooms {

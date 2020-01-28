@@ -5,16 +5,16 @@ type EventService struct {
 	observers []*Observer
 }
 
-func NewEventService(gs *GameService) *EventService {
+func NewEventService(ls *LocationService, ms *MobService) *EventService {
 	return &EventService{
-		observers: newObservers(gs),
+		observers: newObservers(ls, ms),
 	}
 }
 
 func (es *EventService) Publish(event *Event) {
 	for _, observer := range es.observers {
 		if observer.eventType == event.eventType {
-			observer.call(event)
+			observer.eventObserver(event)
 		}
 	}
 }

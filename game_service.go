@@ -10,6 +10,7 @@ type GameService struct {
 	mobService *MobService
 	locationService *LocationService
 	roomService *RoomService
+	actionService *ActionService
 	server *io.Server
 	buffers []*io.Buffer
 	eventService *EventService
@@ -17,13 +18,18 @@ type GameService struct {
 }
 
 func NewGameService(server *io.Server) *GameService {
+	ms := newMobService()
+	ls := newLocationService()
+	es := NewEventService(ls, ms)
+	as := newActionService(ls, es)
 	gs := &GameService{
-		mobService:      newMobService(),
-		locationService: newLocationService(),
+		mobService:      ms,
+		locationService: ls,
 		roomService:     newRoomService(),
 		server:          server,
+		eventService:    es,
+		actionService:   as,
 	}
-	gs.eventService = NewEventService(gs)
 	return gs
 }
 
@@ -59,17 +65,13 @@ func (gs *GameService) HandleBuffer(b *io.Buffer) *io.Output {
 		b.Client.WritePrompt(output.MessageToRequestCreator)
 		return output
 	}
-	output := action.mutator(b, context, gs.eventService)
+	output := action.mutator(context, gs.actionService)
 	b.Client.WritePrompt(output.MessageToRequestCreator)
 	if action.chainToCommand != "" {
-		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
+		log.Printf("Action %s chained to %s", action.command, action.chainToCommand)
 		action = findActionByCommand(action.chainToCommand)
-		output = action.mutator(
-			io.NewBuffer(
-				b.Client,
-				string(action.command)),
-			gs.buildActionContext(mob, action, b),
-			gs.eventService)
+		buffer := io.NewBuffer(b.Client, string(action.command))
+		output = action.mutator(gs.buildActionContext(mob, action, buffer), gs.actionService)
 		b.Client.WritePrompt(output.MessageToRequestCreator)
 	}
 	return output
@@ -141,7 +143,8 @@ func (gs *GameService) dummyLogin(client *io.Client) {
 	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }
 
-func (gs *GameService) getThingFromSyntax(syntax syntax, buffer *io.Buffer, ac *ActionContext) (interface{}, error) {
+func (gs *GameService) getThingFromSyntax(syntax syntax, ac *ActionContext) (interface{}, error) {
+	buffer := ac.buffer
 	switch syntax {
 	case commandSyntax:
 		return string(syntax), nil
@@ -154,24 +157,20 @@ func (gs *GameService) getThingFromSyntax(syntax syntax, buffer *io.Buffer, ac *
 	case itemEquippedSyntax:
 		return ac.mob.FindEquipped(buffer)
 	case exitDirectionSyntax:
-		for _, e := range ac.room.exits {
-			if string(e.direction) == string(buffer.GetCommand()) {
-				return e, nil
-			}
-		}
-		return nil, errors.New("no direction found")
+		return ac.room.GetExitFromDirection(string(buffer.GetCommand()))
 	default:
 		return nil, errors.New("syntax not implemented")
 	}
 }
 
-func (gs *GameService) buildActionContext(mob *Mob, action *action, buffer *io.Buffer) *ActionContext {
+func (gs *GameService) buildActionContext(mob *Mob, action *Action, buffer *io.Buffer) *ActionContext {
 	actionContext := &ActionContext{}
 	actionContext.mob = mob
 	actionContext.room = gs.locationService.getRoomForMob(mob)
 	actionContext.hasDisposition = action.mobHasDisposition(mob)
+	actionContext.buffer = buffer
 	for _, syntax := range action.syntax {
-		thing, err := gs.getThingFromSyntax(syntax, buffer, actionContext)
+		thing, err := gs.getThingFromSyntax(syntax, actionContext)
 		actionContext.results = append(actionContext.results, newContext(syntax, thing, err))
 	}
 	return actionContext

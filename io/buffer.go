@@ -43,6 +43,14 @@ func (b *Buffer) ToString() string {
 	return fmt.Sprintf("Client: %s, Input: '%s'", b.Client.id, b.Input)
 }
 
+func (b *Buffer) CreateOutputToRequestCreator(messageToRequestCreator string) *Output {
+	return NewOutputToRequestCreator(b, CompletedStatus, messageToRequestCreator)
+}
+
+func (b *Buffer) CreateOutput(messageToRequestCreator string, messageToTarget string, messageToObservers string) *Output {
+	return NewOutput(b, CompletedStatus, messageToRequestCreator, messageToTarget, messageToObservers)
+}
+
 func isCommand(c Command, p string) bool {
 	return strings.HasPrefix(string(c), p)
 }
