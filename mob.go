@@ -93,47 +93,6 @@ func (m *Mob) hasRole(r role) bool {
 	return false
 }
 
-func (m *Mob) move(e *exit) {
-	m.lastRoom = m.room
-	for i, rm := range m.room.mobs {
-		if rm == m {
-			m.room.mobs = append(m.room.mobs[0:i], m.room.mobs[i+1:]...)
-		} else {
-			//rm.notify(fmt.Sprintf("%s leaves heading %s.\n", m.String(), e.direction))
-		}
-	}
-	m.room = e.room
-	m.room.mobs = append(m.room.mobs, m)
-	for _, rm := range m.room.mobs {
-		if rm != m {
-			//rm.notify(fmt.Sprintf("%s arrives.\n", m.String()))
-		}
-	}
-}
-
-func (m *Mob) roam() {
-	switch c := len(m.room.exits); c {
-	case 0:
-		return
-	case 1:
-		m.move(m.room.exits[0])
-	default:
-		for {
-			e := m.room.exits[dice().Intn(c)]
-			if e.room != m.lastRoom {
-				m.move(e)
-				break
-			}
-		}
-	}
-}
-
-func (m *Mob) scavenge() {
-	if len(m.room.items) > 0 {
-		//newActionWithMob(m, fmt.Sprintf("get %s", m.Room.items[0].identifiers[0]))
-	}
-}
-
 func (m *Mob) attr(a attribute) int {
 	return m.attributes.a(a) + m.race.attrs.a(a) + jobAttributes(m.job).a(a)
 }
