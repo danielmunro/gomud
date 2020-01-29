@@ -32,8 +32,8 @@ func (f *Fight) End() {
 }
 
 func (f *Fight) Proceed() {
-	f.turn(f.Attacker)
-	f.turn(f.Defender)
+	f.Attacker.attack(f.Defender)
+	f.Defender.attack(f.Attacker)
 	if f.Attacker.hp < 0 || f.Defender.hp < 0 {
 		f.End()
 	}
@@ -41,12 +41,4 @@ func (f *Fight) Proceed() {
 
 func (f *Fight) IsEnded() bool {
 	return f.Status == EndedFightStatus
-}
-
-func (f *Fight) turn(m *Mob) {
-	if m == f.Attacker {
-		m.attack(f.Defender)
-	} else if m == f.Defender {
-		m.attack(f.Attacker)
-	}
 }
