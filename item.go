@@ -27,7 +27,7 @@ const (
 	secondary position = "secondary"
 )
 
-type item struct {
+type Item struct {
 	gorm.Model
 	name        string
 	description string
@@ -36,14 +36,14 @@ type item struct {
 	position    position
 }
 
-func newItem(name string, description string, identifiers []string) *item {
-	return &item{
+func NewItem(name string, description string, identifiers []string) *Item {
+	return &Item{
 		name:        name,
 		description: description,
 		identifiers: identifiers,
 	}
 }
 
-func (i *item) String() string {
+func (i *Item) String() string {
 	return i.name
 }

@@ -117,8 +117,8 @@ func (gs *GameService) CreateFixtures() {
 	r2.exits = append(r2.exits, newExit(r1, dNorth))
 	r3.exits = append(r3.exits, newExit(r1, dEast))
 
-	i1 := newItem("an item", "An item is here", []string{"item"})
-	i2 := newItem("an item", "An item is here", []string{"item"})
+	i1 := NewItem("an item", "An item is here", []string{"item"})
+	i2 := NewItem("an item", "An item is here", []string{"item"})
 
 	i1.position = held
 	i2.position = held

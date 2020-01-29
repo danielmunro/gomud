@@ -57,14 +57,14 @@ type Room struct {
 	description string
 	exits       []*exit
 	mobs        []*Mob `gorm:"ForeignKey:Mob"`
-	items       []*item
+	items       []*Item
 }
 
 func newRoom(n string, d string) *Room {
 	return &Room{
 		name:        n,
 		description: d,
-		items:       []*item{},
+		items:       []*Item{},
 	}
 }
 
@@ -77,7 +77,7 @@ func (r *Room) GetExitFromDirection(direction string) (*exit, error) {
 	return nil, errors.New("that direction does not exist")
 }
 
-func (r *Room) FindItem(b *io.Buffer) (*item, error) {
+func (r *Room) FindItem(b *io.Buffer) (*Item, error) {
 	for _, i := range r.items {
 		if b.MatchesSubject(i.identifiers) {
 			return i, nil

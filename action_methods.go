@@ -88,7 +88,7 @@ func inventory(ac *ActionContext, _ *ActionService) *io.Output {
 	return ac.buffer.CreateOutputToRequestCreator(buf)
 }
 
-func transferItem(item *item, from []*item, to []*item) ([]*item, []*item) {
+func transferItem(item *Item, from []*Item, to []*Item) ([]*Item, []*Item) {
 	for i, x := range from {
 		if x == item {
 			from = append(from[0:i], from[i+1:]...)
@@ -99,7 +99,7 @@ func transferItem(item *item, from []*item, to []*item) ([]*item, []*item) {
 	return from, to
 }
 
-func transferItemByIndex(i int, from []*item, to []*item) ([]*item, []*item) {
+func transferItemByIndex(i int, from []*Item, to []*Item) ([]*Item, []*Item) {
 	item := from[i]
 	from = append(from[0:i], from[i+1:]...)
 	to = append(to, item)

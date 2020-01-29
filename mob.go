@@ -43,8 +43,8 @@ type Mob struct {
 	room        *Room
 	lastRoom    *Room
 	roles       []role
-	items       []*item
-	equipped    []*item
+	items       []*Item
+	equipped    []*Item
 }
 
 func NewMob(n string, d string) *Mob {
@@ -60,7 +60,7 @@ func NewMob(n string, d string) *Mob {
 	}
 }
 
-func (m *Mob) FindItem(b *io.Buffer) (*item, error) {
+func (m *Mob) FindItem(b *io.Buffer) (*Item, error) {
 	for _, i := range m.items {
 		if b.MatchesSubject(i.identifiers) {
 			return i, nil
@@ -69,7 +69,7 @@ func (m *Mob) FindItem(b *io.Buffer) (*item, error) {
 	return nil, errors.New("no item found")
 }
 
-func (m *Mob) FindEquipped(b *io.Buffer) (*item, error) {
+func (m *Mob) FindEquipped(b *io.Buffer) (*Item, error) {
 	for _, i := range m.equipped {
 		if b.MatchesSubject(i.identifiers) {
 			return i, nil

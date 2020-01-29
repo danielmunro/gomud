@@ -42,10 +42,10 @@ func (ac *ActionContext) getMobBySyntax(syntax syntax) *Mob {
 	return nil
 }
 
-func (ac *ActionContext) getItemBySyntax(syntax syntax) *item {
+func (ac *ActionContext) getItemBySyntax(syntax syntax) *Item {
 	for _, r := range ac.results {
 		if r.syntax == syntax {
-			return r.thing.(*item)
+			return r.thing.(*Item)
 		}
 	}
 	return nil
