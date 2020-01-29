@@ -1,6 +1,9 @@
 package gomud
 
-import "strings"
+import (
+	"github.com/jinzhu/gorm"
+	"strings"
+)
 
 type RaceName string
 
@@ -24,6 +27,7 @@ func getRace(name RaceName) *Race {
 }
 
 type Race struct {
+	gorm.Model
 	Name       RaceName
 	Attributes *Attributes
 }

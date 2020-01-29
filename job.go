@@ -1,6 +1,9 @@
 package gomud
 
-import "strings"
+import (
+	"github.com/jinzhu/gorm"
+	"strings"
+)
 
 type JobName string
 
@@ -13,6 +16,7 @@ const (
 )
 
 type Job struct {
+	gorm.Model
 	Name JobName
 	Attributes *Attributes
 }
