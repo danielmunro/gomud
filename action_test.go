@@ -10,7 +10,7 @@ You are in the first Room
 [sw]
 an item is here.
 an item is here.
-a test Mob is here.
+value test Mob is here.
 `
 
 const room2 = `Room 3
@@ -85,10 +85,10 @@ func Test_Kill_Mob(t *testing.T) {
 	output := test.GetOutputFromInput("kill test")
 
 	// then
-	test.Expect(output.MessageToRequestCreator == "You scream and attack a test Mob!", output.MessageToRequestCreator)
+	test.Expect(output.MessageToRequestCreator == "You scream and attack value test Mob!", output.MessageToRequestCreator)
 	test.Expect(output.MessageToTarget == "tester mctesterson screams and attacks you!", output.MessageToTarget)
-	test.Expect(output.MessageToObservers == "tester mctesterson screams and attacks a test Mob!", output.MessageToObservers)
+	test.Expect(output.MessageToObservers == "tester mctesterson screams and attacks value test Mob!", output.MessageToObservers)
 
 	// and
-	test.Expect(len(test.gameService.mobService.fights) == 1, "should create a fight")
+	test.Expect(len(test.gameService.mobService.fights) == 1, "should create value fight")
 }

@@ -26,13 +26,19 @@ type attributes struct {
 	values map[attribute]int
 }
 
-func newAttributes(v map[attribute]int) *attributes {
+func newStats(str int, i int, wis int, dex int, con int) *attributes {
 	return &attributes{
-		values: v,
+		values: map[attribute]int{
+			aStr: str,
+			aInt: i,
+			aWis: wis,
+			aDex: dex,
+			aCon: con,
+		},
 	}
 }
 
-func (a *attributes) a(attr attribute) int {
+func (a *attributes) value(attr attribute) int {
 	i, ok := a.values[attr]
 
 	if ok {

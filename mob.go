@@ -38,8 +38,8 @@ type Mob struct {
 	hp          int
 	mana        int
 	mv          int
-	race        *race
-	job         job
+	race        *Race
+	job         *Job
 	room        *Room
 	lastRoom    *Room
 	roles       []role
@@ -56,7 +56,7 @@ func newMob(n string, d string) *Mob {
 		disposition: standingDisposition,
 		level:       1,
 		race:        getRace(""),
-		job:         uninitiated,
+		job:         getJob(UninitializedJob),
 	}
 }
 
@@ -93,7 +93,7 @@ func (m *Mob) hasRole(r role) bool {
 }
 
 func (m *Mob) attr(a attribute) int {
-	return m.attributes.a(a) + m.race.attrs.a(a) + jobAttributes(m.job).a(a)
+	return m.attributes.value(a) + m.race.Attributes.value(a) + m.job.Attributes.value(a)
 }
 
 func (m *Mob) attack(target *Mob) {
