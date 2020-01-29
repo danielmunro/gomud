@@ -16,12 +16,11 @@ type Fight struct {
 func NewFight(attacker *Mob, defender *Mob) *Fight {
 	attacker.disposition = fightingDisposition
 	defender.disposition = fightingDisposition
-	f := &Fight{
+	return &Fight{
 		Attacker: attacker,
 		Defender: defender,
 		Status:   StartedFightStatus,
 	}
-	return f
 }
 
 func (f *Fight) IncludesMob(mob *Mob) bool {
