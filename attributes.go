@@ -2,6 +2,10 @@ package gomud
 
 import "github.com/jinzhu/gorm"
 
+const startHp = 20
+const startMana = 100
+const startMv = 100
+
 type attribute string
 
 const (
@@ -21,16 +25,26 @@ const (
 	aAcMagic  attribute = "acMagic"
 )
 
-type attributes struct {
+type Attributes struct {
 	gorm.Model
-	values map[attribute]int
+	Values map[attribute]int
 }
 
-func newStats(str int, i int, wis int, dex int, con int) *attributes {
-	return &attributes{
-		values: map[attribute]int{
+func NewStartingAttrs() *Attributes {
+	return &Attributes{
+		Values: map[attribute]int{
+			aHp: startHp,
+			aMana: startMana,
+			aMv: startMv,
+		},
+	}
+}
+
+func NewStats(str int, _int int, wis int, dex int, con int) *Attributes {
+	return &Attributes{
+		Values: map[attribute]int{
 			aStr: str,
-			aInt: i,
+			aInt: _int,
 			aWis: wis,
 			aDex: dex,
 			aCon: con,
@@ -38,8 +52,8 @@ func newStats(str int, i int, wis int, dex int, con int) *attributes {
 	}
 }
 
-func (a *attributes) value(attr attribute) int {
-	i, ok := a.values[attr]
+func (a *Attributes) Value(attr attribute) int {
+	i, ok := a.Values[attr]
 
 	if ok {
 		return i

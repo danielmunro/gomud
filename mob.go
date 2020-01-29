@@ -32,7 +32,7 @@ type Mob struct {
 	name        string
 	description string
 	identifiers []string
-	attributes  *attributes
+	attributes  *Attributes
 	disposition disposition
 	level       int
 	hp          int
@@ -47,15 +47,15 @@ type Mob struct {
 	equipped    []*item
 }
 
-func newMob(n string, d string) *Mob {
+func NewMob(n string, d string) *Mob {
 	return &Mob{
 		name:        n,
 		description: d,
 		identifiers: strings.Split(n, " "),
-		attributes:  &attributes{},
+		attributes:  NewStartingAttrs(),
 		disposition: standingDisposition,
 		level:       1,
-		race:        getRace(""),
+		race:        getRace(CritterRace),
 		job:         getJob(UninitializedJob),
 	}
 }
@@ -93,7 +93,7 @@ func (m *Mob) hasRole(r role) bool {
 }
 
 func (m *Mob) attr(a attribute) int {
-	return m.attributes.value(a) + m.race.Attributes.value(a) + m.job.Attributes.value(a)
+	return m.attributes.Value(a) + m.race.Attributes.Value(a) + m.job.Attributes.Value(a)
 }
 
 func (m *Mob) attack(target *Mob) {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/danielmunro/gomud/io"
 	"log"
+	"time"
 )
 
 type GameService struct {
@@ -18,7 +19,7 @@ type GameService struct {
 }
 
 func NewGameService(server *io.Server) *GameService {
-	ms := newMobService()
+	ms := NewMobService()
 	ls := newLocationService()
 	es := NewEventService(ls, ms)
 	as := newActionService(ls, es)
@@ -36,7 +37,15 @@ func NewGameService(server *io.Server) *GameService {
 func (gs *GameService) StartServer() {
 	bufferWriter := make(chan *io.Buffer)
 	go gs.server.Listen(bufferWriter)
+	go gs.StartPulses()
 	gs.ListenForNewBuffers(bufferWriter)
+}
+
+func (gs *GameService) StartPulses() {
+	for {
+		gs.eventService.Publish(NewSystemEvent(PulseEventType))
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func (gs *GameService) ListenForNewBuffers(bufferWriter chan *io.Buffer) {
@@ -103,7 +112,7 @@ func (gs *GameService) CreateFixtures() {
 	r1.exits = append(r1.exits, newExit(r2, dSouth))
 	r1.exits = append(r1.exits, newExit(r3, dWest))
 
-	m := newMob("value test Mob", "A test Mob")
+	m := NewMob("Value test Mob", "A test Mob")
 
 	r2.exits = append(r2.exits, newExit(r1, dNorth))
 	r3.exits = append(r3.exits, newExit(r1, dEast))
@@ -138,7 +147,7 @@ func (gs *GameService) findMobForClient(client *io.Client) (*Mob, error) {
 }
 
 func (gs *GameService) dummyLogin(client *io.Client) {
-	login := NewLogin(client, newMob("tester mctesterson", "A test Mob."))
+	login := NewLogin(client, NewMob("tester mctesterson", "A test Mob."))
 	gs.logins = append(gs.logins, login)
 	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }

@@ -2,10 +2,10 @@ package gomud
 
 type MobService struct {
 	mobResets []*MobReset
-	fights []*fight
+	fights []*Fight
 }
 
-func newMobService() *MobService {
+func NewMobService() *MobService {
 	return &MobService{}
 }
 
@@ -18,8 +18,17 @@ func (ms *MobService) EndFightForMob(mob *Mob) {
 	}
 }
 
-func (ms *MobService) AddFight(fight *fight) {
+func (ms *MobService) AddFight(fight *Fight) {
 	ms.fights = append(ms.fights, fight)
+}
+
+func (ms *MobService) ProceedFights() {
+	for i, f := range ms.fights {
+		f.Proceed()
+		if f.IsEnded() {
+			ms.fights = append(ms.fights[:i], ms.fights[i+1:]...)
+		}
+	}
 }
 
 func (ms *MobService) addMobReset(mobReset *MobReset) {

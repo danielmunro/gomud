@@ -7,4 +7,5 @@ const (
 	FleeEventType EventType = "flee"
 	LookEventType EventType = "look"
 	AttackEventType EventType = "attack"
+	PulseEventType EventType = "pulse"
 )

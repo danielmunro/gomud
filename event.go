@@ -24,3 +24,12 @@ func NewEvent(eventType EventType, mob *Mob, room *Room) *Event {
 		nil,
 	}
 }
+
+func NewSystemEvent(eventType EventType) *Event {
+	return &Event {
+		eventType,
+		nil,
+		nil,
+		nil,
+	}
+}

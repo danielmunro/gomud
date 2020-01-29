@@ -13,9 +13,9 @@ const (
 
 var races []*Race
 
-func getRace(n string) *Race {
+func getRace(name RaceName) *Race {
 	for _, i := range races {
-		if strings.HasPrefix(string(i.Name), n) {
+		if strings.HasPrefix(string(i.Name), string(name)) {
 			return i
 		}
 	}
@@ -25,10 +25,10 @@ func getRace(n string) *Race {
 
 type Race struct {
 	Name       RaceName
-	Attributes *attributes
+	Attributes *Attributes
 }
 
-func NewRace(name RaceName, attrs *attributes) *Race {
+func NewRace(name RaceName, attrs *Attributes) *Race {
 	return &Race{
 		Name:       name,
 		Attributes: attrs,
@@ -37,9 +37,9 @@ func NewRace(name RaceName, attrs *attributes) *Race {
 
 func init() {
 	races = []*Race{
-		NewRace(ElfRace, 	 newStats(12, 17, 16, 16, 12)),
-		NewRace(DwarfRace,   newStats(18, 12, 17, 11, 18)),
-		NewRace(HumanRace,   newStats(15, 15, 15, 15, 15)),
-		NewRace(CritterRace, newStats(15, 15, 15, 15, 15)),
+		NewRace(ElfRace, 	 NewStats(12, 17, 16, 16, 12)),
+		NewRace(DwarfRace,   NewStats(18, 12, 17, 11, 18)),
+		NewRace(HumanRace,   NewStats(15, 15, 15, 15, 15)),
+		NewRace(CritterRace, NewStats(15, 15, 15, 15, 15)),
 	}
 }

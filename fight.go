@@ -1,41 +1,53 @@
 package gomud
 
-type fightStatus string
+type FightStatus string
 
 const (
-	startedFightStatus fightStatus = "started"
-	endedFightStatus fightStatus = "ended"
+	StartedFightStatus FightStatus = "started"
+	EndedFightStatus   FightStatus = "ended"
 )
 
-type fight struct {
-	m1 *Mob
-	m2 *Mob
-	status fightStatus
+type Fight struct {
+	Attacker *Mob
+	Defender *Mob
+	Status   FightStatus
 }
 
-func newFight(m1 *Mob, m2 *Mob) *fight {
-	m1.disposition = fightingDisposition
-	m2.disposition = fightingDisposition
-	f := &fight{
-		m1: m1,
-		m2: m2,
-		status: startedFightStatus,
+func NewFight(attacker *Mob, defender *Mob) *Fight {
+	attacker.disposition = fightingDisposition
+	defender.disposition = fightingDisposition
+	f := &Fight{
+		Attacker: attacker,
+		Defender: defender,
+		Status:   StartedFightStatus,
 	}
 	return f
 }
 
-func (f *fight) IncludesMob(mob *Mob) bool {
-	return f.m1 == mob || f.m2 == mob
+func (f *Fight) IncludesMob(mob *Mob) bool {
+	return f.Attacker == mob || f.Defender == mob
 }
 
-func (f *fight) End() {
-	f.status = endedFightStatus
+func (f *Fight) End() {
+	f.Status = EndedFightStatus
 }
 
-func (f *fight) turn(m *Mob) {
-	if m == f.m1 {
-		m.attack(f.m2)
-	} else if m == f.m2 {
-		m.attack(f.m1)
+func (f *Fight) Proceed() {
+	f.turn(f.Attacker)
+	f.turn(f.Defender)
+	if f.Attacker.hp < 0 || f.Defender.hp < 0 {
+		f.End()
+	}
+}
+
+func (f *Fight) IsEnded() bool {
+	return f.Status == EndedFightStatus
+}
+
+func (f *Fight) turn(m *Mob) {
+	if m == f.Attacker {
+		m.attack(f.Defender)
+	} else if m == f.Defender {
+		m.attack(f.Attacker)
 	}
 }

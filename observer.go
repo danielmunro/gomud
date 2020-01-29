@@ -1,6 +1,8 @@
 package gomud
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 type EventObserver func(event *Event)
 
@@ -32,7 +34,13 @@ func newFleeObserver(locationService *LocationService, mobService *MobService) *
 
 func newFightObserver(mobService *MobService) *Observer {
 	return NewObserver(AttackEventType, func(event *Event) {
-		mobService.AddFight(newFight(event.mob, event.target))
+		mobService.AddFight(NewFight(event.mob, event.target))
+	})
+}
+
+func newProceedFightsObserver(mobService *MobService) *Observer {
+	return NewObserver(PulseEventType, func(event *Event) {
+		mobService.ProceedFights()
 	})
 }
 
@@ -41,5 +49,6 @@ func newObservers(ls *LocationService, ms *MobService) []*Observer {
 		newMobMoveObserver(ls),
 		newFleeObserver(ls, ms),
 		newFightObserver(ms),
+		newProceedFightsObserver(ms),
 	}
 }

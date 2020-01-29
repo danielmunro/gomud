@@ -32,7 +32,7 @@ type item struct {
 	name        string
 	description string
 	identifiers []string
-	attributes  *attributes
+	attributes  *Attributes
 	position    position
 }
 

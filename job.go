@@ -14,10 +14,10 @@ const (
 
 type Job struct {
 	Name JobName
-	Attributes *attributes
+	Attributes *Attributes
 }
 
-func NewJob(name JobName, attr *attributes) *Job {
+func NewJob(name JobName, attr *Attributes) *Job {
 	return &Job{
 		Name: name,
 		Attributes: attr,
@@ -38,10 +38,10 @@ func getJob(jobName JobName) *Job {
 
 func init() {
 	jobs = []*Job{
-		NewJob(MageJob, newStats(0, 2, 1, 0, 0)),
-		NewJob(WarriorJob, newStats(2, 0, 0, 0, 1)),
-		NewJob(ThiefJob, newStats(1, 0, 0, 2, 0)),
-		NewJob(ClericJob, newStats(0, 1, 2, 0, 0)),
-		NewJob(UninitializedJob, &attributes{}),
+		NewJob(MageJob, NewStats(0, 2, 1, 0, 0)),
+		NewJob(WarriorJob, NewStats(2, 0, 0, 0, 1)),
+		NewJob(ThiefJob, NewStats(1, 0, 0, 2, 0)),
+		NewJob(ClericJob, NewStats(0, 1, 2, 0, 0)),
+		NewJob(UninitializedJob, &Attributes{}),
 	}
 }
