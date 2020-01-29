@@ -6,10 +6,13 @@ import (
 	"log"
 )
 
-func kill(ac *ActionContext, _ *ActionService) *io.Output {
+func kill(ac *ActionContext, actionService *ActionService) *io.Output {
 	mob := ac.getMobBySyntax(mobInRoomSyntax)
-	newFight(ac.mob, mob)
-	return ac.buffer.CreateOutputToRequestCreator("You scream and attack!")
+	actionService.Publish(NewTargetEvent(AttackEventType, ac.mob, mob, ac.room))
+	return ac.buffer.CreateOutput(
+		fmt.Sprintf("You scream and attack %s!", mob.String()),
+		fmt.Sprintf("%s screams and attacks you!", ac.mob.String()),
+		fmt.Sprintf("%s screams and attacks %s!", ac.mob.String(), mob.String()))
 }
 
 func flee(ac *ActionContext, actionService *ActionService) *io.Output {

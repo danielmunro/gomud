@@ -4,6 +4,16 @@ type Event struct {
 	eventType EventType
 	mob *Mob
 	room *Room
+	target *Mob
+}
+
+func NewTargetEvent(eventType EventType, mob *Mob, target *Mob, room *Room) *Event {
+	return &Event{
+		eventType,
+		mob,
+		room,
+		target,
+	}
 }
 
 func NewEvent(eventType EventType, mob *Mob, room *Room) *Event {
@@ -11,5 +21,6 @@ func NewEvent(eventType EventType, mob *Mob, room *Room) *Event {
 		eventType,
 		mob,
 		room,
+		nil,
 	}
 }

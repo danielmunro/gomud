@@ -18,6 +18,10 @@ func (ms *MobService) EndFightForMob(mob *Mob) {
 	}
 }
 
+func (ms *MobService) AddFight(fight *fight) {
+	ms.fights = append(ms.fights, fight)
+}
+
 func (ms *MobService) addMobReset(mobReset *MobReset) {
 	ms.mobResets = append(ms.mobResets, mobReset)
 }

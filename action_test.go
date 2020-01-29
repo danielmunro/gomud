@@ -76,3 +76,19 @@ func Test_Drop_Item(t *testing.T) {
 	test.Expect(output.MessageToRequestCreator == "You drop an item", "should be able to drop an item")
 	test.Expect(output.MessageToObservers == "tester mctesterson drops an item", "should be able to drop an item")
 }
+
+func Test_Kill_Mob(t *testing.T) {
+	// setup
+	test := NewTest(t)
+
+	// when
+	output := test.GetOutputFromInput("kill test")
+
+	// then
+	test.Expect(output.MessageToRequestCreator == "You scream and attack a test Mob!", output.MessageToRequestCreator)
+	test.Expect(output.MessageToTarget == "tester mctesterson screams and attacks you!", output.MessageToTarget)
+	test.Expect(output.MessageToObservers == "tester mctesterson screams and attacks a test Mob!", output.MessageToObservers)
+
+	// and
+	test.Expect(len(test.gameService.mobService.fights) == 1, "should create a fight")
+}

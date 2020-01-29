@@ -30,9 +30,16 @@ func newFleeObserver(locationService *LocationService, mobService *MobService) *
 	})
 }
 
+func newFightObserver(mobService *MobService) *Observer {
+	return NewObserver(AttackEventType, func(event *Event) {
+		mobService.AddFight(newFight(event.mob, event.target))
+	})
+}
+
 func newObservers(ls *LocationService, ms *MobService) []*Observer {
 	return []*Observer{
 		newMobMoveObserver(ls),
 		newFleeObserver(ls, ms),
+		newFightObserver(ms),
 	}
 }

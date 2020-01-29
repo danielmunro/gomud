@@ -45,7 +45,6 @@ type Mob struct {
 	roles       []role
 	items       []*item
 	equipped    []*item
-	fight       *fight
 }
 
 func newMob(n string, d string) *Mob {
