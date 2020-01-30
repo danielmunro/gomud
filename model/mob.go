@@ -86,22 +86,28 @@ func (m *Mob) SetFightDisposition() {
 	m.disposition = FightingDisposition
 }
 
+func (m *Mob) SetIncapacitatedDisposition() {
+	m.disposition = IncapacitatedDisposition
+}
+
+func (m *Mob) SetDeadDisposition() {
+	m.disposition = DeadDisposition
+}
+
+func (m *Mob) CanContinueFighting() bool {
+	return m.disposition > IncapacitatedDisposition
+}
+
 func (m *Mob) IsDead() bool {
 	return m.disposition == DeadDisposition
 }
 
-func (m *Mob) HasDisposition(disposition Disposition) bool {
-	return m.disposition == disposition
+func (m *Mob) IsFighting() bool {
+	return m.disposition == FightingDisposition
 }
 
-func (m *Mob) hasRole(r role) bool {
-	for _, mr := range m.roles {
-		if mr == r {
-			return true
-		}
-	}
-
-	return false
+func (m *Mob) HasDisposition(disposition Disposition) bool {
+	return m.disposition == disposition
 }
 
 func (m *Mob) Attr(a Attribute) int {

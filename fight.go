@@ -39,7 +39,7 @@ func (f *Fight) End() {
 func (f *Fight) Proceed() {
 	attack(f.Attacker, f.Defender)
 	attack(f.Defender, f.Attacker)
-	if f.Attacker.Hp < 0 || f.Defender.Hp < 0 {
+	if !f.Attacker.CanContinueFighting() || !f.Defender.CanContinueFighting() {
 		f.End()
 	}
 }
@@ -49,7 +49,12 @@ func (f *Fight) IsEnded() bool {
 }
 
 func attack(attacker *model.Mob, defender *model.Mob) {
-	if !defender.IsDead() {
+	if attacker.IsFighting() && !defender.IsDead() {
 		defender.Hp -= util.Dice().Intn(attacker.Attr(model.DamAttr)) + attacker.Attr(model.HitAttr)
+		if defender.Hp < 20 {
+			defender.SetDeadDisposition()
+		} else if defender.Hp < 0 {
+			defender.SetIncapacitatedDisposition()
+		}
 	}
 }
