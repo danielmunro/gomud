@@ -17,7 +17,7 @@ type Action struct {
 
 func (a *Action) mobHasDisposition(mob *model.Mob) bool {
 	for _, d := range a.dispositions {
-		if d == mob.Disposition {
+		if mob.HasDisposition(d) {
 			return true
 		}
 	}

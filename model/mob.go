@@ -33,7 +33,7 @@ type Mob struct {
 	description string
 	Identifiers []string
 	attributes  *Attributes
-	Disposition Disposition
+	disposition Disposition
 	level       int
 	Hp          int
 	Mana        int
@@ -53,7 +53,7 @@ func NewMob(n string, d string) *Mob {
 		description: d,
 		Identifiers: strings.Split(n, " "),
 		attributes:  NewStartingAttrs(),
-		Disposition: StandingDisposition,
+		disposition: StandingDisposition,
 		level:       1,
 		race:        getRace(CritterRace),
 		job:         getJob(UninitializedJob),
@@ -83,11 +83,15 @@ func (m *Mob) String() string {
 }
 
 func (m *Mob) SetFightDisposition() {
-	m.Disposition = FightingDisposition
+	m.disposition = FightingDisposition
 }
 
 func (m *Mob) IsDead() bool {
-	return m.Disposition == DeadDisposition
+	return m.disposition == DeadDisposition
+}
+
+func (m *Mob) HasDisposition(disposition Disposition) bool {
+	return m.disposition == disposition
 }
 
 func (m *Mob) hasRole(r role) bool {
