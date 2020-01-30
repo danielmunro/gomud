@@ -1,4 +1,4 @@
-package gomud
+package util
 
 import (
 	"math/rand"
@@ -10,9 +10,9 @@ func d20() int {
 }
 
 func dInt(d int) int {
-	return dice().Intn(d-1) + 1
+	return Dice().Intn(d-1) + 1
 }
 
-func dice() *rand.Rand {
+func Dice() *rand.Rand {
 	return rand.New(rand.NewSource(time.Now().UnixNano()))
 }

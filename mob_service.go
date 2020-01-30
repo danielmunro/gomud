@@ -1,7 +1,9 @@
 package gomud
 
+import "github.com/danielmunro/gomud/model"
+
 type MobService struct {
-	mobResets []*MobReset
+	mobResets []*model.MobReset
 	fights []*Fight
 }
 
@@ -9,7 +11,7 @@ func NewMobService() *MobService {
 	return &MobService{}
 }
 
-func (ms *MobService) EndFightForMob(mob *Mob) {
+func (ms *MobService) EndFightForMob(mob *model.Mob) {
 	for _, f := range ms.fights {
 		if f.IncludesMob(mob) {
 			f.End()
@@ -31,6 +33,6 @@ func (ms *MobService) ProceedFights() {
 	}
 }
 
-func (ms *MobService) addMobReset(mobReset *MobReset) {
+func (ms *MobService) addMobReset(mobReset *model.MobReset) {
 	ms.mobResets = append(ms.mobResets, mobReset)
 }

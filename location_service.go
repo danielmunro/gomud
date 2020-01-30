@@ -3,11 +3,12 @@ package gomud
 import (
 	"errors"
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/model"
 )
 
 type mobRoom struct {
-	mob *Mob
-	room *Room
+	mob *model.Mob
+	room *model.Room
 }
 
 type LocationService struct {
@@ -20,7 +21,7 @@ func newLocationService() *LocationService {
 	}
 }
 
-func (ls *LocationService) changeMobRoom(mob *Mob, room *Room) {
+func (ls *LocationService) changeMobRoom(mob *model.Mob, room *model.Room) {
 	for _, mr := range ls.mobRooms {
 		if mr.mob == mob {
 			mr.room = room
@@ -29,7 +30,7 @@ func (ls *LocationService) changeMobRoom(mob *Mob, room *Room) {
 	}
 }
 
-func (ls *LocationService) getRoomForMob(mob *Mob) *Room {
+func (ls *LocationService) getRoomForMob(mob *model.Mob) *model.Room {
 	for _, mr := range ls.mobRooms {
 		if mr.mob == mob {
 			return mr.room
@@ -38,17 +39,17 @@ func (ls *LocationService) getRoomForMob(mob *Mob) *Room {
 	return nil
 }
 
-func (ls *LocationService) findMobInRoom(buffer *io.Buffer, room *Room) (*Mob, error) {
+func (ls *LocationService) findMobInRoom(buffer *io.Buffer, room *model.Room) (*model.Mob, error) {
 	for _, mr := range ls.mobRooms {
-		if buffer.MatchesSubject(mr.mob.identifiers) && mr.room == room {
+		if buffer.MatchesSubject(mr.mob.Identifiers) && mr.room == room {
 			return mr.mob, nil
 		}
 	}
 	return nil, errors.New("no mob found")
 }
 
-func (ls *LocationService) getMobsInRoom(room *Room) []*Mob {
-	var mobs []*Mob
+func (ls *LocationService) getMobsInRoom(room *model.Room) []*model.Mob {
+	var mobs []*model.Mob
 	for _, mr := range ls.mobRooms {
 		if mr.room == room {
 			mobs = append(mobs, mr.mob)
@@ -57,7 +58,7 @@ func (ls *LocationService) getMobsInRoom(room *Room) []*Mob {
 	return mobs
 }
 
-func (ls *LocationService) countMobsInRoom(mob *Mob, room *Room) int {
+func (ls *LocationService) countMobsInRoom(mob *model.Mob, room *model.Room) int {
 	amount := 0
 	for _, mr := range ls.mobRooms {
 		if mr.mob.ID == mob.ID && mr.room == room {
@@ -67,7 +68,7 @@ func (ls *LocationService) countMobsInRoom(mob *Mob, room *Room) int {
 	return amount
 }
 
-func (ls *LocationService) countMobsInGame(mob *Mob) int {
+func (ls *LocationService) countMobsInGame(mob *model.Mob) int {
 	amount := 0
 	for _, mr := range ls.mobRooms {
 		if mr.mob.ID == mob.ID {
@@ -77,7 +78,7 @@ func (ls *LocationService) countMobsInGame(mob *Mob) int {
 	return amount
 }
 
-func (ls *LocationService) spawnMobToRoom(mob *Mob, room *Room) {
+func (ls *LocationService) spawnMobToRoom(mob *model.Mob, room *model.Room) {
 	ls.mobRooms = append(ls.mobRooms, &mobRoom{
 		mob,
 		room,

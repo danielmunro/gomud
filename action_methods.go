@@ -3,6 +3,7 @@ package gomud
 import (
 	"fmt"
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/model"
 	"log"
 )
 
@@ -24,8 +25,8 @@ func look(ac *ActionContext, actionService *ActionService) *io.Output {
 	r := ac.room
 	return ac.buffer.CreateOutputToRequestCreator(fmt.Sprintf(
 		"%s\n%s\n%s\n%s%s",
-		r.name,
-		r.description,
+		r.Name,
+		r.Description,
 		exitsString(r),
 		itemsString(r),
 		mobsString(actionService.GetMobsForRoomAndObserver(ac.room, ac.mob)),
@@ -35,60 +36,60 @@ func look(ac *ActionContext, actionService *ActionService) *io.Output {
 func wear(ac *ActionContext, _ *ActionService) *io.Output {
 	buf := ""
 	item := ac.getItemBySyntax(itemInInventorySyntax)
-	for k, eq := range ac.mob.equipped {
-		if eq.position == item.position {
-			ac.mob.equipped, ac.mob.items = transferItemByIndex(k, ac.mob.equipped, ac.mob.items)
+	for k, eq := range ac.mob.Equipped {
+		if eq.Position == item.Position {
+			ac.mob.Equipped, ac.mob.Items = transferItemByIndex(k, ac.mob.Equipped, ac.mob.Items)
 			buf = fmt.Sprintf("You remove %s and put it in your inventory. ", eq.String())
 		}
 	}
-	ac.mob.items, ac.mob.equipped = transferItem(item, ac.mob.items, ac.mob.equipped)
+	ac.mob.Items, ac.mob.Equipped = transferItem(item, ac.mob.Items, ac.mob.Equipped)
 	return ac.buffer.CreateOutputToRequestCreator(buf + fmt.Sprintf("You wear %s.", item.String()))
 }
 
 func remove(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemEquippedSyntax)
-	ac.mob.equipped, ac.mob.items = transferItem(item, ac.mob.equipped, ac.mob.items)
+	ac.mob.Equipped, ac.mob.Items = transferItem(item, ac.mob.Equipped, ac.mob.Items)
 	return ac.buffer.CreateOutputToRequestCreator(fmt.Sprintf("You remove %s.", item.String()))
 }
 
 func get(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemInRoomSyntax)
-	ac.room.items, ac.mob.items = transferItem(item, ac.room.items, ac.mob.items)
+	ac.room.Items, ac.mob.Items = transferItem(item, ac.room.Items, ac.mob.Items)
 	return ac.buffer.CreateOutput(
 		fmt.Sprintf("You pick up %s", item.String()),
-		fmt.Sprintf("%s picks up %s", ac.mob.name, item.String()),
-		fmt.Sprintf("%s picks up %s", ac.mob.name, item.String()))
+		fmt.Sprintf("%s picks up %s", ac.mob.Name, item.String()),
+		fmt.Sprintf("%s picks up %s", ac.mob.Name, item.String()))
 }
 
 func drop(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemInInventorySyntax)
-	ac.mob.items, ac.room.items = transferItem(item, ac.mob.items, ac.room.items)
+	ac.mob.Items, ac.room.Items = transferItem(item, ac.mob.Items, ac.room.Items)
 	return ac.buffer.CreateOutput(
 		fmt.Sprintf("You drop %s", item.String()),
-		fmt.Sprintf("%s drops %s", ac.mob.name, item.String()),
-		fmt.Sprintf("%s drops %s", ac.mob.name, item.String()))
+		fmt.Sprintf("%s drops %s", ac.mob.Name, item.String()),
+		fmt.Sprintf("%s drops %s", ac.mob.Name, item.String()))
 }
 
-func move(d direction, ac *ActionContext, actionService *ActionService) *io.Output {
+func move(d model.Direction, ac *ActionContext, actionService *ActionService) *io.Output {
 	log.Printf("move: direction: %s, Command: %s", d, ac.buffer.GetCommand())
 	exit := ac.getExitBySyntax(exitDirectionSyntax)
 	actionService.Publish(&Event{
 		eventType:MobMoveEventType,
 		mob: ac.mob,
-		room: exit.room,
+		room: exit.Room,
 	})
 	return ac.buffer.CreateOutputToRequestCreator(fmt.Sprintf("You move %s.", d))
 }
 
 func inventory(ac *ActionContext, _ *ActionService) *io.Output {
 	buf := "your inventory:\n"
-	for _, i := range ac.mob.items {
+	for _, i := range ac.mob.Items {
 		buf += i.String() + "\n"
 	}
 	return ac.buffer.CreateOutputToRequestCreator(buf)
 }
 
-func transferItem(item *Item, from []*Item, to []*Item) ([]*Item, []*Item) {
+func transferItem(item *model.Item, from []*model.Item, to []*model.Item) ([]*model.Item, []*model.Item) {
 	for i, x := range from {
 		if x == item {
 			from = append(from[0:i], from[i+1:]...)
@@ -99,7 +100,7 @@ func transferItem(item *Item, from []*Item, to []*Item) ([]*Item, []*Item) {
 	return from, to
 }
 
-func transferItemByIndex(i int, from []*Item, to []*Item) ([]*Item, []*Item) {
+func transferItemByIndex(i int, from []*model.Item, to []*model.Item) ([]*model.Item, []*model.Item) {
 	item := from[i]
 	from = append(from[0:i], from[i+1:]...)
 	to = append(to, item)
@@ -107,17 +108,17 @@ func transferItemByIndex(i int, from []*Item, to []*Item) ([]*Item, []*Item) {
 	return from, to
 }
 
-func exitsString(r *Room) string {
+func exitsString(r *model.Room) string {
 	var exits string
 
-	for _, e := range r.exits {
-		exits = fmt.Sprintf("%s%s", exits, string(e.direction[0]))
+	for _, e := range r.Exits {
+		exits = fmt.Sprintf("%s%s", exits, string(e.Direction[0]))
 	}
 
 	return fmt.Sprintf("[%s]", exits)
 }
 
-func mobsString(mobs []*Mob) string {
+func mobsString(mobs []*model.Mob) string {
 	var buf string
 
 	for _, m := range mobs {
@@ -127,10 +128,10 @@ func mobsString(mobs []*Mob) string {
 	return buf
 }
 
-func itemsString(r *Room) string {
+func itemsString(r *model.Room) string {
 	var items string
 
-	for _, i := range r.items {
+	for _, i := range r.Items {
 		items = fmt.Sprintf("%s is here.\n%s", i.String(), items)
 	}
 

@@ -1,13 +1,20 @@
 package gomud
 
-import "github.com/danielmunro/gomud/io"
+import (
+	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/model"
+)
 
 var actions []*Action
 
 func newLookAction() *Action {
 	return &Action{
 		command:      io.LookCommand,
-		dispositions: []disposition{standingDisposition, fightingDisposition, sittingDisposition},
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.FightingDisposition,
+			model.SittingDisposition,
+		},
 		mutator:      look,
 		syntax:       []syntax{commandSyntax},
 	}
@@ -16,7 +23,7 @@ func newLookAction() *Action {
 func newKillAction() *Action {
 	return &Action{
 		command:      io.KillCommand,
-		dispositions: []disposition{standingDisposition},
+		dispositions: []model.Disposition{model.StandingDisposition},
 		mutator:      kill,
 		syntax:       []syntax{commandSyntax, mobInRoomSyntax},
 	}
@@ -25,7 +32,7 @@ func newKillAction() *Action {
 func newFleeAction() *Action {
 	return &Action{
 		command:      io.FleeCommand,
-		dispositions: []disposition{fightingDisposition},
+		dispositions: []model.Disposition{model.FightingDisposition},
 		mutator:      flee,
 		syntax:       []syntax{commandSyntax},
 	}
@@ -34,7 +41,10 @@ func newFleeAction() *Action {
 func newWearAction() *Action {
 	return &Action{
 		command:      io.WearCommand,
-		dispositions: []disposition{standingDisposition, fightingDisposition},
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.FightingDisposition,
+		},
 		mutator:      wear,
 		syntax:       []syntax{commandSyntax, itemInInventorySyntax},
 	}
@@ -43,7 +53,10 @@ func newWearAction() *Action {
 func newRemoveAction() *Action {
 	return &Action{
 		command:      io.RemoveCommand,
-		dispositions: []disposition{standingDisposition, fightingDisposition},
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.FightingDisposition,
+		},
 		mutator:      remove,
 		syntax:       []syntax{commandSyntax, itemEquippedSyntax},
 	}
@@ -52,7 +65,10 @@ func newRemoveAction() *Action {
 func newGetAction() *Action {
 	return &Action{
 		command:      io.GetCommand,
-		dispositions: []disposition{standingDisposition, fightingDisposition},
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.FightingDisposition,
+		},
 		mutator:      get,
 		syntax:       []syntax{commandSyntax, itemInRoomSyntax},
 	}
@@ -61,7 +77,10 @@ func newGetAction() *Action {
 func newDropAction() *Action {
 	return &Action{
 		command:      io.DropCommand,
-		dispositions: []disposition{standingDisposition, fightingDisposition},
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.FightingDisposition,
+		},
 		mutator:      drop,
 		syntax:       []syntax{commandSyntax, itemInInventorySyntax},
 	}
@@ -70,16 +89,21 @@ func newDropAction() *Action {
 func newInventoryAction() *Action {
 	return &Action{
 		command:      io.InventoryCommand,
-		dispositions: []disposition{standingDisposition, fightingDisposition, sittingDisposition, sleepingDisposition},
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.FightingDisposition,
+			model.SittingDisposition,
+			model.SleepingDisposition,
+		},
 		mutator:      inventory,
 		syntax:       []syntax{commandSyntax},
 	}
 }
 
-func newMoveAction(command io.Command, direction direction) *Action {
+func newMoveAction(command io.Command, direction model.Direction) *Action {
 	return &Action{
 		command: command,
-		dispositions: []disposition{standingDisposition},
+		dispositions: []model.Disposition{model.StandingDisposition},
 		mutator: func (actionContext *ActionContext, actionService *ActionService) *io.Output {
 			return move(direction, actionContext, actionService)
 		},
@@ -91,7 +115,7 @@ func newMoveAction(command io.Command, direction direction) *Action {
 func newNoopAction() *Action {
 	return &Action{
 		command:      io.NoopCommand,
-		dispositions: []disposition{},
+		dispositions: []model.Disposition{},
 		mutator: func(actionContext *ActionContext, actionService *ActionService) *io.Output {
 			return actionContext.buffer.CreateOutputToRequestCreator("What was that?")
 		},
@@ -108,12 +132,12 @@ func init() {
 		newGetAction(),
 		newDropAction(),
 		newInventoryAction(),
-		newMoveAction(io.NorthCommand, dNorth),
-		newMoveAction(io.SouthCommand, dSouth),
-		newMoveAction(io.EastCommand, dEast),
-		newMoveAction(io.WestCommand, dWest),
-		newMoveAction(io.UpCommand, dUp),
-		newMoveAction(io.DownCommand, dDown),
+		newMoveAction(io.NorthCommand, model.NorthDirection),
+		newMoveAction(io.SouthCommand, model.SouthDirection),
+		newMoveAction(io.EastCommand, model.EastDirection),
+		newMoveAction(io.WestCommand, model.WestDirection),
+		newMoveAction(io.UpCommand, model.UpDirection),
+		newMoveAction(io.DownCommand, model.DownDirection),
 	}
 }
 

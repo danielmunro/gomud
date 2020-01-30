@@ -1,6 +1,9 @@
 package gomud
 
-import "github.com/danielmunro/gomud/io"
+import (
+	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/model"
+)
 
 type context struct {
 	syntax syntax
@@ -18,8 +21,8 @@ func newContext(syntax syntax, thing interface{}, error error) *context {
 
 type ActionContext struct {
 	hasDisposition bool
-	room *Room
-	mob *Mob
+	room *model.Room
+	mob *model.Mob
 	buffer *io.Buffer
 	results []*context
 }
@@ -33,28 +36,28 @@ func (ac *ActionContext) findErrorContext() *context {
 	return nil
 }
 
-func (ac *ActionContext) getMobBySyntax(syntax syntax) *Mob {
+func (ac *ActionContext) getMobBySyntax(syntax syntax) *model.Mob {
 	for _, r := range ac.results {
 		if r.syntax == syntax {
-			return r.thing.(*Mob)
+			return r.thing.(*model.Mob)
 		}
 	}
 	return nil
 }
 
-func (ac *ActionContext) getItemBySyntax(syntax syntax) *Item {
+func (ac *ActionContext) getItemBySyntax(syntax syntax) *model.Item {
 	for _, r := range ac.results {
 		if r.syntax == syntax {
-			return r.thing.(*Item)
+			return r.thing.(*model.Item)
 		}
 	}
 	return nil
 }
 
-func (ac *ActionContext) getExitBySyntax(syntax syntax) *exit {
+func (ac *ActionContext) getExitBySyntax(syntax syntax) *model.Exit {
 	for _, r := range ac.results {
 		if r.syntax == syntax {
-			return r.thing.(*exit)
+			return r.thing.(*model.Exit)
 		}
 	}
 	return nil

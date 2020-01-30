@@ -27,7 +27,7 @@ func newMobMoveObserver(locationService *LocationService) *Observer {
 func newFleeObserver(locationService *LocationService, mobService *MobService) *Observer {
 	return NewObserver(FleeEventType, func(event *Event) {
 		mobService.EndFightForMob(event.mob)
-		newRoom := event.room.exits[rand.Intn(len(event.room.exits))].room
+		newRoom := event.room.Exits[rand.Intn(len(event.room.Exits))].Room
 		locationService.changeMobRoom(event.mob, newRoom)
 	})
 }

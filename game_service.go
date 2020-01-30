@@ -3,6 +3,7 @@ package gomud
 import (
 	"errors"
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/model"
 	"log"
 	"time"
 )
@@ -86,58 +87,58 @@ func (gs *GameService) HandleBuffer(b *io.Buffer) *io.Output {
 	return output
 }
 
-func (gs *GameService) AddMobReset(mobReset *MobReset) {
+func (gs *GameService) AddMobReset(mobReset *model.MobReset) {
 	gs.mobService.addMobReset(mobReset)
 }
 
-func (gs *GameService) AddRoom(room *Room) {
+func (gs *GameService) AddRoom(room *model.Room) {
 	gs.roomService.addRoom(room)
 }
 
 func (gs *GameService) RespawnResets() {
 	for _, mr := range gs.mobService.mobResets {
-		mobsInRoom := gs.locationService.countMobsInRoom(mr.mob, mr.room)
-		mobsInGame := gs.locationService.countMobsInGame(mr.mob)
-		if mr.maxInRoom > mobsInRoom && mr.maxInGame > mobsInGame {
-			gs.locationService.spawnMobToRoom(mr.mob, mr.room)
+		mobsInRoom := gs.locationService.countMobsInRoom(mr.Mob, mr.Room)
+		mobsInGame := gs.locationService.countMobsInGame(mr.Mob)
+		if mr.MaxInRoom > mobsInRoom && mr.MaxInGame > mobsInGame {
+			gs.locationService.spawnMobToRoom(mr.Mob, mr.Room)
 		}
 	}
 }
 
 func (gs *GameService) CreateFixtures() {
-	r1 := newRoom("Room 1", "You are in the first Room")
-	r2 := newRoom("Room 2", "You are in the second Room")
-	r3 := newRoom("Room 3", "You are in the third Room")
+	r1 := model.NewRoom("Room 1", "You are in the first Room")
+	r2 := model.NewRoom("Room 2", "You are in the second Room")
+	r3 := model.NewRoom("Room 3", "You are in the third Room")
 
-	r1.exits = append(r1.exits, newExit(r2, dSouth))
-	r1.exits = append(r1.exits, newExit(r3, dWest))
+	r1.Exits = append(r1.Exits, model.NewExit(r2, model.SouthDirection))
+	r1.Exits = append(r1.Exits, model.NewExit(r3, model.WestDirection))
 
-	m := NewMob("Value test Mob", "A test Mob")
+	m := model.NewMob("Value test Mob", "A test Mob")
 
-	r2.exits = append(r2.exits, newExit(r1, dNorth))
-	r3.exits = append(r3.exits, newExit(r1, dEast))
+	r2.Exits = append(r2.Exits, model.NewExit(r1, model.NorthDirection))
+	r3.Exits = append(r3.Exits, model.NewExit(r1, model.EastDirection))
 
-	i1 := NewItem("an item", "An item is here", []string{"item"})
-	i2 := NewItem("an item", "An item is here", []string{"item"})
+	i1 := model.NewItem("an item", "An item is here", []string{"item"})
+	i2 := model.NewItem("an item", "An item is here", []string{"item"})
 
-	i1.position = held
-	i2.position = held
+	i1.Position = model.HeadPosition
+	i2.Position = model.HeldPosition
 
-	r1.items = append(r1.items, i1)
-	r1.items = append(r1.items, i2)
+	r1.Items = append(r1.Items, i1)
+	r1.Items = append(r1.Items, i2)
 
 	gs.AddRoom(r1)
 	gs.AddRoom(r2)
 	gs.AddRoom(r3)
-	gs.AddMobReset(NewMobReset(m, r1, 1, 1))
+	gs.AddMobReset(model.NewMobReset(m, r1, 1, 1))
 	gs.RespawnResets()
 }
 
-func (gs *GameService) ChangeMobRoom(mob *Mob, room *Room) {
+func (gs *GameService) ChangeMobRoom(mob *model.Mob, room *model.Room) {
 	gs.locationService.changeMobRoom(mob, room)
 }
 
-func (gs *GameService) findMobForClient(client *io.Client) (*Mob, error) {
+func (gs *GameService) findMobForClient(client *io.Client) (*model.Mob, error) {
 	for _, l := range gs.logins {
 		if l.client == client {
 			return l.mob, nil
@@ -147,7 +148,7 @@ func (gs *GameService) findMobForClient(client *io.Client) (*Mob, error) {
 }
 
 func (gs *GameService) dummyLogin(client *io.Client) {
-	login := NewLogin(client, NewMob("tester mctesterson", "A test Mob."))
+	login := NewLogin(client, model.NewMob("tester mctesterson", "A test Mob."))
 	gs.logins = append(gs.logins, login)
 	gs.locationService.spawnMobToRoom(login.mob, gs.roomService.rooms[0])
 }
@@ -172,7 +173,7 @@ func (gs *GameService) getThingFromSyntax(syntax syntax, ac *ActionContext) (int
 	}
 }
 
-func (gs *GameService) buildActionContext(mob *Mob, action *Action, buffer *io.Buffer) *ActionContext {
+func (gs *GameService) buildActionContext(mob *model.Mob, action *Action, buffer *io.Buffer) *ActionContext {
 	actionContext := &ActionContext{}
 	actionContext.mob = mob
 	actionContext.room = gs.locationService.getRoomForMob(mob)

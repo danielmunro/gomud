@@ -1,10 +1,10 @@
-package gomud
+package model
 
 type MobReset struct {
-	mob *Mob
-	room *Room
-	maxInRoom int
-	maxInGame int
+	Mob       *Mob
+	Room      *Room
+	MaxInRoom int
+	MaxInGame int
 }
 
 func NewMobReset(mob *Mob, room *Room, maxInRoom int, maxInGame int) *MobReset {

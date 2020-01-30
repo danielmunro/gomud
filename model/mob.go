@@ -1,4 +1,4 @@
-package gomud
+package model
 
 import (
 	"errors"
@@ -15,45 +15,45 @@ const (
 	mobile    role = "mobile"
 )
 
-type disposition int
+type Disposition int
 
 const (
-	deadDisposition disposition = iota
-	incapacitatedDisposition
-	stunnedDisposition
-	sleepingDisposition
-	sittingDisposition
-	fightingDisposition
-	standingDisposition
+	DeadDisposition Disposition = iota
+	IncapacitatedDisposition
+	StunnedDisposition
+	SleepingDisposition
+	SittingDisposition
+	FightingDisposition
+	StandingDisposition
 )
 
 type Mob struct {
 	gorm.Model
-	name        string
+	Name        string
 	description string
-	identifiers []string
+	Identifiers []string
 	attributes  *Attributes
-	disposition disposition
+	Disposition Disposition
 	level       int
-	hp          int
-	mana        int
-	mv          int
+	Hp          int
+	Mana        int
+	Mv          int
 	race        *Race
 	job         *Job
 	room        *Room
 	lastRoom    *Room
 	roles       []role
-	items       []*Item
-	equipped    []*Item
+	Items       []*Item
+	Equipped    []*Item
 }
 
 func NewMob(n string, d string) *Mob {
 	return &Mob{
-		name:        n,
+		Name:        n,
 		description: d,
-		identifiers: strings.Split(n, " "),
+		Identifiers: strings.Split(n, " "),
 		attributes:  NewStartingAttrs(),
-		disposition: standingDisposition,
+		Disposition: StandingDisposition,
 		level:       1,
 		race:        getRace(CritterRace),
 		job:         getJob(UninitializedJob),
@@ -61,7 +61,7 @@ func NewMob(n string, d string) *Mob {
 }
 
 func (m *Mob) FindItem(b *io.Buffer) (*Item, error) {
-	for _, i := range m.items {
+	for _, i := range m.Items {
 		if b.MatchesSubject(i.identifiers) {
 			return i, nil
 		}
@@ -70,7 +70,7 @@ func (m *Mob) FindItem(b *io.Buffer) (*Item, error) {
 }
 
 func (m *Mob) FindEquipped(b *io.Buffer) (*Item, error) {
-	for _, i := range m.equipped {
+	for _, i := range m.Equipped {
 		if b.MatchesSubject(i.identifiers) {
 			return i, nil
 		}
@@ -79,7 +79,15 @@ func (m *Mob) FindEquipped(b *io.Buffer) (*Item, error) {
 }
 
 func (m *Mob) String() string {
-	return m.name
+	return m.Name
+}
+
+func (m *Mob) SetFightDisposition() {
+	m.Disposition = FightingDisposition
+}
+
+func (m *Mob) IsDead() bool {
+	return m.Disposition == DeadDisposition
 }
 
 func (m *Mob) hasRole(r role) bool {
@@ -92,12 +100,6 @@ func (m *Mob) hasRole(r role) bool {
 	return false
 }
 
-func (m *Mob) attr(a attribute) int {
+func (m *Mob) Attr(a Attribute) int {
 	return m.attributes.Value(a) + m.race.Attributes.Value(a) + m.job.Attributes.Value(a)
-}
-
-func (m *Mob) attack(target *Mob) {
-	if target.disposition > deadDisposition {
-		target.hp -= dice().Intn(m.attr(aDam)) + m.attr(aHit)
-	}
 }

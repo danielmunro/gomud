@@ -1,5 +1,10 @@
 package gomud
 
+import (
+	"github.com/danielmunro/gomud/model"
+	"github.com/danielmunro/gomud/util"
+)
+
 type FightStatus string
 
 const (
@@ -8,14 +13,14 @@ const (
 )
 
 type Fight struct {
-	Attacker *Mob
-	Defender *Mob
+	Attacker *model.Mob
+	Defender *model.Mob
 	Status   FightStatus
 }
 
-func NewFight(attacker *Mob, defender *Mob) *Fight {
-	attacker.disposition = fightingDisposition
-	defender.disposition = fightingDisposition
+func NewFight(attacker *model.Mob, defender *model.Mob) *Fight {
+	attacker.SetFightDisposition()
+	defender.SetFightDisposition()
 	return &Fight{
 		Attacker: attacker,
 		Defender: defender,
@@ -23,7 +28,7 @@ func NewFight(attacker *Mob, defender *Mob) *Fight {
 	}
 }
 
-func (f *Fight) IncludesMob(mob *Mob) bool {
+func (f *Fight) IncludesMob(mob *model.Mob) bool {
 	return f.Attacker == mob || f.Defender == mob
 }
 
@@ -32,13 +37,19 @@ func (f *Fight) End() {
 }
 
 func (f *Fight) Proceed() {
-	f.Attacker.attack(f.Defender)
-	f.Defender.attack(f.Attacker)
-	if f.Attacker.hp < 0 || f.Defender.hp < 0 {
+	attack(f.Attacker, f.Defender)
+	attack(f.Defender, f.Attacker)
+	if f.Attacker.Hp < 0 || f.Defender.Hp < 0 {
 		f.End()
 	}
 }
 
 func (f *Fight) IsEnded() bool {
 	return f.Status == EndedFightStatus
+}
+
+func attack(attacker *model.Mob, defender *model.Mob) {
+	if !defender.IsDead() {
+		defender.Hp -= util.Dice().Intn(attacker.Attr(model.DamAttr)) + attacker.Attr(model.HitAttr)
+	}
 }
