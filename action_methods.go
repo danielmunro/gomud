@@ -89,6 +89,45 @@ func inventory(ac *ActionContext, _ *ActionService) *io.Output {
 	return ac.buffer.CreateOutputToRequestCreator(buf)
 }
 
+func sit(ac *ActionContext, _ *ActionService) *io.Output {
+	buf1 := "you "
+	buf2 := ac.mob.Name + " "
+	if ac.mob.IsSleeping() {
+		buf1 = "wake up and "
+		buf2 = "wakes up and "
+	}
+	ac.mob.SetSittingDisposition()
+	return ac.buffer.CreateOutput(
+		buf1 + "sit down.",
+		buf2 + "sits down.",
+		buf2 + "sits down.",
+	)
+}
+
+func sleep(ac *ActionContext, _ *ActionService) *io.Output {
+	ac.mob.SetSleepingDisposition()
+	return ac.buffer.CreateOutput(
+		"you lay down and go to sleep.",
+		fmt.Sprintf("%s lays down and goes to sleep.", ac.mob.Name),
+		fmt.Sprintf("%s lays down and goes to sleep.", ac.mob.Name),
+	)
+}
+
+func wake(ac *ActionContext, _ *ActionService) *io.Output {
+	buf1 := "you "
+	buf2 := ac.mob.Name
+	if ac.mob.Disposition == model.SleepingDisposition {
+		buf1 = "wake and "
+		buf2 = "wakes and "
+	}
+	ac.mob.SetStandingDisposition()
+	return ac.buffer.CreateOutput(
+		buf1 + "stand up.",
+		buf2 + "stands up.",
+		buf2 + "stands up.",
+	)
+}
+
 func transferItem(item *model.Item, from []*model.Item, to []*model.Item) ([]*model.Item, []*model.Item) {
 	for i, x := range from {
 		if x == item {

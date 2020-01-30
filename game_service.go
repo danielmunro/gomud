@@ -2,6 +2,7 @@ package gomud
 
 import (
 	"errors"
+	"fmt"
 	"github.com/danielmunro/gomud/io"
 	"github.com/danielmunro/gomud/model"
 	"log"
@@ -100,7 +101,8 @@ func (gs *GameService) RespawnResets() {
 		mobsInRoom := gs.locationService.countMobsInRoom(mr.Mob, mr.Room)
 		mobsInGame := gs.locationService.countMobsInGame(mr.Mob)
 		if mr.MaxInRoom > mobsInRoom && mr.MaxInGame > mobsInGame {
-			gs.locationService.spawnMobToRoom(mr.Mob, mr.Room)
+			mob := mr.Mob
+			gs.locationService.spawnMobToRoom(mob, mr.Room)
 		}
 	}
 }
@@ -179,6 +181,13 @@ func (gs *GameService) buildActionContext(mob *model.Mob, action *Action, buffer
 	actionContext.room = gs.locationService.getRoomForMob(mob)
 	actionContext.hasDisposition = action.mobHasDisposition(mob)
 	actionContext.buffer = buffer
+	if !actionContext.hasDisposition {
+		actionContext.results = append(actionContext.results, newContext(
+			commandSyntax,
+			nil,
+			errors.New(fmt.Sprintf("you must be %s to do that.", string(action.dispositions[0])))))
+		return actionContext
+	}
 	for _, syntax := range action.syntax {
 		thing, err := gs.getThingFromSyntax(syntax, actionContext)
 		actionContext.results = append(actionContext.results, newContext(syntax, thing, err))

@@ -15,16 +15,16 @@ const (
 	mobile    role = "mobile"
 )
 
-type Disposition int
+type Disposition string
 
 const (
-	DeadDisposition Disposition = iota
-	IncapacitatedDisposition
-	StunnedDisposition
-	SleepingDisposition
-	SittingDisposition
-	FightingDisposition
-	StandingDisposition
+	DeadDisposition Disposition = "dead"
+	IncapacitatedDisposition = "incapacitated"
+	StunnedDisposition = "stunned"
+	SleepingDisposition = "sleeping"
+	SittingDisposition = "sitting"
+	FightingDisposition = "fighting"
+	StandingDisposition = "standing"
 )
 
 type Mob struct {
@@ -33,7 +33,7 @@ type Mob struct {
 	description string
 	Identifiers []string
 	attributes  *Attributes
-	disposition Disposition
+	Disposition Disposition
 	level       int
 	Hp          int
 	Mana        int
@@ -53,7 +53,7 @@ func NewMob(n string, d string) *Mob {
 		description: d,
 		Identifiers: strings.Split(n, " "),
 		attributes:  NewStartingAttrs(),
-		disposition: StandingDisposition,
+		Disposition: StandingDisposition,
 		level:       1,
 		race:        getRace(CritterRace),
 		job:         getJob(UninitializedJob),
@@ -83,31 +83,47 @@ func (m *Mob) String() string {
 }
 
 func (m *Mob) SetFightDisposition() {
-	m.disposition = FightingDisposition
+	m.Disposition = FightingDisposition
 }
 
 func (m *Mob) SetIncapacitatedDisposition() {
-	m.disposition = IncapacitatedDisposition
+	m.Disposition = IncapacitatedDisposition
 }
 
 func (m *Mob) SetDeadDisposition() {
-	m.disposition = DeadDisposition
+	m.Disposition = DeadDisposition
+}
+
+func (m *Mob) SetSittingDisposition() {
+	m.Disposition = SittingDisposition
+}
+
+func (m *Mob) SetSleepingDisposition() {
+	m.Disposition = SleepingDisposition
+}
+
+func (m *Mob) SetStandingDisposition() {
+	m.Disposition = StandingDisposition
 }
 
 func (m *Mob) CanContinueFighting() bool {
-	return m.disposition > IncapacitatedDisposition
+	return m.Disposition != DeadDisposition && m.Disposition != IncapacitatedDisposition
 }
 
 func (m *Mob) IsDead() bool {
-	return m.disposition == DeadDisposition
+	return m.Disposition == DeadDisposition
 }
 
 func (m *Mob) IsFighting() bool {
-	return m.disposition == FightingDisposition
+	return m.Disposition == FightingDisposition
+}
+
+func (m *Mob) IsSleeping() bool {
+	return m.Disposition == SleepingDisposition
 }
 
 func (m *Mob) HasDisposition(disposition Disposition) bool {
-	return m.disposition == disposition
+	return m.Disposition == disposition
 }
 
 func (m *Mob) Attr(a Attribute) int {

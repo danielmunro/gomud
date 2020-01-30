@@ -100,6 +100,42 @@ func newInventoryAction() *Action {
 	}
 }
 
+func newSitAction() *Action {
+	return &Action{
+		command:      io.SitCommand,
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.SleepingDisposition,
+		},
+		mutator:      sit,
+		syntax:       []syntax{commandSyntax},
+	}
+}
+
+func newSleepAction() *Action {
+	return &Action{
+		command:      io.SleepCommand,
+		dispositions: []model.Disposition{
+			model.StandingDisposition,
+			model.SittingDisposition,
+		},
+		mutator:      sleep,
+		syntax:       []syntax{commandSyntax},
+	}
+}
+
+func newWakeAction() *Action {
+	return &Action{
+		command:      io.WakeCommand,
+		dispositions: []model.Disposition{
+			model.SittingDisposition,
+			model.SleepingDisposition,
+		},
+		mutator:      wake,
+		syntax:       []syntax{commandSyntax},
+	}
+}
+
 func newMoveAction(command io.Command, direction model.Direction) *Action {
 	return &Action{
 		command: command,
@@ -132,6 +168,9 @@ func init() {
 		newGetAction(),
 		newDropAction(),
 		newInventoryAction(),
+		newSitAction(),
+		newSleepAction(),
+		newWakeAction(),
 		newMoveAction(io.NorthCommand, model.NorthDirection),
 		newMoveAction(io.SouthCommand, model.SouthDirection),
 		newMoveAction(io.EastCommand, model.EastDirection),

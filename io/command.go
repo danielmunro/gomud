@@ -17,6 +17,9 @@ const (
 	KillCommand   Command = "kill"
 	FleeCommand   Command = "flee"
 	InventoryCommand Command = "inventory"
+	SitCommand Command = "sit"
+	WakeCommand Command = "wake"
+	SleepCommand Command = "sleep"
 	NoopCommand   Command = "noop"
 )
 
@@ -38,5 +41,8 @@ func init() {
 		KillCommand,
 		FleeCommand,
 		InventoryCommand,
+		SitCommand,
+		WakeCommand,
+		SleepCommand,
 	}
 }
