@@ -27,7 +27,7 @@ func Test_Look_AtRoom(t *testing.T) {
 
 	// then
 	test.Expect(output.Status == io.CompletedStatus, "expected completed Status")
-	test.Expect(output.MessageToRequestCreator == room1, "expected message: " + output.MessageToRequestCreator)
+	test.Expect(output.MessageToRequestCreator == room1, "expected message: "+output.MessageToRequestCreator)
 }
 
 func Test_Look_AfterMove(t *testing.T) {

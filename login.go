@@ -7,7 +7,7 @@ import (
 
 type Login struct {
 	client *io.Client
-	mob *model.Mob
+	mob    *model.Mob
 }
 
 func NewLogin(client *io.Client, mob *model.Mob) *Login {

@@ -10,14 +10,14 @@ import (
 )
 
 type GameService struct {
-	mobService *MobService
+	mobService      *MobService
 	locationService *LocationService
-	roomService *RoomService
-	actionService *ActionService
-	server *io.Server
-	buffers []*io.Buffer
-	eventService *EventService
-	logins []*Login
+	roomService     *RoomService
+	actionService   *ActionService
+	server          *io.Server
+	buffers         []*io.Buffer
+	eventService    *EventService
+	logins          []*Login
 }
 
 func NewGameService(server *io.Server) *GameService {
@@ -53,7 +53,7 @@ func (gs *GameService) StartPulses() {
 func (gs *GameService) ListenForNewBuffers(bufferWriter chan *io.Buffer) {
 	for {
 		select {
-		case b := <- bufferWriter:
+		case b := <-bufferWriter:
 			gs.HandleBuffer(b)
 			break
 		}

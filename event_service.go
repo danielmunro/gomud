@@ -1,6 +1,5 @@
 package gomud
 
-
 type EventService struct {
 	observers []*Observer
 }

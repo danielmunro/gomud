@@ -7,8 +7,8 @@ import (
 
 type context struct {
 	syntax syntax
-	thing interface{}
-	error error
+	thing  interface{}
+	error  error
 }
 
 func newContext(syntax syntax, thing interface{}, error error) *context {
@@ -21,10 +21,10 @@ func newContext(syntax syntax, thing interface{}, error error) *context {
 
 type ActionContext struct {
 	hasDisposition bool
-	room *model.Room
-	mob *model.Mob
-	buffer *io.Buffer
-	results []*context
+	room           *model.Room
+	mob            *model.Mob
+	buffer         *io.Buffer
+	results        []*context
 }
 
 func (ac *ActionContext) findErrorContext() *context {

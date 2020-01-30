@@ -4,7 +4,7 @@ import "github.com/danielmunro/gomud/model"
 
 type MobService struct {
 	mobResets []*model.MobReset
-	fights []*Fight
+	fights    []*Fight
 }
 
 func NewMobService() *MobService {

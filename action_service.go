@@ -4,7 +4,7 @@ import "github.com/danielmunro/gomud/model"
 
 type ActionService struct {
 	locationService *LocationService
-	eventService *EventService
+	eventService    *EventService
 }
 
 func newActionService(locationService *LocationService, eventService *EventService) *ActionService {

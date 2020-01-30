@@ -4,9 +4,9 @@ import "github.com/danielmunro/gomud/model"
 
 type Event struct {
 	eventType EventType
-	mob *model.Mob
-	room *model.Room
-	target *model.Mob
+	mob       *model.Mob
+	room      *model.Room
+	target    *model.Mob
 }
 
 func NewTargetEvent(eventType EventType, mob *model.Mob, target *model.Mob, room *model.Room) *Event {
@@ -28,7 +28,7 @@ func NewEvent(eventType EventType, mob *model.Mob, room *model.Room) *Event {
 }
 
 func NewSystemEvent(eventType EventType) *Event {
-	return &Event {
+	return &Event{
 		eventType,
 		nil,
 		nil,

@@ -8,8 +8,8 @@ import (
 
 type Test struct {
 	gameService *GameService
-	client *io.Client
-	t *testing.T
+	client      *io.Client
+	t           *testing.T
 }
 
 func NewTest(t *testing.T) *Test {
@@ -20,14 +20,14 @@ func NewTest(t *testing.T) *Test {
 	gs.dummyLogin(client)
 	return &Test{
 		gameService: gs,
-		client: client,
-		t: t,
+		client:      client,
+		t:           t,
 	}
 }
 
 func (t *Test) GetOutputFromInput(input string) *io.Output {
 	return t.gameService.HandleBuffer(&io.Buffer{
-		Input: input,
+		Input:  input,
 		Client: t.client,
 	})
 }

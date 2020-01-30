@@ -74,9 +74,9 @@ func move(d model.Direction, ac *ActionContext, actionService *ActionService) *i
 	log.Printf("move: direction: %s, Command: %s", d, ac.buffer.GetCommand())
 	exit := ac.getExitBySyntax(exitDirectionSyntax)
 	actionService.Publish(&Event{
-		eventType:MobMoveEventType,
-		mob: ac.mob,
-		room: exit.Room,
+		eventType: MobMoveEventType,
+		mob:       ac.mob,
+		room:      exit.Room,
 	})
 	return ac.buffer.CreateOutputToRequestCreator(fmt.Sprintf("You move %s.", d))
 }
@@ -98,9 +98,9 @@ func sit(ac *ActionContext, _ *ActionService) *io.Output {
 	}
 	ac.mob.SetSittingDisposition()
 	return ac.buffer.CreateOutput(
-		buf1 + "sit down.",
-		buf2 + "sits down.",
-		buf2 + "sits down.",
+		buf1+"sit down.",
+		buf2+"sits down.",
+		buf2+"sits down.",
 	)
 }
 
@@ -122,9 +122,9 @@ func wake(ac *ActionContext, _ *ActionService) *io.Output {
 	}
 	ac.mob.SetStandingDisposition()
 	return ac.buffer.CreateOutput(
-		buf1 + "stand up.",
-		buf2 + "stands up.",
-		buf2 + "stands up.",
+		buf1+"stand up.",
+		buf2+"stands up.",
+		buf2+"stands up.",
 	)
 }
 

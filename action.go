@@ -23,4 +23,3 @@ func (a *Action) mobHasDisposition(mob *model.Mob) bool {
 	}
 	return false
 }
-

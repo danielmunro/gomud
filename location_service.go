@@ -7,7 +7,7 @@ import (
 )
 
 type mobRoom struct {
-	mob *model.Mob
+	mob  *model.Mob
 	room *model.Room
 }
 
@@ -17,7 +17,7 @@ type LocationService struct {
 
 func newLocationService() *LocationService {
 	return &LocationService{
-		mobRooms:[]*mobRoom{},
+		mobRooms: []*mobRoom{},
 	}
 }
 

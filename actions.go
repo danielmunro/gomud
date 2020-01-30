@@ -9,14 +9,14 @@ var actions []*Action
 
 func newLookAction() *Action {
 	return &Action{
-		command:      io.LookCommand,
+		command: io.LookCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.FightingDisposition,
 			model.SittingDisposition,
 		},
-		mutator:      look,
-		syntax:       []syntax{commandSyntax},
+		mutator: look,
+		syntax:  []syntax{commandSyntax},
 	}
 }
 
@@ -40,110 +40,110 @@ func newFleeAction() *Action {
 
 func newWearAction() *Action {
 	return &Action{
-		command:      io.WearCommand,
+		command: io.WearCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.FightingDisposition,
 		},
-		mutator:      wear,
-		syntax:       []syntax{commandSyntax, itemInInventorySyntax},
+		mutator: wear,
+		syntax:  []syntax{commandSyntax, itemInInventorySyntax},
 	}
 }
 
 func newRemoveAction() *Action {
 	return &Action{
-		command:      io.RemoveCommand,
+		command: io.RemoveCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.FightingDisposition,
 		},
-		mutator:      remove,
-		syntax:       []syntax{commandSyntax, itemEquippedSyntax},
+		mutator: remove,
+		syntax:  []syntax{commandSyntax, itemEquippedSyntax},
 	}
 }
 
 func newGetAction() *Action {
 	return &Action{
-		command:      io.GetCommand,
+		command: io.GetCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.FightingDisposition,
 		},
-		mutator:      get,
-		syntax:       []syntax{commandSyntax, itemInRoomSyntax},
+		mutator: get,
+		syntax:  []syntax{commandSyntax, itemInRoomSyntax},
 	}
 }
 
 func newDropAction() *Action {
 	return &Action{
-		command:      io.DropCommand,
+		command: io.DropCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.FightingDisposition,
 		},
-		mutator:      drop,
-		syntax:       []syntax{commandSyntax, itemInInventorySyntax},
+		mutator: drop,
+		syntax:  []syntax{commandSyntax, itemInInventorySyntax},
 	}
 }
 
 func newInventoryAction() *Action {
 	return &Action{
-		command:      io.InventoryCommand,
+		command: io.InventoryCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.FightingDisposition,
 			model.SittingDisposition,
 			model.SleepingDisposition,
 		},
-		mutator:      inventory,
-		syntax:       []syntax{commandSyntax},
+		mutator: inventory,
+		syntax:  []syntax{commandSyntax},
 	}
 }
 
 func newSitAction() *Action {
 	return &Action{
-		command:      io.SitCommand,
+		command: io.SitCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.SleepingDisposition,
 		},
-		mutator:      sit,
-		syntax:       []syntax{commandSyntax},
+		mutator: sit,
+		syntax:  []syntax{commandSyntax},
 	}
 }
 
 func newSleepAction() *Action {
 	return &Action{
-		command:      io.SleepCommand,
+		command: io.SleepCommand,
 		dispositions: []model.Disposition{
 			model.StandingDisposition,
 			model.SittingDisposition,
 		},
-		mutator:      sleep,
-		syntax:       []syntax{commandSyntax},
+		mutator: sleep,
+		syntax:  []syntax{commandSyntax},
 	}
 }
 
 func newWakeAction() *Action {
 	return &Action{
-		command:      io.WakeCommand,
+		command: io.WakeCommand,
 		dispositions: []model.Disposition{
 			model.SittingDisposition,
 			model.SleepingDisposition,
 		},
-		mutator:      wake,
-		syntax:       []syntax{commandSyntax},
+		mutator: wake,
+		syntax:  []syntax{commandSyntax},
 	}
 }
 
 func newMoveAction(command io.Command, direction model.Direction) *Action {
 	return &Action{
-		command: command,
+		command:      command,
 		dispositions: []model.Disposition{model.StandingDisposition},
-		mutator: func (actionContext *ActionContext, actionService *ActionService) *io.Output {
+		mutator: func(actionContext *ActionContext, actionService *ActionService) *io.Output {
 			return move(direction, actionContext, actionService)
 		},
-		syntax: []syntax{exitDirectionSyntax},
+		syntax:         []syntax{exitDirectionSyntax},
 		chainToCommand: io.LookCommand,
 	}
 }
