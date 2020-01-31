@@ -2,6 +2,7 @@ package gomud
 
 import (
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/message"
 	"github.com/danielmunro/gomud/model"
 )
 
@@ -25,6 +26,10 @@ type ActionContext struct {
 	mob            *model.Mob
 	buffer         *io.Buffer
 	results        []*context
+}
+
+func (ac *ActionContext) CreateOutputFromMessage(message *message.Message) *io.Output {
+	return ac.buffer.CreateOutput(message.ToRequestCreator, message.ToTarget, message.ToObservers)
 }
 
 func (ac *ActionContext) findErrorContext() *context {

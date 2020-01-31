@@ -2,6 +2,7 @@ package gomud
 
 import (
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/message"
 	"github.com/danielmunro/gomud/model"
 )
 
@@ -153,7 +154,7 @@ func newNoopAction() *Action {
 		command:      io.NoopCommand,
 		dispositions: []model.Disposition{},
 		mutator: func(actionContext *ActionContext, actionService *ActionService) *io.Output {
-			return actionContext.buffer.CreateOutputToRequestCreator("What was that?")
+			return actionContext.buffer.CreateOutputToRequestCreator(message.ErrorInputNotUnderstood)
 		},
 	}
 }

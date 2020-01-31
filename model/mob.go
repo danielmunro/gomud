@@ -8,6 +8,16 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+type Gender string
+
+const (
+	AnyGender Gender = "any"
+	NoGender Gender = "none"
+	AllGenders Gender = "all"
+	FemaleGender Gender = "female"
+	MaleGender Gender = "male"
+)
+
 type role string
 
 const (
@@ -45,6 +55,7 @@ type Mob struct {
 	roles       []role
 	Items       []*Item
 	Equipped    []*Item
+	Gender      Gender
 }
 
 func NewMob(n string, d string) *Mob {
@@ -57,6 +68,7 @@ func NewMob(n string, d string) *Mob {
 		level:       1,
 		race:        getRace(CritterRace),
 		job:         getJob(UninitializedJob),
+		Gender:      NoGender,
 	}
 }
 
@@ -128,4 +140,14 @@ func (m *Mob) HasDisposition(disposition Disposition) bool {
 
 func (m *Mob) Attr(a Attribute) int {
 	return m.attributes.Value(a) + m.race.Attributes.Value(a) + m.job.Attributes.Value(a)
+}
+
+func (m *Mob) GetGenderPronoun() string {
+	switch m.Gender {
+	case FemaleGender:
+		return "her"
+	case MaleGender:
+		return "his"
+	}
+	return "their"
 }

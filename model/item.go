@@ -44,6 +44,12 @@ func NewItem(name string, description string, identifiers []string) *Item {
 	}
 }
 
+func NewEquipment(name string, description string, identifiers []string, position Position) *Item {
+	item := NewItem(name, description, identifiers)
+	item.Position = position
+	return item
+}
+
 func (i *Item) String() string {
 	return i.name
 }

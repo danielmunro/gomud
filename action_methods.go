@@ -3,22 +3,20 @@ package gomud
 import (
 	"fmt"
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/message"
 	"github.com/danielmunro/gomud/model"
 	"log"
 )
 
 func kill(ac *ActionContext, actionService *ActionService) *io.Output {
-	mob := ac.getMobBySyntax(mobInRoomSyntax)
-	actionService.Publish(NewTargetEvent(AttackEventType, ac.mob, mob, ac.room))
-	return ac.buffer.CreateOutput(
-		fmt.Sprintf("You scream and attack %s!", mob.String()),
-		fmt.Sprintf("%s screams and attacks you!", ac.mob.String()),
-		fmt.Sprintf("%s screams and attacks %s!", ac.mob.String(), mob.String()))
+	target := ac.getMobBySyntax(mobInRoomSyntax)
+	actionService.Publish(NewTargetEvent(AttackEventType, ac.mob, target, ac.room))
+	return ac.CreateOutputFromMessage(message.GetKillMessage(ac.mob.String(), target.String()))
 }
 
 func flee(ac *ActionContext, actionService *ActionService) *io.Output {
 	actionService.Publish(NewEvent(FleeEventType, ac.mob, ac.room))
-	return ac.buffer.CreateOutputToRequestCreator("you flee!")
+	return ac.CreateOutputFromMessage(message.GetFleeMessage(ac.mob.Name))
 }
 
 func look(ac *ActionContext, actionService *ActionService) *io.Output {
@@ -34,22 +32,25 @@ func look(ac *ActionContext, actionService *ActionService) *io.Output {
 }
 
 func wear(ac *ActionContext, _ *ActionService) *io.Output {
-	buf := ""
+	var equipped *model.Item
 	item := ac.getItemBySyntax(itemInInventorySyntax)
 	for k, eq := range ac.mob.Equipped {
 		if eq.Position == item.Position {
 			ac.mob.Equipped, ac.mob.Items = transferItemByIndex(k, ac.mob.Equipped, ac.mob.Items)
-			buf = fmt.Sprintf("You remove %s and put it in your inventory. ", eq.String())
+			equipped = eq
 		}
 	}
 	ac.mob.Items, ac.mob.Equipped = transferItem(item, ac.mob.Items, ac.mob.Equipped)
-	return ac.buffer.CreateOutputToRequestCreator(buf + fmt.Sprintf("You wear %s.", item.String()))
+	if equipped != nil {
+		return ac.CreateOutputFromMessage(message.GetRemoveAndWearMessage(ac.mob.Name, item.String(), equipped.String()))
+	}
+	return ac.CreateOutputFromMessage(message.GetWearMessage(ac.mob.Name, item.String()))
 }
 
 func remove(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemEquippedSyntax)
 	ac.mob.Equipped, ac.mob.Items = transferItem(item, ac.mob.Equipped, ac.mob.Items)
-	return ac.buffer.CreateOutputToRequestCreator(fmt.Sprintf("You remove %s.", item.String()))
+	return ac.CreateOutputFromMessage(message.GetRemoveMessage(ac.mob.String(), item.String()))
 }
 
 func get(ac *ActionContext, _ *ActionService) *io.Output {

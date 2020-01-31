@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/danielmunro/gomud/io"
+	"github.com/danielmunro/gomud/message"
 	"github.com/danielmunro/gomud/model"
 	"log"
 	"time"
@@ -61,31 +62,8 @@ func (gs *GameService) ListenForNewBuffers(bufferWriter chan *io.Buffer) {
 }
 
 func (gs *GameService) HandleBuffer(b *io.Buffer) *io.Output {
-	mob, err := gs.findMobForClient(b.Client)
-	if err != nil {
-		gs.dummyLogin(b.Client)
-		mob, _ = gs.findMobForClient(b.Client)
-	}
-	log.Printf("handling Buffer: %s", b.ToString())
-	action := findActionByCommand(b.GetCommand())
-	context := gs.buildActionContext(mob, action, b)
-	ctx := context.findErrorContext()
-	if ctx != nil {
-		log.Printf("context failed: %s, %s", ctx.syntax, ctx.error.Error())
-		output := io.NewOutputToRequestCreator(b, io.FailedStatus, ctx.error.Error())
-		b.Client.WritePrompt(output.MessageToRequestCreator)
-		return output
-	}
-	output := action.mutator(context, gs.actionService)
-	b.Client.WritePrompt(output.MessageToRequestCreator)
-	if action.chainToCommand != "" {
-		log.Printf("Action %s chained to %s", action.command, action.chainToCommand)
-		action = findActionByCommand(action.chainToCommand)
-		buffer := io.NewBuffer(b.Client, string(action.command))
-		output = action.mutator(gs.buildActionContext(mob, action, buffer), gs.actionService)
-		b.Client.WritePrompt(output.MessageToRequestCreator)
-	}
-	return output
+	mob := gs.findMobOrLogin(b.Client)
+	return gs.processBuffer(b, mob)
 }
 
 func (gs *GameService) AddMobReset(mobReset *model.MobReset) {
@@ -122,12 +100,16 @@ func (gs *GameService) CreateFixtures() {
 
 	i1 := model.NewItem("an item", "An item is here", []string{"item"})
 	i2 := model.NewItem("an item", "An item is here", []string{"item"})
+	i3 := model.NewEquipment("a cowboy hat", "A sturdy cowboy hat.", []string{"cowboy", "hat"}, model.HeadPosition)
+	i4 := model.NewEquipment("a baseball cap", "A worn baseball cap.", []string{"baseball", "cap"}, model.HeadPosition)
 
 	i1.Position = model.HeadPosition
 	i2.Position = model.HeldPosition
 
 	r1.Items = append(r1.Items, i1)
 	r1.Items = append(r1.Items, i2)
+	r1.Items = append(r1.Items, i3)
+	r1.Items = append(r1.Items, i4)
 
 	gs.AddRoom(r1)
 	gs.AddRoom(r2)
@@ -138,6 +120,35 @@ func (gs *GameService) CreateFixtures() {
 
 func (gs *GameService) ChangeMobRoom(mob *model.Mob, room *model.Room) {
 	gs.locationService.changeMobRoom(mob, room)
+}
+
+func (gs *GameService) processBuffer(b *io.Buffer, mob *model.Mob) *io.Output {
+	log.Printf("handling Buffer: %s", b.ToString())
+	action := findActionByCommand(b.GetCommand())
+	context := gs.buildActionContext(mob, action, b)
+	ctx := context.findErrorContext()
+	if ctx != nil {
+		log.Printf("context error: %s, %s", ctx.syntax, ctx.error.Error())
+		output := io.NewOutputToRequestCreator(b, io.ErrorStatus, ctx.error.Error())
+		b.Client.WritePrompt(output.MessageToRequestCreator)
+		return output
+	}
+	output := action.mutator(context, gs.actionService)
+	b.Client.WritePrompt(output.MessageToRequestCreator)
+	if action.chainToCommand != "" {
+		log.Printf("action %s chained to %s", action.command, action.chainToCommand)
+		return gs.processBuffer(io.NewBuffer(b.Client, string(action.chainToCommand)), mob)
+	}
+	return output
+}
+
+func (gs *GameService) findMobOrLogin(client *io.Client) *model.Mob {
+	mob, err := gs.findMobForClient(client)
+	if err != nil {
+		gs.dummyLogin(client)
+		mob, _ = gs.findMobForClient(client)
+	}
+	return mob
 }
 
 func (gs *GameService) findMobForClient(client *io.Client) (*model.Mob, error) {
@@ -185,7 +196,7 @@ func (gs *GameService) buildActionContext(mob *model.Mob, action *Action, buffer
 		actionContext.results = append(actionContext.results, newContext(
 			commandSyntax,
 			nil,
-			errors.New(fmt.Sprintf("you must be %s to do that.", string(action.dispositions[0])))))
+			errors.New(fmt.Sprintf(message.ErrorDispositionMismatch, string(action.dispositions[0])))))
 		return actionContext
 	}
 	for _, syntax := range action.syntax {
