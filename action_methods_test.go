@@ -47,8 +47,10 @@ func Test_MustBe_StandingTo_Move(t *testing.T) {
 	// setup
 	test := NewTest(t)
 
-	// when
+	// given
 	test.GetOutputFromInput("sit")
+
+	// when
 	output := test.GetOutputFromInput("w")
 
 	// then
@@ -75,16 +77,18 @@ func Test_Get_Item(t *testing.T) {
 	output := test.GetOutputFromInput("get item")
 
 	// then
-	test.Expect(output.MessageToRequestCreator == "You pick up an item", "should be able to pick up an item")
-	test.Expect(output.MessageToObservers == "tester mctesterson picks up an item", "should be able to pick up an item")
+	test.Expect(output.MessageToRequestCreator == "You pick up an item and put it in your inventory.", "should be able to pick up an item")
+	test.Expect(output.MessageToObservers == "tester mctesterson picks up an item and puts it in their inventory.", "should be able to pick up an item")
 }
 
 func Test_Drop_Item(t *testing.T) {
 	// setup
 	test := NewTest(t)
 
-	// when
+	// given
 	test.GetOutputFromInput("get item")
+
+	// when
 	output := test.GetOutputFromInput("drop item")
 
 	// then
@@ -96,8 +100,10 @@ func Test_Wear_Item(t *testing.T) {
 	// setup
 	test := NewTest(t)
 
-	// when
+	// given
 	test.GetOutputFromInput("get hat")
+
+	// when
 	output := test.GetOutputFromInput("wear hat")
 
 	// then
@@ -108,10 +114,12 @@ func Test_RemoveAnd_Wear_Item(t *testing.T) {
 	// setup
 	test := NewTest(t)
 
-	// when
+	// given
 	test.GetOutputFromInput("get hat")
 	test.GetOutputFromInput("get cap")
 	test.GetOutputFromInput("wear cap")
+
+	// when
 	output := test.GetOutputFromInput("wear hat")
 
 	// then

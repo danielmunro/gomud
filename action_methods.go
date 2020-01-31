@@ -56,10 +56,7 @@ func remove(ac *ActionContext, _ *ActionService) *io.Output {
 func get(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemInRoomSyntax)
 	ac.room.Items, ac.mob.Items = transferItem(item, ac.room.Items, ac.mob.Items)
-	return ac.buffer.CreateOutput(
-		fmt.Sprintf("You pick up %s", item.String()),
-		fmt.Sprintf("%s picks up %s", ac.mob.Name, item.String()),
-		fmt.Sprintf("%s picks up %s", ac.mob.Name, item.String()))
+	return ac.CreateOutputFromMessage(message.GetGetMessage(ac.mob, item))
 }
 
 func drop(ac *ActionContext, _ *ActionService) *io.Output {

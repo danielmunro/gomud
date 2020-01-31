@@ -1,6 +1,9 @@
 package message
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/danielmunro/gomud/model"
+)
 
 const (
 	ErrorDispositionMismatch = "you must be %s to do that."
@@ -36,6 +39,17 @@ func GetRemoveMessage(mobName string, removeName string) *Message {
 		fmt.Sprintf("You take %s off and put it in your inventory.", removeName),
 		fmt.Sprintf("%s takes %s off and puts it in their inventory.", mobName, removeName),
 		fmt.Sprintf("%s takes %s and puts it in their inventory.", mobName, removeName),
+	}
+}
+
+func GetGetMessage(mob *model.Mob, item *model.Item) *Message {
+	name := mob.Name
+	pronoun := mob.GetGenderPronoun()
+	itemName := item.String()
+	return &Message{
+		fmt.Sprintf("You pick up %s and put it in your inventory.", itemName),
+		fmt.Sprintf("%s picks up %s and puts it in %s inventory.", name, itemName, pronoun),
+		fmt.Sprintf("%s picks up %s and puts it in %s inventory.", name, itemName, pronoun),
 	}
 }
 
