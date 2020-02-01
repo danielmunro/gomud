@@ -153,8 +153,8 @@ func newListAction() *Action {
 	return &Action{
 		command:      io.ListCommand,
 		dispositions: []model.Disposition{model.StandingDisposition},
-		mutator: list,
-		syntax:         []syntax{merchantInRoomSyntax},
+		mutator:      list,
+		syntax:       []syntax{merchantInRoomSyntax},
 	}
 }
 
