@@ -89,3 +89,40 @@ func GetSleepMessage(mob *model.Mob) *Message {
 		fmt.Sprintf("%s lays down and goes to sleep.", mobName),
 	}
 }
+
+func GetMoveMessage(mob *model.Mob, direction model.Direction) *Message {
+	mobName := mob.String()
+	return &Message{
+		fmt.Sprintf("You move %s.", direction),
+		fmt.Sprintf("%s leaves %s.", mobName, direction),
+		fmt.Sprintf("%s leaves %s.", mobName, direction),
+	}
+}
+
+func GetSitMessage(mob *model.Mob, wasSleeping bool) *Message {
+	buf1 := "you "
+	buf2 := mob.String() + " "
+	if wasSleeping {
+		buf1 = "wake up and "
+		buf2 = "wakes up and "
+	}
+	return &Message{
+		buf1+"sit down.",
+		buf2+"sits down.",
+		buf2+"sits down.",
+	}
+}
+
+func GetWakeMessage(mob *model.Mob, wasSleeping bool) *Message {
+	buf1 := "you "
+	buf2 := mob.String()
+	if wasSleeping {
+		buf1 = "wake and "
+		buf2 = "wakes and "
+	}
+	return &Message{
+		buf1 + "stand up.",
+		buf2 + "stands up.",
+		buf2 + "stands up.",
+	}
+}

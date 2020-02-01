@@ -73,7 +73,7 @@ func move(d model.Direction, ac *ActionContext, actionService *ActionService) *i
 		mob:       ac.mob,
 		room:      exit.Room,
 	})
-	return ac.buffer.CreateOutputToRequestCreator(fmt.Sprintf("You move %s.", d))
+	return ac.CreateOutputFromMessage(message.GetMoveMessage(ac.mob, d))
 }
 
 func inventory(ac *ActionContext, _ *ActionService) *io.Output {
@@ -85,18 +85,9 @@ func inventory(ac *ActionContext, _ *ActionService) *io.Output {
 }
 
 func sit(ac *ActionContext, _ *ActionService) *io.Output {
-	buf1 := "you "
-	buf2 := ac.mob.Name + " "
-	if ac.mob.IsSleeping() {
-		buf1 = "wake up and "
-		buf2 = "wakes up and "
-	}
+	wasSleeping := ac.mob.IsSleeping()
 	ac.mob.SetSittingDisposition()
-	return ac.buffer.CreateOutput(
-		buf1+"sit down.",
-		buf2+"sits down.",
-		buf2+"sits down.",
-	)
+	return ac.CreateOutputFromMessage(message.GetSitMessage(ac.mob, wasSleeping))
 }
 
 func sleep(ac *ActionContext, _ *ActionService) *io.Output {
@@ -105,18 +96,9 @@ func sleep(ac *ActionContext, _ *ActionService) *io.Output {
 }
 
 func wake(ac *ActionContext, _ *ActionService) *io.Output {
-	buf1 := "you "
-	buf2 := ac.mob.Name
-	if ac.mob.Disposition == model.SleepingDisposition {
-		buf1 = "wake and "
-		buf2 = "wakes and "
-	}
+	wasSleeping := ac.mob.IsSleeping()
 	ac.mob.SetStandingDisposition()
-	return ac.buffer.CreateOutput(
-		buf1+"stand up.",
-		buf2+"stands up.",
-		buf2+"stands up.",
-	)
+	return ac.CreateOutputFromMessage(message.GetWakeMessage(ac.mob, wasSleeping))
 }
 
 func transferItem(item *model.Item, from []*model.Item, to []*model.Item) ([]*model.Item, []*model.Item) {
