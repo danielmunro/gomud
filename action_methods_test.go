@@ -92,8 +92,9 @@ func Test_Drop_Item(t *testing.T) {
 	output := test.GetOutputFromInput("drop item")
 
 	// then
-	test.Expect(output.MessageToRequestCreator == "You drop an item", "should be able to drop an item")
-	test.Expect(output.MessageToObservers == "tester mctesterson drops an item", "should be able to drop an item")
+	test.Expect(output.Status == io.CompletedStatus, "drop request should be completed")
+	test.Expect(output.MessageToRequestCreator == "You drop an item.", "should be able to drop an item")
+	test.Expect(output.MessageToObservers == "tester mctesterson drops an item.", "should be able to drop an item")
 }
 
 func Test_Wear_Item(t *testing.T) {

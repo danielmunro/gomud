@@ -62,10 +62,7 @@ func get(ac *ActionContext, _ *ActionService) *io.Output {
 func drop(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemInInventorySyntax)
 	ac.mob.Items, ac.room.Items = transferItem(item, ac.mob.Items, ac.room.Items)
-	return ac.buffer.CreateOutput(
-		fmt.Sprintf("You drop %s", item.String()),
-		fmt.Sprintf("%s drops %s", ac.mob.Name, item.String()),
-		fmt.Sprintf("%s drops %s", ac.mob.Name, item.String()))
+	return ac.CreateOutputFromMessage(message.GetDropMessage(ac.mob, item))
 }
 
 func move(d model.Direction, ac *ActionContext, actionService *ActionService) *io.Output {
