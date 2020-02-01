@@ -49,6 +49,7 @@ type Mob struct {
 	Hp          int
 	Mana        int
 	Mv          int
+	Gold        int
 	race        *Race
 	job         *Job
 	room        *Room
@@ -70,6 +71,7 @@ func NewMob(n string, d string) *Mob {
 		race:        getRace(CritterRace),
 		job:         getJob(UninitializedJob),
 		Gender:      NoGender,
+		Gold:        0,
 	}
 }
 

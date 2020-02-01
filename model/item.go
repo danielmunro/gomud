@@ -36,6 +36,7 @@ type Item struct {
 	Position    Position
 	Value       int
 	Level       int
+	IsStoreItem bool
 }
 
 func NewItem(name string, description string, identifiers []string) *Item {

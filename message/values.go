@@ -126,3 +126,15 @@ func GetWakeMessage(mob *model.Mob, wasSleeping bool) *Message {
 		buf2 + "stands up.",
 	}
 }
+
+func GetBuyMessage(mob *model.Mob, merchant *model.Mob, item *model.Item) *Message {
+	mobName := mob.String()
+	merchantName := merchant.String()
+	itemName := item.String()
+
+	return &Message{
+		fmt.Sprintf("you buy %s from %s for %d.", itemName, merchantName, item.Value),
+		fmt.Sprintf("%s buys %s from you.", mobName, itemName),
+		fmt.Sprintf("%s buys %s from %s.", mobName, itemName, merchantName),
+	}
+}

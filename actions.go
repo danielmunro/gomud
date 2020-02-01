@@ -158,6 +158,24 @@ func newListAction() *Action {
 	}
 }
 
+func newBuyAction() *Action {
+	return &Action{
+		command:      io.BuyCommand,
+		dispositions: []model.Disposition{model.StandingDisposition},
+		mutator:      buy,
+		syntax:       []syntax{merchantInRoomSyntax, itemInTargetInventorySyntax},
+	}
+}
+
+func newSellAction() *Action {
+	return &Action{
+		command:      io.SellCommand,
+		dispositions: []model.Disposition{model.StandingDisposition},
+		mutator:      sell,
+		syntax:       []syntax{merchantInRoomSyntax, itemInInventorySyntax},
+	}
+}
+
 func newNoopAction() *Action {
 	return &Action{
 		command:      io.NoopCommand,
@@ -182,6 +200,8 @@ func init() {
 		newSleepAction(),
 		newWakeAction(),
 		newListAction(),
+		newBuyAction(),
+		newSellAction(),
 		newMoveAction(io.NorthCommand, model.NorthDirection),
 		newMoveAction(io.SouthCommand, model.SouthDirection),
 		newMoveAction(io.EastCommand, model.EastDirection),

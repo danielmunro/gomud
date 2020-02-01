@@ -4,6 +4,7 @@ import (
 	"github.com/danielmunro/gomud/io"
 	"github.com/danielmunro/gomud/message"
 	"github.com/danielmunro/gomud/model"
+	"reflect"
 )
 
 type context struct {
@@ -28,7 +29,7 @@ type ActionContext struct {
 	results        []*context
 }
 
-func (ac *ActionContext) CreateOutputFromMessage(message *message.Message) *io.Output {
+func (ac *ActionContext) CreateOutput(message *message.Message) *io.Output {
 	return ac.buffer.CreateOutput(message.ToRequestCreator, message.ToTarget, message.ToObservers)
 }
 
@@ -63,6 +64,15 @@ func (ac *ActionContext) getExitBySyntax(syntax syntax) *model.Exit {
 	for _, r := range ac.results {
 		if r.syntax == syntax {
 			return r.thing.(*model.Exit)
+		}
+	}
+	return nil
+}
+
+func (ac *ActionContext) getFirstMob() *model.Mob {
+	for _, r := range ac.results {
+		if reflect.TypeOf(r.thing).String() == "model.Mob" {
+			return r.thing.(*model.Mob)
 		}
 	}
 	return nil

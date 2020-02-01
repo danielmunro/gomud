@@ -180,6 +180,9 @@ func (gs *GameService) getThingFromSyntax(syntax syntax, ac *ActionContext) (int
 			}
 		}
 		return nil, errors.New("no merchant is here")
+	case itemInTargetInventorySyntax:
+		mob := ac.getFirstMob()
+		return mob.FindItem(buffer)
 	case itemInInventorySyntax:
 		return ac.mob.FindItem(buffer)
 	case itemInRoomSyntax:

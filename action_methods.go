@@ -11,12 +11,12 @@ import (
 func kill(ac *ActionContext, actionService *ActionService) *io.Output {
 	target := ac.getMobBySyntax(mobInRoomSyntax)
 	actionService.Publish(NewTargetEvent(AttackEventType, ac.mob, target, ac.room))
-	return ac.CreateOutputFromMessage(message.GetKillMessage(ac.mob, target))
+	return ac.CreateOutput(message.GetKillMessage(ac.mob, target))
 }
 
 func flee(ac *ActionContext, actionService *ActionService) *io.Output {
 	actionService.Publish(NewEvent(FleeEventType, ac.mob, ac.room))
-	return ac.CreateOutputFromMessage(message.GetFleeMessage(ac.mob))
+	return ac.CreateOutput(message.GetFleeMessage(ac.mob))
 }
 
 func look(ac *ActionContext, actionService *ActionService) *io.Output {
@@ -42,27 +42,27 @@ func wear(ac *ActionContext, _ *ActionService) *io.Output {
 	}
 	ac.mob.Items, ac.mob.Equipped = transferItem(item, ac.mob.Items, ac.mob.Equipped)
 	if equipped != nil {
-		return ac.CreateOutputFromMessage(message.GetRemoveAndWearMessage(ac.mob, item, equipped))
+		return ac.CreateOutput(message.GetRemoveAndWearMessage(ac.mob, item, equipped))
 	}
-	return ac.CreateOutputFromMessage(message.GetWearMessage(ac.mob, item))
+	return ac.CreateOutput(message.GetWearMessage(ac.mob, item))
 }
 
 func remove(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemEquippedSyntax)
 	ac.mob.Equipped, ac.mob.Items = transferItem(item, ac.mob.Equipped, ac.mob.Items)
-	return ac.CreateOutputFromMessage(message.GetRemoveMessage(ac.mob, item))
+	return ac.CreateOutput(message.GetRemoveMessage(ac.mob, item))
 }
 
 func get(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemInRoomSyntax)
 	ac.room.Items, ac.mob.Items = transferItem(item, ac.room.Items, ac.mob.Items)
-	return ac.CreateOutputFromMessage(message.GetGetMessage(ac.mob, item))
+	return ac.CreateOutput(message.GetGetMessage(ac.mob, item))
 }
 
 func drop(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemInInventorySyntax)
 	ac.mob.Items, ac.room.Items = transferItem(item, ac.mob.Items, ac.room.Items)
-	return ac.CreateOutputFromMessage(message.GetDropMessage(ac.mob, item))
+	return ac.CreateOutput(message.GetDropMessage(ac.mob, item))
 }
 
 func move(d model.Direction, ac *ActionContext, actionService *ActionService) *io.Output {
@@ -73,7 +73,7 @@ func move(d model.Direction, ac *ActionContext, actionService *ActionService) *i
 		mob:       ac.mob,
 		room:      exit.Room,
 	})
-	return ac.CreateOutputFromMessage(message.GetMoveMessage(ac.mob, d))
+	return ac.CreateOutput(message.GetMoveMessage(ac.mob, d))
 }
 
 func inventory(ac *ActionContext, _ *ActionService) *io.Output {
@@ -87,18 +87,18 @@ func inventory(ac *ActionContext, _ *ActionService) *io.Output {
 func sit(ac *ActionContext, _ *ActionService) *io.Output {
 	wasSleeping := ac.mob.IsSleeping()
 	ac.mob.SetSittingDisposition()
-	return ac.CreateOutputFromMessage(message.GetSitMessage(ac.mob, wasSleeping))
+	return ac.CreateOutput(message.GetSitMessage(ac.mob, wasSleeping))
 }
 
 func sleep(ac *ActionContext, _ *ActionService) *io.Output {
 	ac.mob.SetSleepingDisposition()
-	return ac.CreateOutputFromMessage(message.GetSleepMessage(ac.mob))
+	return ac.CreateOutput(message.GetSleepMessage(ac.mob))
 }
 
 func wake(ac *ActionContext, _ *ActionService) *io.Output {
 	wasSleeping := ac.mob.IsSleeping()
 	ac.mob.SetStandingDisposition()
-	return ac.CreateOutputFromMessage(message.GetWakeMessage(ac.mob, wasSleeping))
+	return ac.CreateOutput(message.GetWakeMessage(ac.mob, wasSleeping))
 }
 
 func list(ac *ActionContext, _ *ActionService) *io.Output {
@@ -108,6 +108,38 @@ func list(ac *ActionContext, _ *ActionService) *io.Output {
 		buffer += fmt.Sprintf("[%d %d] %s\n", i.Level, i.Value, i.String())
 	}
 	return ac.buffer.CreateOutputToRequestCreator(buffer)
+}
+
+func buy(ac *ActionContext, _ *ActionService) *io.Output {
+	merchant := ac.getMobBySyntax(merchantInRoomSyntax)
+	item := ac.getItemBySyntax(itemInTargetInventorySyntax)
+	if ac.mob.Gold < item.Value {
+		return ac.buffer.CreateOutputToRequestCreator("You cannot afford that.")
+	}
+	ac.mob.Gold -= item.Value
+	merchant.Gold += item.Value
+	if item.IsStoreItem {
+		itemToGive := item
+		ac.mob.Items = append(ac.mob.Items, itemToGive)
+	} else {
+		transferItem(item, merchant.Items, ac.mob.Items)
+	}
+	return ac.CreateOutput(message.GetBuyMessage(ac.mob, merchant, item))
+}
+
+func sell(ac *ActionContext, _ *ActionService) *io.Output {
+	merchant := ac.getMobBySyntax(merchantInRoomSyntax)
+	item := ac.getItemBySyntax(itemInTargetInventorySyntax)
+	if merchant.Gold < item.Value {
+		return ac.buffer.CreateOutputToRequestCreator("They cannot afford that.")
+	}
+	if item.IsStoreItem {
+		return ac.buffer.CreateOutputToRequestCreator("They are not interested in that.")
+	}
+	ac.mob.Gold += item.Value
+	merchant.Gold -= item.Value
+	transferItem(item, ac.mob.Items, merchant.Items)
+	return ac.CreateOutput(message.GetBuyMessage(ac.mob, merchant, item))
 }
 
 func transferItem(item *model.Item, from []*model.Item, to []*model.Item) ([]*model.Item, []*model.Item) {
