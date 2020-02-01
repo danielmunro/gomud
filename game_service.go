@@ -173,6 +173,13 @@ func (gs *GameService) getThingFromSyntax(syntax syntax, ac *ActionContext) (int
 		return string(syntax), nil
 	case mobInRoomSyntax:
 		return gs.locationService.findMobInRoom(buffer, ac.room)
+	case merchantInRoomSyntax:
+		for _, m := range gs.locationService.getMobsInRoom(ac.room) {
+			if m.IsMerchant() {
+				return m, nil
+			}
+		}
+		return nil, errors.New("no merchant is here")
 	case itemInInventorySyntax:
 		return ac.mob.FindItem(buffer)
 	case itemInRoomSyntax:

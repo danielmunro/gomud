@@ -20,6 +20,9 @@ const (
 	SitCommand Command = "sit"
 	WakeCommand Command = "wake"
 	SleepCommand Command = "sleep"
+	ListCommand Command = "list"
+	SellCommand Command = "sell"
+	BuyCommand Command = "buy"
 	NoopCommand   Command = "noop"
 )
 
@@ -44,5 +47,8 @@ func init() {
 		SitCommand,
 		WakeCommand,
 		SleepCommand,
+		ListCommand,
+		SellCommand,
+		BuyCommand,
 	}
 }

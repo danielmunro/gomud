@@ -101,6 +101,15 @@ func wake(ac *ActionContext, _ *ActionService) *io.Output {
 	return ac.CreateOutputFromMessage(message.GetWakeMessage(ac.mob, wasSleeping))
 }
 
+func list(ac *ActionContext, _ *ActionService) *io.Output {
+	merchant := ac.getMobBySyntax(merchantInRoomSyntax)
+	buffer := fmt.Sprintf("%s is selling:\n", merchant.String())
+	for _, i := range merchant.Items {
+		buffer += fmt.Sprintf("[%d %d] %s\n", i.Level, i.Value, i.String())
+	}
+	return ac.buffer.CreateOutputToRequestCreator(buffer)
+}
+
 func transferItem(item *model.Item, from []*model.Item, to []*model.Item) ([]*model.Item, []*model.Item) {
 	for i, x := range from {
 		if x == item {

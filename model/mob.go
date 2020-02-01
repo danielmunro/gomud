@@ -18,11 +18,12 @@ const (
 	MaleGender Gender = "male"
 )
 
-type role string
+type Role string
 
 const (
-	scavenger role = "scavenger"
-	mobile    role = "mobile"
+	Scavenger Role = "scavenger"
+	Mobile    Role = "mobile"
+	Merchant  Role = "merchant"
 )
 
 type Disposition string
@@ -52,7 +53,7 @@ type Mob struct {
 	job         *Job
 	room        *Room
 	lastRoom    *Room
-	roles       []role
+	roles       []Role
 	Items       []*Item
 	Equipped    []*Item
 	Gender      Gender
@@ -150,4 +151,18 @@ func (m *Mob) GetGenderPronoun() string {
 		return "his"
 	}
 	return "their"
+}
+
+func (m *Mob) IsMerchant() bool {
+	return m.hasRole(Merchant)
+}
+
+func (m *Mob) hasRole(role Role) bool {
+	for _, r := range m.roles {
+		if r == role {
+			return true
+		}
+	}
+
+	return false
 }

@@ -149,6 +149,15 @@ func newMoveAction(command io.Command, direction model.Direction) *Action {
 	}
 }
 
+func newListAction() *Action {
+	return &Action{
+		command:      io.ListCommand,
+		dispositions: []model.Disposition{model.StandingDisposition},
+		mutator: list,
+		syntax:         []syntax{merchantInRoomSyntax},
+	}
+}
+
 func newNoopAction() *Action {
 	return &Action{
 		command:      io.NoopCommand,
@@ -172,6 +181,7 @@ func init() {
 		newSitAction(),
 		newSleepAction(),
 		newWakeAction(),
+		newListAction(),
 		newMoveAction(io.NorthCommand, model.NorthDirection),
 		newMoveAction(io.SouthCommand, model.SouthDirection),
 		newMoveAction(io.EastCommand, model.EastDirection),

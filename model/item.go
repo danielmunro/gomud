@@ -34,6 +34,8 @@ type Item struct {
 	identifiers []string
 	attributes  *Attributes
 	Position    Position
+	Value       int
+	Level       int
 }
 
 func NewItem(name string, description string, identifiers []string) *Item {
