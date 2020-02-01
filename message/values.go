@@ -10,7 +10,8 @@ const (
 	ErrorInputNotUnderstood = "what was that?"
 )
 
-func GetFleeMessage(mobName string) *Message {
+func GetFleeMessage(mob *model.Mob) *Message {
+	mobName := mob.Name
 	return &Message{
 		ToRequestCreator: "you flee!",
 		ToTarget:         fmt.Sprintf("%s flees!", mobName),
@@ -18,7 +19,9 @@ func GetFleeMessage(mobName string) *Message {
 	}
 }
 
-func GetKillMessage(mobName string, targetName string) *Message {
+func GetKillMessage(mob *model.Mob, target *model.Mob) *Message {
+	mobName := mob.Name
+	targetName := target.Name
 	return &Message{
 		ToRequestCreator: fmt.Sprintf("You scream and attack %s!", targetName),
 		ToTarget: fmt.Sprintf("%s screams and attacks you!", mobName),
@@ -26,7 +29,10 @@ func GetKillMessage(mobName string, targetName string) *Message {
 	}
 }
 
-func GetRemoveAndWearMessage(mobName string, toEquipName string, removeName string) *Message {
+func GetRemoveAndWearMessage(mob *model.Mob, toEquip *model.Item, remove *model.Item) *Message {
+	mobName := mob.Name
+	toEquipName := toEquip.String()
+	removeName := remove.String()
 	return &Message{
 		fmt.Sprintf("You remove %s and put it in your inventory. You wear %s.", removeName, toEquipName),
 		fmt.Sprintf("%s removes %s and puts it in their inventory. They wear %s.", mobName, removeName, toEquipName),
@@ -34,7 +40,9 @@ func GetRemoveAndWearMessage(mobName string, toEquipName string, removeName stri
 	}
 }
 
-func GetRemoveMessage(mobName string, removeName string) *Message {
+func GetRemoveMessage(mob *model.Mob, toRemove *model.Item) *Message {
+	mobName := mob.Name
+	removeName := toRemove.String()
 	return &Message{
 		fmt.Sprintf("You take %s off and put it in your inventory.", removeName),
 		fmt.Sprintf("%s takes %s off and puts it in their inventory.", mobName, removeName),
@@ -53,10 +61,21 @@ func GetGetMessage(mob *model.Mob, item *model.Item) *Message {
 	}
 }
 
-func GetWearMessage(mobName string, toEquipName string) *Message {
+func GetWearMessage(mob *model.Mob, toEquip *model.Item) *Message {
+	mobName := mob.Name
+	toEquipName := toEquip.String()
 	return &Message{
 		fmt.Sprintf("You wear %s.", toEquipName),
 		fmt.Sprintf("%s wears %s.", mobName, toEquipName),
 		fmt.Sprintf("%s wears %s.", mobName, toEquipName),
+	}
+}
+
+func GetSleepMessage(mob *model.Mob) *Message {
+	mobName := mob.Name
+	return &Message{
+		"you lay down and go to sleep.",
+		fmt.Sprintf("%s lays down and goes to sleep.", mobName),
+		fmt.Sprintf("%s lays down and goes to sleep.", mobName),
 	}
 }

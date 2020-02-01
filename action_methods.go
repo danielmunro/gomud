@@ -11,12 +11,12 @@ import (
 func kill(ac *ActionContext, actionService *ActionService) *io.Output {
 	target := ac.getMobBySyntax(mobInRoomSyntax)
 	actionService.Publish(NewTargetEvent(AttackEventType, ac.mob, target, ac.room))
-	return ac.CreateOutputFromMessage(message.GetKillMessage(ac.mob.String(), target.String()))
+	return ac.CreateOutputFromMessage(message.GetKillMessage(ac.mob, target))
 }
 
 func flee(ac *ActionContext, actionService *ActionService) *io.Output {
 	actionService.Publish(NewEvent(FleeEventType, ac.mob, ac.room))
-	return ac.CreateOutputFromMessage(message.GetFleeMessage(ac.mob.Name))
+	return ac.CreateOutputFromMessage(message.GetFleeMessage(ac.mob))
 }
 
 func look(ac *ActionContext, actionService *ActionService) *io.Output {
@@ -42,15 +42,15 @@ func wear(ac *ActionContext, _ *ActionService) *io.Output {
 	}
 	ac.mob.Items, ac.mob.Equipped = transferItem(item, ac.mob.Items, ac.mob.Equipped)
 	if equipped != nil {
-		return ac.CreateOutputFromMessage(message.GetRemoveAndWearMessage(ac.mob.Name, item.String(), equipped.String()))
+		return ac.CreateOutputFromMessage(message.GetRemoveAndWearMessage(ac.mob, item, equipped))
 	}
-	return ac.CreateOutputFromMessage(message.GetWearMessage(ac.mob.Name, item.String()))
+	return ac.CreateOutputFromMessage(message.GetWearMessage(ac.mob, item))
 }
 
 func remove(ac *ActionContext, _ *ActionService) *io.Output {
 	item := ac.getItemBySyntax(itemEquippedSyntax)
 	ac.mob.Equipped, ac.mob.Items = transferItem(item, ac.mob.Equipped, ac.mob.Items)
-	return ac.CreateOutputFromMessage(message.GetRemoveMessage(ac.mob.String(), item.String()))
+	return ac.CreateOutputFromMessage(message.GetRemoveMessage(ac.mob, item))
 }
 
 func get(ac *ActionContext, _ *ActionService) *io.Output {
@@ -104,11 +104,7 @@ func sit(ac *ActionContext, _ *ActionService) *io.Output {
 
 func sleep(ac *ActionContext, _ *ActionService) *io.Output {
 	ac.mob.SetSleepingDisposition()
-	return ac.buffer.CreateOutput(
-		"you lay down and go to sleep.",
-		fmt.Sprintf("%s lays down and goes to sleep.", ac.mob.Name),
-		fmt.Sprintf("%s lays down and goes to sleep.", ac.mob.Name),
-	)
+	return ac.CreateOutputFromMessage(message.GetSleepMessage(ac.mob))
 }
 
 func wake(ac *ActionContext, _ *ActionService) *io.Output {
