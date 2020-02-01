@@ -93,7 +93,7 @@ func (gs *GameService) CreateFixtures() {
 	r1.Exits = append(r1.Exits, model.NewExit(r2, model.SouthDirection))
 	r1.Exits = append(r1.Exits, model.NewExit(r3, model.WestDirection))
 
-	m := model.NewMob("Value test Mob", "A test Mob")
+	m := model.NewMob("a test Mob", "A test Mob")
 
 	r2.Exits = append(r2.Exits, model.NewExit(r1, model.NorthDirection))
 	r3.Exits = append(r3.Exits, model.NewExit(r1, model.EastDirection))
