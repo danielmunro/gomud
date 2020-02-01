@@ -133,7 +133,7 @@ func GetBuyMessage(mob *model.Mob, merchant *model.Mob, item *model.Item) *Messa
 	itemName := item.String()
 
 	return &Message{
-		fmt.Sprintf("you buy %s from %s for %d.", itemName, merchantName, item.Value),
+		fmt.Sprintf("you buy %s from %s for %d gold.", itemName, merchantName, item.Value),
 		fmt.Sprintf("%s buys %s from you.", mobName, itemName),
 		fmt.Sprintf("%s buys %s from %s.", mobName, itemName, merchantName),
 	}

@@ -71,7 +71,7 @@ func (ac *ActionContext) getExitBySyntax(syntax syntax) *model.Exit {
 
 func (ac *ActionContext) getFirstMob() *model.Mob {
 	for _, r := range ac.results {
-		if reflect.TypeOf(r.thing).String() == "model.Mob" {
+		if reflect.TypeOf(r.thing).String() == "*model.Mob" {
 			return r.thing.(*model.Mob)
 		}
 	}

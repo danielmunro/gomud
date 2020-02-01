@@ -18,6 +18,7 @@ a test Mob is here.
 const room2 = `Room 3
 You are in the third Room
 [e]
+a merchant is here.
 `
 
 func Test_Look_AtRoom(t *testing.T) {
@@ -40,7 +41,7 @@ func Test_Look_AfterMove(t *testing.T) {
 	output := test.GetOutputFromInput("w")
 
 	// then
-	test.Expect(output.MessageToRequestCreator == room2, "expected output to be room2")
+	test.Expect(output.MessageToRequestCreator == room2, "expected: " + output.MessageToRequestCreator)
 }
 
 func Test_MustBe_StandingTo_Move(t *testing.T) {

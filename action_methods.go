@@ -5,7 +5,9 @@ import (
 	"github.com/danielmunro/gomud/io"
 	"github.com/danielmunro/gomud/message"
 	"github.com/danielmunro/gomud/model"
+	"github.com/danielmunro/gomud/util"
 	"log"
+	"strconv"
 )
 
 func kill(ac *ActionContext, actionService *ActionService) *io.Output {
@@ -103,9 +105,13 @@ func wake(ac *ActionContext, _ *ActionService) *io.Output {
 
 func list(ac *ActionContext, _ *ActionService) *io.Output {
 	merchant := ac.getMobBySyntax(merchantInRoomSyntax)
-	buffer := fmt.Sprintf("%s is selling:\n", merchant.String())
+	buffer := fmt.Sprintf("%s is selling:\n[level value]\n", merchant.String())
 	for _, i := range merchant.Items {
-		buffer += fmt.Sprintf("[%d %d] %s\n", i.Level, i.Value, i.String())
+		buffer += fmt.Sprintf(
+			"[%s%s] %s\n",
+			util.Pad(strconv.Itoa(i.Level), 6),
+			util.Pad(strconv.Itoa(i.Value), 5),
+			i.String())
 	}
 	return ac.buffer.CreateOutputToRequestCreator(buffer)
 }
@@ -129,7 +135,7 @@ func buy(ac *ActionContext, _ *ActionService) *io.Output {
 
 func sell(ac *ActionContext, _ *ActionService) *io.Output {
 	merchant := ac.getMobBySyntax(merchantInRoomSyntax)
-	item := ac.getItemBySyntax(itemInTargetInventorySyntax)
+	item := ac.getItemBySyntax(itemInInventorySyntax)
 	if merchant.Gold < item.Value {
 		return ac.buffer.CreateOutputToRequestCreator("They cannot afford that.")
 	}

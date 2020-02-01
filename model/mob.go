@@ -159,6 +159,12 @@ func (m *Mob) IsMerchant() bool {
 	return m.hasRole(Merchant)
 }
 
+func (m *Mob) MakeMerchant() {
+	if !m.hasRole(Merchant) {
+		m.roles = append(m.roles, Merchant)
+	}
+}
+
 func (m *Mob) hasRole(role Role) bool {
 	for _, r := range m.roles {
 		if r == role {

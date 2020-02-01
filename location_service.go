@@ -61,7 +61,7 @@ func (ls *LocationService) getMobsInRoom(room *model.Room) []*model.Mob {
 func (ls *LocationService) countMobsInRoom(mob *model.Mob, room *model.Room) int {
 	amount := 0
 	for _, mr := range ls.mobRooms {
-		if mr.mob.ID == mob.ID && mr.room == room {
+		if mr.mob == mob && mr.room == room {
 			amount++
 		}
 	}
@@ -71,7 +71,7 @@ func (ls *LocationService) countMobsInRoom(mob *model.Mob, room *model.Room) int
 func (ls *LocationService) countMobsInGame(mob *model.Mob) int {
 	amount := 0
 	for _, mr := range ls.mobRooms {
-		if mr.mob.ID == mob.ID {
+		if mr.mob == mob {
 			amount++
 		}
 	}

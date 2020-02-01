@@ -44,6 +44,8 @@ func NewItem(name string, description string, identifiers []string) *Item {
 		name:        name,
 		description: description,
 		identifiers: identifiers,
+		Level: 1,
+		Value: 0,
 	}
 }
 
